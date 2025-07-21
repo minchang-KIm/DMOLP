@@ -37,6 +37,7 @@ DMOLP는 대규모 그래프를 효율적으로 분할하기 위한 MPI 기반 �
 
 ## 빌드 방법
 
+### CPU 버전 (기본)
 ```bash
 # 프로젝트 클론
 git clone <repository-url>
@@ -45,12 +46,28 @@ cd DMOLP
 # 빌드 디렉토리 생성
 mkdir build && cd build
 
-# CMake 구성
-cmake ..
+# CMake 구성 (CPU 전용)
+cmake -DUSE_CUDA=OFF ..
 
 # 컴파일
 make -j$(nproc)
 ```
+
+### GPU 버전 (CUDA 가속)
+```bash
+# 빌드 디렉토리 생성
+mkdir build && cd build
+
+# CMake 구성 (CUDA 활성화)
+cmake -DUSE_CUDA=ON ..
+
+# 컴파일
+make -j$(nproc)
+```
+
+### 빌드 옵션
+- `-DUSE_CUDA=ON/OFF`: CUDA 가속 활성화/비활성화
+- `-DCMAKE_BUILD_TYPE=Release/Debug`: 빌드 타입 설정
 
 ## 실행 방법
 

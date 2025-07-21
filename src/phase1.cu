@@ -1,3 +1,6 @@
+#ifndef PHASE1_CU
+#define PHASE1_CU
+
 #include <iostream>
 #include <vector>
 #include <mpi.h>
@@ -6,7 +9,9 @@
 #include <algorithm>
 #include <chrono>
 
-// 그래프 구조체
+// 그래프 구조체 (헤더 가드로 중복 정의 방지)
+#ifndef GRAPH_STRUCT_DEFINED
+#define GRAPH_STRUCT_DEFINED
 struct Graph {
     int num_vertices;
     int num_edges;
@@ -14,8 +19,11 @@ struct Graph {
     std::vector<int> col_indices; // CSR format
     std::vector<int> vertex_ids;  // 정점 ID 매핑
 };
+#endif
 
-// Phase 1 평가 메트릭 구조체
+// Phase 1 평가 메트릭 구조체 (헤더 가드로 중복 정의 방지)
+#ifndef PHASE1_METRICS_DEFINED
+#define PHASE1_METRICS_DEFINED
 struct Phase1Metrics {
     int initial_edge_cut;
     double initial_vertex_balance;
@@ -27,6 +35,7 @@ struct Phase1Metrics {
     std::vector<int> partition_vertex_counts;
     std::vector<int> partition_edge_counts;
 };
+#endif
 
 // 실제 그래프 파일 로딩 함수
 bool loadGraphFromFile(const std::string& filename, Graph& graph, std::vector<int>& vertex_labels, int num_partitions) {
@@ -449,3 +458,5 @@ Phase1Metrics phase1_partition_and_distribute(int mpi_rank, int mpi_size, int nu
     
     return global_metrics;
 }
+
+#endif // PHASE1_CU
