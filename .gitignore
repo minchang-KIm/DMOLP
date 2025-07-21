@@ -1,0 +1,62 @@
+# Build directories
+build/
+cmake-build-*/
+out/
+
+# Compiled binaries
+*.exe
+*.out
+dmolp
+*.a
+*.so
+*.dll
+
+# CMake files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.cmake
+!CMakeLists.txt
+
+# CUDA files
+*.ptx
+*.cubin
+*.fatbin
+
+# MPI files
+*.o
+*.obj
+
+# Logs and outputs
+*.log
+*.txt
+*.dat
+*.out
+*.err
+
+# IDE files
+.vscode/
+.vs/
+*.vcxproj*
+*.sln
+.idea/
+*.pro.user
+*.autosave
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Graph data files (optional)
+*.graph
+*.mtx
+*.adj
+data/
+
+# Test outputs
+tests/output/
+*.test
