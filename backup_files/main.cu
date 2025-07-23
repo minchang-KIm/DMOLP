@@ -3,6 +3,7 @@
 #include <mpi.h>
 #ifdef USE_CUDA
 #include <cuda_runtime.h>
+#include "cuda_kernels.h"
 #endif
 #include <omp.h>
 #include <cmath>
@@ -21,27 +22,6 @@
 #else
 #define CUDA_CHECK(call) // CUDA 비활성화 시 빈 매크로
 #endif
-
-// 파티션 정보 구조체 (PI)
-struct PartitionInfo {
-    int partition_id;
-    double RV;  // Ratio of Vertex
-    double RE;  // Ratio of Edge
-    double imb_RV;  // imbalance RV
-    double imb_RE;  // imbalance RE
-    double G_RV;    // Gain RV
-    double G_RE;    // Gain RE
-    double P_L;     // Penalty function
-};
-
-// 파티션 업데이트 배열들
-struct PartitionUpdate {
-    std::vector<int> PU_RO;  // 자신 파티션 추가 정점들
-    std::vector<int> PU_OV;  // 다른 파티션으로 보낼 정점들 (adjacency list)
-    std::vector<std::pair<int, int>> PU_ON;  // 다른 파티션으로 보낼 이웃 정보 (key-value)
-    std::vector<int> PU_RV;  // 다른 파티션으로부터 받은 정점들 (adjacency list)
-    std::vector<std::pair<int, int>> PU_RN;  // 다른 파티션으로부터 받은 이웃 정보 (key-value)
-};
 
 // MPI 분산 워크플로우 클래스
 class MPIDistributedWorkflowV2 {
