@@ -1,3 +1,4 @@
+#include "phase1.h"
 #include <iostream>
 #include <vector>
 #include <mpi.h>
@@ -6,27 +7,6 @@
 #include <algorithm>
 #include <chrono>
 
-// 그래프 구조체
-struct Graph {
-    int num_vertices;
-    int num_edges;
-    std::vector<int> row_ptr;     // CSR format
-    std::vector<int> col_indices; // CSR format
-    std::vector<int> vertex_ids;  // 정점 ID 매핑
-};
-
-// Phase 1 평가 메트릭 구조체
-struct Phase1Metrics {
-    int initial_edge_cut;
-    double initial_vertex_balance;
-    double initial_edge_balance;
-    long loading_time_ms;
-    long distribution_time_ms;
-    int total_vertices;
-    int total_edges;
-    std::vector<int> partition_vertex_counts;
-    std::vector<int> partition_edge_counts;
-};
 
 // 실제 그래프 파일 로딩 함수
 bool loadGraphFromFile(const std::string& filename, Graph& graph, std::vector<int>& vertex_labels, int num_partitions) {

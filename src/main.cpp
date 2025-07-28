@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <mpi.h>
-#include <cuda_runtime.h>
+// #include <cuda_runtime.h>
 #include <omp.h>
 #include <cmath>
 #include <algorithm>
@@ -10,7 +10,7 @@
 #include <fstream>
 #include <sstream>
 #include <iomanip>
-#include "phase1.cu"
+#include "phase1.h"
 
 #define CUDA_CHECK(call) \
     do { \
@@ -345,7 +345,7 @@ private:
         }
     }
     
-    // Step 4: Dynamic Unweighted LP 수행 (핵심!)
+    // Step 4: Dynamic Unweighted LP 수행
     void performDynamicLabelPropagation() {
         std::cout << "Step4 Rank " << mpi_rank_ << ": Dynamic LP 수행 (각 노드마다 스코어 계산)\n";
         
@@ -450,9 +450,6 @@ private:
         std::vector<int> all_sizes(mpi_size_ * 2);
         
         MPI_Allgather(send_sizes.data(), 2, MPI_INT, all_sizes.data(), 2, MPI_INT, MPI_COMM_WORLD);
-        
-        // 실제 데이터 교환 (간소화)
-        // 실제 구현에서는 더 복잡한 MPI 통신 필요
         
         // PU_RO에 해당하는 노드를 다음 이터레이션의 BV에 추가
         for (int vertex : PU_.PU_RO) {
