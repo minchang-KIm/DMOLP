@@ -16,32 +16,6 @@ void sync_vector(int procId, int sourceProc, vector<int> &vec) {
     MPI_Bcast(vec.data(), size, MPI_INT, sourceProc, MPI_COMM_WORLD);
 }
 
-void sync_unordered_map(int procId, int sourceProc, unordered_map<int, int> &map) {
-    int size;
-    vector<int> serialized_map;
-
-    if (procId == sourceProc) {
-        for (const auto &data : map) {
-            serialized_map.push_back(data.first);
-            serialized_map.push_back(data.second);
-        }
-    }
-
-    size = (int)serialized_map.size();
-    MPI_Bcast(&size, 1, MPI_INT, sourceProc, MPI_COMM_WORLD);
-
-    if (procId != sourceProc) serialized_map.resize(size);
-    MPI_Bcast(serialized_map.data(), size, MPI_INT, sourceProc, MPI_COMM_WORLD);
-
-    if (procId != sourceProc) {
-        for (int i = 0; i < size; i+=2) {
-            int key = serialized_map[i];
-            int value = serialized_map[i + 1];
-            map[key] = value;
-        }
-    }
-}
-
 vector<int> serialize_node_info(const vector<NodeInfo> &nodes) {
     vector<int> buffer;
 
@@ -74,7 +48,12 @@ vector<NodeInfo> deserialize_node_info(const vector<int> &buffer) {
 }
 
 vector<int> serialize_partitions(const vector<vector<int>> &partitions) {
+    int total_size = 1;
+    for (const auto &partition : partitions)
+        total_size += 1 + partition.size();
+    
     vector<int> buffer;
+    buffer.reserve(total_size);
     buffer.push_back((int)partitions.size());
 
     for (const auto &partition : partitions) {
@@ -86,43 +65,71 @@ vector<int> serialize_partitions(const vector<vector<int>> &partitions) {
 }
 
 vector<vector<int>> deserialize_partitions(const vector<int> &buffer) {
+    if (buffer.empty()) return {};
+    
     vector<vector<int>> partitions;
     int idx = 0;
     int num_partitions = buffer[idx++];
+    partitions.reserve(num_partitions);
 
     for (int i = 0; i < num_partitions; i++) {
         int size = buffer[idx++];
         vector<int> partition(buffer.begin() + idx, buffer.begin() + idx + size);
         idx += size;
-        partitions.push_back(partition);
     }
 
     return partitions;
 }
 
 void sync_global_partitions(int procId, int nprocs, vector<vector<int>> &partitions, unordered_set<int> &global_partitioned) {
-    for (int p = 0 ; p < nprocs; p++) {
-        vector<int> serialized;
-        int buffer_size = 0;
+    vector<int> local_serialized = serialize_partitions(partitions);
+    int local_size = local_serialized.size();
 
-        if (procId == p) {
-            serialized = serialize_partitions(partitions);
-            buffer_size = (int)serialized.size();
+    vector<int> all_sizes(nprocs);
+    MPI_Allgather(&local_size, 1, MPI_INT, all_sizes.data(), 1, MPI_INT, MPI_COMM_WORLD);
+
+    vector<int> displacements(nprocs);
+    int total_size = 0;
+    for (int p = 0; p < nprocs; p++) {
+        displacements[p] = total_size;
+        total_size += all_sizes[p];
+    }
+
+    vector<int> serialized(total_size);
+    MPI_Allgatherv(local_serialized.data(), local_size, MPI_INT, serialized.data(), all_sizes.data(), displacements.data(), MPI_INT, MPI_COMM_WORLD);
+
+    #pragma omp parallel
+    {
+        unordered_set<int> thread_partitioned;
+        vector<vector<int>> thread_updates(partitions.size());
+
+        #pragma omp for schedule(static)
+        for (int p = 0; p < nprocs; p++) {
+            if (p == procId || all_sizes[p] == 0) continue;
+
+            vector<int> proc_data(serialized.begin() + displacements[p], serialized.begin() + displacements[p] + all_sizes[p]);
+            vector<vector<int>> received_partitions = deserialize_partitions(proc_data);
+
+            int recv_size = (int)received_partitions.size();
+            int partitions_size = (int)partitions.size();
+
+            for (int i = 0; i < recv_size && i < partitions_size; i++) {
+                const vector<int> received_partition = received_partitions[i];
+                for (int node : received_partition) {
+                    thread_updates[i].push_back(node);
+                    thread_partitioned.insert(node);
+                }
+            }
         }
 
-        MPI_Bcast(&buffer_size, 1, MPI_INT, p, MPI_COMM_WORLD);
-
-        if (procId != p) serialized.resize(buffer_size);
-
-        if (buffer_size > 0) {
-            MPI_Bcast(serialized.data(), buffer_size, MPI_INT, p, MPI_COMM_WORLD);
-
-            if (procId != p) {
-                vector<vector<int>> received_partitions = deserialize_partitions(serialized);
-
-                for (int i = 0;  i < (int)received_partitions.size() && i < (int)partitions.size(); i++) {
-                    for (int node : received_partitions[i]) {
-                        if (find(partitions[i].begin(), partitions[i].end(), node) == partitions[i].end()) partitions[i].push_back(node);
+        #pragma omp critical
+        {
+            const int updates_size = thread_updates.size();
+            for (int i = 0;  i < updates_size; i++) {
+                const vector<int> thread_update = thread_updates[i];
+                for (int node : thread_update) {
+                    if (global_partitioned.find(node) == global_partitioned.end()) {
+                        partitions[i].push_back(node);
                         global_partitioned.insert(node);
                     }
                 }

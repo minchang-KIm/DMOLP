@@ -82,8 +82,9 @@ void gather_degrees(unordered_map<int, int> &local_degree, unordered_map<int, in
     for (int p = 0; p < nprocs; ++p) {
         int start = displacement[p];
         int size = recv_size[p];
+        int total = start + size;
 
-        for (int i = 0; i < start + size; i+=2) {
+        for (int i = 0; i < total; i+=2) {
             int node = recvbuf[i];
             int deg = recvbuf[i + 1];
             global_degree[node] = deg;
