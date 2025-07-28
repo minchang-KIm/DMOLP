@@ -1,10 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <mpi.h>
-#ifdef USE_CUDA
 #include <cuda_runtime.h>
 #include "cuda_kernels.h"
-#endif
 #include <omp.h>
 #include <cmath>
 #include <algorithm>
@@ -17,12 +15,16 @@
 #include <mutex>
 #include "phase1.h"
 
-#ifdef USE_CUDA
 #include "cuda_kernels.h"
 #include "cuda_kernels.cu"
-#else
-#define CUDA_CHECK(call) // CUDA 비활성화 시 빈 매크로
-#endif
+
+#define CUDA_CHECK(call) { \
+    cudaError_t err = call; \
+    if (err != cudaSuccess) { \
+        std::cerr << "CUDA error: " << cudaGetErrorString(err) << " at " << __FILE__ << ":" << __LINE__ << std::endl; \
+        exit(EXIT_FAILURE); \
+    } \
+}
 
 // MPI 분산 워크플로우 클래스
 class MPIDistributedWorkflowV2 {
@@ -58,12 +60,10 @@ private:
     static constexpr double EPSILON = 0.005;  // 더 엄격한 수렴 조건
     static constexpr int MAX_CONVERGENCE_COUNT = 5;  // 연속 수렴 횟수 줄임
     
-#ifdef USE_CUDA
     // GPU 메모리 매니저 (Multi-GPU 지원)
     std::vector<std::unique_ptr<GPUMemoryManager>> gpu_managers_;
     int num_gpus_;
     std::vector<cudaDeviceProp> gpu_properties_;
-#endif
 
 public:
     MPIDistributedWorkflowV2(int argc, char* argv[], const Graph& phase1_graph, const std::vector<int>& phase1_labels, const Phase1Metrics& phase1_metrics) {
@@ -105,51 +105,34 @@ public:
             PI_[i].P_L = 0.0;
         }
         
-#ifdef USE_CUDA
         // === Multi-GPU 동적 감지 및 초기화 ===
         // 1. 현재 서버의 GPU 개수 확인
-        cudaGetDeviceCount(&num_gpus_);
-        
+        CUDA_CHECK(cudaGetDeviceCount(&num_gpus_));
         if (num_gpus_ <= 0) {
             std::cerr << "Rank " << mpi_rank_ << ": GPU를 찾을 수 없습니다!\n";
-            num_gpus_ = 0;
-        } else {
-            std::cout << "Rank " << mpi_rank_ << ": " << num_gpus_ << "개 GPU 감지\n";
-            
-            // 2. 각 GPU 정보 수집
-            gpu_properties_.resize(num_gpus_);
-            gpu_managers_.resize(num_gpus_);
-            
-            for (int gpu_id = 0; gpu_id < num_gpus_; ++gpu_id) {
-                cudaGetDeviceProperties(&gpu_properties_[gpu_id], gpu_id);
-                
-                // GPU 상세 정보 출력
-                std::cout << "  GPU " << gpu_id << ": " << gpu_properties_[gpu_id].name 
-                          << " (메모리: " << gpu_properties_[gpu_id].totalGlobalMem / (1024*1024*1024) << "GB, "
-                          << "코어: " << gpu_properties_[gpu_id].multiProcessorCount << "개)\n";
-                
-                // 각 GPU별 메모리 매니저 초기화
-                cudaSetDevice(gpu_id);
-                
-                size_t num_edges = 0;
-                if (local_graph_.num_vertices > 0) {
-                    num_edges = local_graph_.row_ptr[local_graph_.num_vertices];
-                }
-                
-                gpu_managers_[gpu_id] = std::make_unique<GPUMemoryManager>(
-                    local_graph_.num_vertices, num_edges);
-                
-                // 그래프 데이터를 각 GPU로 복사
-                gpu_managers_[gpu_id]->copyToGPU(vertex_labels_, local_graph_.row_ptr, local_graph_.col_indices);
-            }
-            
-            std::cout << "Rank " << mpi_rank_ << ": Multi-GPU 초기화 완료 (" << num_gpus_ << "개 GPU)\n";
+            exit(EXIT_FAILURE);
         }
-        
+        std::cout << "Rank " << mpi_rank_ << ": " << num_gpus_ << "개 GPU 감지\n";
+        gpu_properties_.resize(num_gpus_);
+        gpu_managers_.resize(num_gpus_);
+        for (int gpu_id = 0; gpu_id < num_gpus_; ++gpu_id) {
+            CUDA_CHECK(cudaGetDeviceProperties(&gpu_properties_[gpu_id], gpu_id));
+            std::cout << "  GPU " << gpu_id << ": " << gpu_properties_[gpu_id].name 
+                      << " (메모리: " << gpu_properties_[gpu_id].totalGlobalMem / (1024*1024*1024) << "GB, "
+                      << "코어: " << gpu_properties_[gpu_id].multiProcessorCount << "개)\n";
+            CUDA_CHECK(cudaSetDevice(gpu_id));
+            size_t num_edges = 0;
+            if (local_graph_.num_vertices > 0) {
+                num_edges = local_graph_.row_ptr[local_graph_.num_vertices];
+            }
+            gpu_managers_[gpu_id] = std::make_unique<GPUMemoryManager>(
+                local_graph_.num_vertices, num_edges);
+            gpu_managers_[gpu_id]->copyToGPU(vertex_labels_, local_graph_.row_ptr, local_graph_.col_indices);
+        }
+        std::cout << "Rank " << mpi_rank_ << ": Multi-GPU 초기화 완료 (" << num_gpus_ << "개 GPU)\n";
         if (mpi_rank_ == 0) {
             std::cout << "Multi-GPU 가속 활성화: CUDA + OpenMP 하이브리드 + 동적 GPU 할당\n";
         }
-#endif
     }
     
     ~MPIDistributedWorkflowV2() {
@@ -203,7 +186,6 @@ public:
 
 private:
     // CUDA 상수 메모리에 파티션 정보 복사 함수
-#ifdef USE_CUDA
     void updatePartitionInfoOnGPU() {
         if (PI_.size() > 16) {
             std::cerr << "Error: 파티션 수가 16개를 초과했습니다!" << std::endl;
@@ -223,11 +205,6 @@ private:
         CUDA_CHECK(cudaMemcpyToSymbol(d_partition_info, gpu_partition_info, 
                                       PI_.size() * sizeof(PartitionInfoGPU)));
     }
-#else
-    void updatePartitionInfoOnGPU() {
-        // CPU 모드에서는 아무것도 하지 않음
-    }
-#endif
 
     // Step 1: RV, RE 계산
     void calculateRatios() {
@@ -488,40 +465,20 @@ private:
     
     // Step 4: Dynamic Unweighted LP 수행 (핵심!)
     void performDynamicLabelPropagation() {
-        std::cout << "Step4 Rank " << mpi_rank_ << ": Dynamic LP 수행 ";
-        
-        // PU 배열 초기화
+        std::cout << "Step4 Rank " << mpi_rank_ << ": Dynamic LP 수행 (CUDA GPU 가속)\n";
         PU_.PU_RO.clear();
         PU_.PU_OV.clear();
         PU_.PU_ON.clear();
-        
-        int updates_count = 0;
-
-#ifdef USE_CUDA
-        std::cout << "(CUDA GPU 가속)\n";
-        updates_count = performDynamicLabelPropagationGPU();
-#else
-        std::cout << "(CPU OpenMP)\n";
-        updates_count = performDynamicLabelPropagationCPU();
-#endif
-        
-        // 전체 업데이트 수 집계
+        int updates_count = performDynamicLabelPropagationGPU();
         int total_updates;
         MPI_Allreduce(&updates_count, &total_updates, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
-        
         std::cout << "LP완료 Rank " << mpi_rank_ << ": " << updates_count 
                   << "개 라벨 변경 (전체: " << total_updates << "개)\n";
     }
     
-#ifdef USE_CUDA
     // Multi-GPU 구현 (스레드 풀 + GPU 큐 방식)
     int performDynamicLabelPropagationGPU() {
         std::cout << "  [Multi-GPU] " << num_gpus_ << "개 GPU + OpenMP 스레드 풀 (파티션별 처리)\n";
-        
-        if (num_gpus_ <= 0) {
-            std::cout << "  [Multi-GPU] GPU 없음, CPU 모드로 fallback\n";
-            return performDynamicLabelPropagationCPU();
-        }
         
         if (BV_.empty()) {
             std::cout << "  [Multi-GPU] 경계 정점 없음, 라벨 변경 없음\n";
@@ -581,7 +538,7 @@ private:
                 std::lock_guard<std::mutex> lock(gpu_mutexes[assigned_gpu]);
                 
                 // GPU 컨텍스트 설정
-                cudaSetDevice(assigned_gpu);
+                CUDA_CHECK(cudaSetDevice(assigned_gpu));
                 
                 std::cout << "    스레드 " << thread_id << " (파티션 " << partition_id 
                           << ") → GPU " << assigned_gpu << " 할당\n";
@@ -604,8 +561,8 @@ private:
         
         // GPU 동기화
         for (int gpu_id = 0; gpu_id < num_gpus_; ++gpu_id) {
-            cudaSetDevice(gpu_id);
-            cudaDeviceSynchronize();
+            CUDA_CHECK(cudaSetDevice(gpu_id));
+            CUDA_CHECK(cudaDeviceSynchronize());
         }
         
         // 파티션별 업데이트 집계
@@ -620,7 +577,7 @@ private:
         
         // 라벨 변경사항을 CPU로 복사 (GPU 0번에서 전체 복사)
         if (total_updates > 0) {
-            cudaSetDevice(0);
+            CUDA_CHECK(cudaSetDevice(0));
             gpu_managers_[0]->copyToCPU(vertex_labels_);
             std::cout << "    GPU 0에서 전체 라벨 데이터 CPU로 복사 완료\n";
         }
@@ -628,113 +585,8 @@ private:
         std::cout << "  [Multi-GPU] 총 " << total_updates << "개 라벨 변경 완료\n";
         return total_updates;
     }
-#endif
     
-    // CPU OpenMP 구현 (올바른 로직)
-    int performDynamicLabelPropagationCPU() {
-        std::cout << "  [CPU] OpenMP 병렬 처리 시작\n";
-        
-        if (BV_.empty()) {
-            std::cout << "  [CPU] 경계 정점 없음, 라벨 변경 없음\n";
-            return 0;
-        }
-        
-        std::cout << "  [CPU] " << BV_.size() << "개 경계 정점에서 Label Propagation 수행\n";
-        
-        int updates_count = 0;
-        std::vector<std::pair<int, int>> label_changes; // {vertex, new_label}
-        
-        // OpenMP로 경계 정점들 병렬 처리
-        #pragma omp parallel
-        {
-            std::vector<std::pair<int, int>> thread_label_changes;
-            
-            #pragma omp for schedule(dynamic, 100)
-            for (int i = 0; i < BV_.size(); ++i) {
-                int vertex = BV_[i];
-                int current_label = vertex_labels_[vertex];
-                
-                // Score(L) = |u| * (1 + P_L) 계산 (각 노드마다)
-                std::vector<double> label_scores(num_partitions_, 0.0);
-                
-                // 이웃들의 라벨별 점수 계산
-                for (int edge_idx = local_graph_.row_ptr[vertex]; 
-                     edge_idx < local_graph_.row_ptr[vertex + 1]; ++edge_idx) {
-                    int neighbor = local_graph_.col_indices[edge_idx];
-                    
-                    if (neighbor < local_graph_.num_vertices) {
-                        int neighbor_label = vertex_labels_[neighbor];
-                        if (neighbor_label >= 0 && neighbor_label < num_partitions_) {
-                            // |u| = 1 (단일 이웃), P_L = PI_[neighbor_label].P_L
-                            double score = 1.0 * (1.0 + PI_[neighbor_label].P_L);
-                            label_scores[neighbor_label] += score;
-                        }
-                    }
-                }
-                
-                // 최고 점수 라벨 선택
-                int best_label = current_label;
-                double best_score = label_scores[current_label];
-                
-                for (int label = 0; label < num_partitions_; ++label) {
-                    if (label_scores[label] > best_score) {
-                        best_score = label_scores[label];
-                        best_label = label;
-                    }
-                }
-                
-                // 라벨 변경이 필요한 경우
-                if (best_label != current_label) {
-                    thread_label_changes.push_back({vertex, best_label});
-                }
-            }
-            
-            // 스레드별 결과를 안전하게 병합
-            #pragma omp critical
-            {
-                label_changes.insert(label_changes.end(), 
-                                   thread_label_changes.begin(), thread_label_changes.end());
-            }
-        }
-        
-        // 라벨 변경 적용 (순차 처리)
-        for (auto& change : label_changes) {
-            int vertex = change.first;
-            int new_label = change.second;
-            int old_label = vertex_labels_[vertex];
-            
-            // PU 배열 업데이트
-            // 1) 이웃 중 기존 파티션에 속하고 BV에 없는 노드를 PU_RO에 저장
-            for (int edge_idx = local_graph_.row_ptr[vertex]; 
-                 edge_idx < local_graph_.row_ptr[vertex + 1]; ++edge_idx) {
-                int neighbor = local_graph_.col_indices[edge_idx];
-                
-                if (neighbor < local_graph_.num_vertices && 
-                    vertex_labels_[neighbor] == old_label && 
-                    std::find(BV_.begin(), BV_.end(), neighbor) == BV_.end()) {
-                    PU_.PU_RO.push_back(neighbor);
-                }
-            }
-            
-            // 2) 파티션이 변경된 노드를 PU_OV에 저장
-            PU_.PU_OV.push_back(vertex);
-            
-            // 3) 파티션이 변경된 노드의 이웃정보를 PU_ON에 저장
-            for (auto& nv : NV_) {
-                if (nv.first >= local_graph_.row_ptr[vertex] && 
-                    nv.first < local_graph_.row_ptr[vertex + 1]) {
-                    PU_.PU_ON.push_back({vertex, nv.second});
-                }
-            }
-            
-            // 라벨 업데이트
-            vertex_labels_[vertex] = new_label;
-            updates_count++;
-        }
-        
-        std::cout << "  [CPU] " << updates_count << "개 라벨 변경 완료\n";
-        return updates_count;
-    }
+
     
     // Step 5: 파티션 업데이트 교환 (OpenMP 병렬 처리)
     void exchangePartitionUpdates() {
@@ -784,70 +636,21 @@ private:
         if (local_converged) {
             convergence_count_++;
         } else {
-            convergence_count_ = 0;
         }
         
         // k번 연속으로 수렴 조건 만족 시 종료
-        bool converged = (convergence_count_ >= MAX_CONVERGENCE_COUNT);
-        
-        // 글로벌 수렴 확인
-        int global_converged;
-        int local_converged_int = converged ? 1 : 0;
-        MPI_Allreduce(&local_converged_int, &global_converged, 1, MPI_INT, MPI_LOR, MPI_COMM_WORLD);
-        
-        if (mpi_rank_ == 0) {
-            std::cout << "수렴상태: Edge-cut=" << current_edge_cut_ 
-                      << ", Rate=" << edge_rate_ 
-                      << ", 수렴카운트=" << convergence_count_ << "/" << MAX_CONVERGENCE_COUNT << "\n";
+        std::vector<int> gpu_edge_cuts(num_gpus_, 0);
+        #pragma omp parallel for
+        for (int gpu_id = 0; gpu_id < num_gpus_; ++gpu_id) {
+            CUDA_CHECK(cudaSetDevice(gpu_id));
+            gpu_edge_cuts[gpu_id] = gpu_managers_[gpu_id]->calculateEdgeCut();
         }
-        
-        return global_converged == 1;
-    }
-    
-    // Step 7: 다음 반복 준비 + Ghost Node 복제
-    void prepareNextIteration() {
-        std::cout << "Step7 Rank " << mpi_rank_ << ": Ghost Node 복제 및 다음 반복 준비\n";
-        
-        // === Ghost Node 복제 메커니즘 ===
-        // 1. 경계 정점의 이웃 정보 수집
-        std::vector<std::pair<int, int>> ghost_node_updates; // {vertex_id, new_label}
-        
-        // 2. MPI 프로세스 간 Ghost Node 정보 교환
-        exchangeGhostNodeInformation(ghost_node_updates);
-        
-        // 3. Ghost Node 정보를 로컬 복제본에 반영
-        applyGhostNodeUpdates(ghost_node_updates);
-        
-        // 4. PU 배열 처리 후 다음 이터레이션을 위한 상태 업데이트
-        updatePartitionBoundaries();
-        
-        std::cout << "준비완료 Rank " << mpi_rank_ << ": Ghost Node 복제 완료, 다음 반복 준비 완료\n";
-    }
-    
-    // Ghost Node 정보 교환 (MPI 통신)
-    void exchangeGhostNodeInformation(std::vector<std::pair<int, int>>& ghost_updates) {
-        std::cout << "  [Ghost Node] MPI 프로세스 간 Ghost Node 정보 교환 중...\n";
-        
-        // 각 MPI 프로세스가 소유하지 않는 정점들의 라벨 정보를 수집
-        std::vector<int> remote_vertices;  // 다른 프로세스 소유 정점들
-        std::vector<int> remote_labels;    // 해당 정점들의 최신 라벨
-        
-        // 경계 정점들의 이웃 중 다른 프로세스 소유 정점 찾기
-        for (int boundary_vertex : BV_) {
-            for (int edge_idx = local_graph_.row_ptr[boundary_vertex]; 
-                 edge_idx < local_graph_.row_ptr[boundary_vertex + 1]; ++edge_idx) {
-                int neighbor = local_graph_.col_indices[edge_idx];
-                
-                // 이웃이 다른 MPI 프로세스 소유 정점인 경우
-                if (neighbor < start_vertex_ || neighbor >= end_vertex_) {
-                    remote_vertices.push_back(neighbor);
-                }
-            }
+        for (int gpu_id = 0; gpu_id < num_gpus_; ++gpu_id) {
+            local_edge_cut += gpu_edge_cuts[gpu_id];
+            std::cout << "    GPU " << gpu_id << ": " << gpu_edge_cuts[gpu_id] << " edge-cut\n";
         }
-        
-        // 중복 제거
-        std::sort(remote_vertices.begin(), remote_vertices.end());
-        remote_vertices.erase(std::unique(remote_vertices.begin(), remote_vertices.end()), 
+        local_edge_cut = local_edge_cut / num_gpus_;
+        std::cout << "  [Multi-GPU] Edge-cut 계산 완료: " << local_edge_cut << "\n";
                              remote_vertices.end());
         
         std::cout << "  [Ghost Node] " << remote_vertices.size() << "개 원격 정점의 Ghost Node 정보 요청\n";
