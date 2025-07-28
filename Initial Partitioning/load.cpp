@@ -59,42 +59,34 @@ void load_graph(const char *filename, int procId, int nprocs, unordered_map<int,
 }
 
 void gather_degrees(unordered_map<int, int> &local_degree, unordered_map<int, int> &global_degree, int procId, int nprocs) {
-    MPI_Barrier(MPI_COMM_WORLD);
-    
-    if (procId == 0) {
-        global_degree.insert(local_degree.begin(), local_degree.end());
+    vector<int> sendbuf;
+    for (auto &[node, deg] : local_degree) {
+        sendbuf.push_back(node);
+        sendbuf.push_back(deg);
+    }
 
-        for (int p = 1; p < nprocs; ++p) {
-            int len;
-            MPI_Status status;
-            
-            MPI_Recv(&len, 1, MPI_INT, p, 100, MPI_COMM_WORLD, &status);
-            
-            if (len > 0) {
-                vector<int> recvBuffer(len);
-                MPI_Recv(recvBuffer.data(), len, MPI_INT, p, 101, MPI_COMM_WORLD, &status);
+    int send_size = sendbuf.size();
 
-                for (int i = 0; i < len; i += 2) {
-                    int node = recvBuffer[i];
-                    int deg = recvBuffer[i + 1];
-                    global_degree[node] = deg;
-                }
-            }
-        }
-    } else {
-        vector<int> sendBuffer;
-        for (auto &[node, deg] : local_degree) {
-            sendBuffer.push_back(node);
-            sendBuffer.push_back(deg);
-        }
+    vector<int> recv_size(nprocs);
+    MPI_Allgather(&send_size, 1, MPI_INT, recv_size.data(), 1, MPI_INT, MPI_COMM_WORLD);
 
-        int len = sendBuffer.size();
-        
-        MPI_Send(&len, 1, MPI_INT, 0, 100, MPI_COMM_WORLD);
-        if (len > 0) {
-            MPI_Send(sendBuffer.data(), len, MPI_INT, 0, 101, MPI_COMM_WORLD);
+    vector<int> displacement(nprocs, 0);
+    for (int i= 1; i < nprocs; ++i)
+        displacement[i] = displacement[i - 1] + recv_size[i - 1];
+
+    int total_recv = displacement[nprocs - 1] + recv_size[nprocs - 1];
+    vector<int> recvbuf(total_recv);
+    MPI_Allgatherv(sendbuf.data(), send_size, MPI_INT, recvbuf.data(), recv_size.data(), displacement.data(), MPI_INT, MPI_COMM_WORLD);
+
+    global_degree.clear();
+    for (int p = 0; p < nprocs; ++p) {
+        int start = displacement[p];
+        int size = recv_size[p];
+
+        for (int i = 0; i < start + size; i+=2) {
+            int node = recvbuf[i];
+            int deg = recvbuf[i + 1];
+            global_degree[node] = deg;
         }
     }
-    
-    MPI_Barrier(MPI_COMM_WORLD);
 }
