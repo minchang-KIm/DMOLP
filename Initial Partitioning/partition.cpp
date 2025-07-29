@@ -13,7 +13,7 @@
 
 using namespace std;
 
-double compute_ratio(int target, const vector<int> &neighbors, const unordered_set<int> &partition_set, const unordered_map<int, int> &global_degree) {
+inline double compute_ratio(int target, const vector<int> &neighbors, const unordered_set<int> &partition_set, const unordered_map<int, int> &global_degree) {
     int node_degree = global_degree.at(target);
     if (node_degree == 1) return 1.0;
 
@@ -21,7 +21,7 @@ double compute_ratio(int target, const vector<int> &neighbors, const unordered_s
     for (int neighbor : neighbors)
         if (partition_set.count(neighbor)) partition_degree++;
 
-    return (double)partition_degree / node_degree;
+    return static_cast<double>(partition_degree) / node_degree;
 }
 
 vector<FrontierNode> collect_frontiers(int procId, int nprocs, const vector<int> &current_partition, const unordered_map<int, vector<int>> &local_adj, const unordered_map<int, int> &global_degree, const unordered_set<int> &global_partitioned, int partition_id = -1) {
@@ -35,7 +35,7 @@ vector<FrontierNode> collect_frontiers(int procId, int nprocs, const vector<int>
         vector<int> thread_boundary;
 
         #pragma omp for schedule(static)
-        for (int i = 0; i < (int)current_partition.size(); i++) {
+        for (size_t i = 0; i < current_partition.size(); i++) {
             int v = current_partition[i];
             auto it = local_adj.find(v);
             if (it == local_adj.end()) continue;
@@ -54,14 +54,12 @@ vector<FrontierNode> collect_frontiers(int procId, int nprocs, const vector<int>
         }
     }
 
-    if (procId == 0) cout << "[proc " << procId << "]     Boundary nodes: " << boundary.size() << "/" << current_partition.size() << "\n";
-
     #pragma omp parallel
     {
         unordered_set<int> thread_candidates;
 
         #pragma omp for schedule(static)
-        for (int i = 0; i < (int)boundary.size(); i++) {
+        for (size_t i = 0; i < boundary.size(); i++) {
             int v = boundary[i];
             auto it = local_adj.find(v);
             if (it == local_adj.end()) continue;
@@ -89,9 +87,10 @@ vector<FrontierNode> collect_frontiers(int procId, int nprocs, const vector<int>
     #pragma omp parallel
     {
         vector<FrontierNode> thread_frontiers;
+        size_t candidates_vec_size = candidates_vec.size();
 
         #pragma omp for schedule(static)
-        for (int i = 0; i < (int)candidates_vec.size(); i++) {
+        for (size_t i = 0; i < candidates_vec_size; i++) {
             int u = candidates_vec[i];
             auto adj_it = local_adj.find(u);
             if (adj_it != local_adj.end()) {
@@ -129,9 +128,9 @@ unordered_map<int, int> resolve_concurrency(const vector<FrontierNode> &candidat
         if (node_candidates.size() == 1) node_to_partition[node] = node_candidates[0].partition_id;
         else {
             const FrontierNode *best_candidate = &node_candidates[0];
-            const int size = node_candidates.size();
+            const size_t size = node_candidates.size();
 
-            for (int i = 1; i < size; i++) {
+            for (size_t i = 1; i < size; i++) {
                 const auto &candidate = node_candidates[i];
                 const double ratio_diff = candidate.ratio - best_candidate->ratio;
                 if (ratio_diff > 0 || (abs(ratio_diff) < 1e-9 && candidate.partition_degree > best_candidate->partition_degree)) best_candidate = &candidate;
@@ -180,7 +179,25 @@ vector<FrontierNode> gather_frontiers(int procId, int nprocs, const vector<Front
     return all_frontiers;
 }
 
+int find_smallest_partition(const vector<vector<int>> &partitions) {
+    size_t min_size = INT64_MAX;
+    int min_partition = 0;
+    size_t size = partitions.size();
+
+    for (size_t p = 0; p < size; p++) {
+        size_t current_size = partitions[p].size();
+        if (current_size < min_size) {
+            min_size = current_size;
+            min_partition = p;
+        } else if (current_size == min_size && p < min_partition) min_partition = p;
+    }
+    
+    return min_partition;
+}
+
 void partition_expansion(int procId, int nprocs, int numParts, int theta, const vector<int> &seeds, const unordered_map<int, int> &global_degree, const unordered_map<int, vector<int>> &local_adj, vector<vector<int>> &partitions) {
+    vector<PartitionUpdate> pending_updates;
+   
     unordered_set<int> all_nodes;
     for (const auto &[node, degree] : global_degree)
         all_nodes.insert(node);
@@ -214,12 +231,13 @@ void partition_expansion(int procId, int nprocs, int numParts, int theta, const 
         if (find(used_seeds.begin(), used_seeds.end(), seed) == used_seeds.end()) remaining_seeds.push_back(seed);
 
     seed_redistribution(procId, nprocs, numParts, remaining_seeds, local_adj, partitions, global_partitioned);
-    sync_global_partitions(procId, nprocs, partitions, global_partitioned);
+    sync_global_partitions(procId, nprocs, partitions, global_partitioned, pending_updates);
 
     if (procId == 0) cout << "[proc " << procId << "] Starting iterative expansion...\n";
 
     int iteration = 0;
     const size_t total_nodes = all_nodes.size();
+
     while (global_partitioned.size() < total_nodes) {
         iteration++;
         if (procId == 0) cout << "[proc " << procId << "] Iteration " << iteration << " - Partitioned: " << global_partitioned.size() << "/" << all_nodes.size() << "\n";
@@ -257,8 +275,7 @@ void partition_expansion(int procId, int nprocs, int numParts, int theta, const 
                 partition_add_count[p] = 0;
 
             for (const auto &[node, partition_id] : node_assignments) {
-                partitions[partition_id].push_back(node);
-                global_partitioned.insert(node);
+                add_node_to_partition(node, partition_id, partitions, global_partitioned, pending_updates);
                 partition_add_count[partition_id]++;
                 expansion = true;
             }
@@ -270,29 +287,25 @@ void partition_expansion(int procId, int nprocs, int numParts, int theta, const 
         }
 
         if (!expansion && global_partitioned.size() < all_nodes.size()) {
-            int min_size = INT32_MAX;
-            int min_partition = 0;
-            for (int p = 0; p < numParts; p++) {
-                if ((int)partitions[p].size() < min_size) {
-                    min_size = partitions[p].size();
-                    min_partition = p;
-                }
-            }
-
+            vector<int> isolated_nodes;
             for (int node : all_nodes) {
                 if (global_partitioned.find(node) == global_partitioned.end()) {
-                    partitions[min_partition].push_back(node);
-                    global_partitioned.insert(node);
-
-                    if (procId == 0) cout << "[proc " << procId << "] Forced assignment: node " << node << " to partition " << min_partition << "\n";
-                    break;
+                    isolated_nodes.push_back(node);
+                    if (isolated_nodes.size() >= theta) break;
                 }
             }
 
-            expansion = true;
+            for (int node : isolated_nodes) {
+                int min_partition = find_smallest_partition(partitions);
+                add_node_to_partition(node, min_partition, partitions, global_partitioned, pending_updates);
+            }
+
+            expansion = !isolated_nodes.empty();
+
+            if (procId == 0) cout << "[proc " << procId << "] Forced assignment: " << isolated_nodes.size() << " isolated nodes\n";
         }
 
-        sync_global_partitions(procId, nprocs, partitions, global_partitioned);
+        sync_global_partitions(procId, nprocs, partitions, global_partitioned, pending_updates);
         MPI_Barrier(MPI_COMM_WORLD);
     }
 

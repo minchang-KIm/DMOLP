@@ -71,7 +71,6 @@ int main(int argc, char **argv) {
         find_landmark_end = MPI_Wtime();
     }
     
-    sync_unordered_map(procId, 0, global_degree);
     sync_vector(procId, 0, hub_nodes);
     sync_vector(procId, 0, landmarks);
 
@@ -126,6 +125,9 @@ int main(int argc, char **argv) {
 
         cout << "\n[Total Execution Time]\n";
         cout << (total_end - total_start) << endl;
+
+        cout << "\n[Summary]\n";
+        print_summary(procId, nprocs, partitions, global_degree);
     }
 
     MPI_Finalize();

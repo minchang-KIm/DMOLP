@@ -35,9 +35,10 @@ unordered_map<int, int> batch_bfs(int source, int procId, int nprocs, const vect
 
     while (!current.empty() && hop < MAX_HOPS && found_hubs < H) {
         next.clear();
+        const size_t current_size = current.size();
 
-        for (int batch_start = 0; batch_start < current.size(); batch_start += BATCH_SIZE) {
-            int batch_end = min((int)current.size(), batch_start + BATCH_SIZE);
+        for (size_t batch_start = 0; batch_start < current_size; batch_start += BATCH_SIZE) {
+            size_t batch_end = min(current_size, batch_start + BATCH_SIZE);
 
             vector<int> local_neighbors;
             
@@ -46,7 +47,7 @@ unordered_map<int, int> batch_bfs(int source, int procId, int nprocs, const vect
                 vector<int> thread_neighbors;
 
                 #pragma omp for
-                for (int i = batch_start; i < batch_end; ++i) {
+                for (size_t i = batch_start; i < batch_end; ++i) {
                     int current_node = current[i];
 
                     if (hub_set.count(current_node)) {
