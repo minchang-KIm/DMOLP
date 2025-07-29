@@ -231,6 +231,19 @@ void partition_expansion(int procId, int nprocs, int numParts, int theta, const 
         if (find(used_seeds.begin(), used_seeds.end(), seed) == used_seeds.end()) remaining_seeds.push_back(seed);
 
     seed_redistribution(procId, nprocs, numParts, remaining_seeds, local_adj, partitions, global_partitioned);
+
+    for (int proc = 0; proc < nprocs; proc++) {
+        if (proc == procId) {
+            cout << "[proc " << procId << "] After redistribution, assigned seeds:\n";
+            for (int p = 0; p < numParts; ++p) {
+                cout << "  Partition " << p << ": ";
+                for (int v : partitions[p]) cout << v << " ";
+                cout << endl;
+            }
+            cout << flush;
+        }
+        MPI_Barrier(MPI_COMM_WORLD);
+    }
     sync_global_partitions(procId, nprocs, partitions, global_partitioned, pending_updates);
 
     if (procId == 0) cout << "[proc " << procId << "] Starting iterative expansion...\n";
