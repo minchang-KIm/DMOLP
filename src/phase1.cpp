@@ -66,17 +66,8 @@ void compute_metrics(const Graph& full_graph, const std::vector<int>& all_labels
     metrics.initial_vertex_balance = 0;
     metrics.initial_edge_balance = 0;
 }
-#include <string>
-#include <vector>
-#include <utility>
-#include <fstream>
-#include <queue>
-#include <algorithm>
-#include <numeric>
-#include <unordered_map>
-#include <mpi.h>
-#include "types.h"
-#include "phase1.h"
+
+
 // 1. 파일에서 그래프 로드 (edge list, CSR 변환)
 bool loadGraphFromFile(const std::string& filename, Graph& graph, std::vector<int>& vertex_labels, int num_partitions) {
     std::ifstream fin(filename);
@@ -232,9 +223,7 @@ Phase1Metrics phase1_partition_and_distribute(int part_id, int num_partitions, i
     return metrics;
 }
 // --- hub/landmark selection from partitioning/hub.cpp ---
-#include <vector>
-#include <unordered_map>
-#include <algorithm>
+
 #include <cmath>
 
 using namespace std;
@@ -446,22 +435,6 @@ std::vector<int> find_seeds(const int procId, const int nprocs, const int numPar
 }
 #include <unordered_map>
 
-// --- 허브/랜드마크/시드 기반 파티셔닝 함수 선언 (partitioning 코드 이식) ---
-std::vector<int> find_hub_nodes(const std::unordered_map<int, int>& global_degree);
-std::vector<int> find_landmarks(const std::unordered_map<int, int>& global_degree);
-std::vector<int> find_seeds(const int procId, const int nprocs, const int numParts, const std::vector<int> &landmarks, const std::vector<int> &hub_nodes, const std::unordered_map<int, std::vector<int>> &adj);
-
-
-#include "phase1.h"
-#include <vector>
-#include <string>
-#include <fstream>
-#include <sstream>
-#include <algorithm>
-#include <numeric>
-#include <queue>
-#include <mpi.h>
-#include "types.h"
 
 // 간단한 텍스트 파일 기반 그래프 로더 (edge list: u v per line, 0-based)
 // 테스트용: 전체 정점을 파티션 개수만큼 균등 분할하여 각 rank가 자신의 라벨을 가진 파티션만 보유

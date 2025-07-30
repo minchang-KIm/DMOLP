@@ -9,11 +9,7 @@
 #include <cstdint>
 #include <mpi.h>
 #include <omp.h>
-#include <rmm/device_uvector.hpp>
-#include <raft/core/handle.hpp>
-#include <cugraph/graph.hpp>
 #include "types.h"
-#include <cuda_runtime.h>
 
 
 static void calculateRatios(int mpi_rank, int num_partitions, const Graph& local_graph, std::vector<int>& vertex_labels, std::vector<PartitionInfo>& PI) {
@@ -99,7 +95,7 @@ static void calculateImbalance(int mpi_rank, int num_partitions, std::vector<Par
 }
 
 // Step 3: Edge-cut 계산 및 BV/NV 추출
-static void calculateEdgeCutAndExtractBoundary(int mpi_rank, int mpi_size, const Graph& local_graph, std::vector<int>& vertex_labels, std::vector<PartitionInfo>& PI, std::unique_ptr<cugraph::graph_t<int32_t, int32_t, false, true>>& cu_graph, rmm::device_uvector<int32_t>& d_labels, int& current_edge_cut, int& previous_edge_cut, double& edge_rate, std::vector<int>& BV, std::unordered_map<int, int>& NV, PartitionUpdate& PU) {
+static void calculateEdgeCutAndExtractBoundary(int mpi_rank, int mpi_size, const Graph& local_graph, std::vector<int>& vertex_labels, std::vector<PartitionInfo>& PI, int& current_edge_cut, int& previous_edge_cut, double& edge_rate, std::vector<int>& BV, std::unordered_map<int, int>& NV, PartitionUpdate& PU) {
     std::cout << "Step3 Rank " << mpi_rank << ": Edge-cut 계산 및 BV/NV 추출\n";
     if (local_graph.num_vertices == 0) {
         previous_edge_cut = current_edge_cut;
@@ -111,20 +107,15 @@ static void calculateEdgeCutAndExtractBoundary(int mpi_rank, int mpi_size, const
     }
     previous_edge_cut = current_edge_cut;
     int local_edge_cut = 0;
-    auto d_offsets = cu_graph->view().local_edge_partition_view(0).offsets();
-    auto d_indices = cu_graph->view().local_edge_partition_view(0).indices();
-    std::vector<int32_t> h_offsets(d_offsets.size());
-    std::vector<int32_t> h_indices(d_indices.size());
-    std::vector<int32_t> h_labels(d_labels.size());
-    raft::copy(h_offsets.data(), d_offsets.data(), d_offsets.size(), rmm::cuda_stream_default);
-    raft::copy(h_indices.data(), d_indices.data(), d_indices.size(), rmm::cuda_stream_default);
-    raft::copy(h_labels.data(), d_labels.data(), d_labels.size(), rmm::cuda_stream_default);
-    cudaStreamSynchronize(rmm::cuda_stream_default);
-    for (size_t u = 0; u + 1 < h_offsets.size(); ++u) {
-        for (int32_t e = h_offsets[u]; e < h_offsets[u + 1]; ++e) {
-            int32_t v = h_indices[e];
-            if (u < h_labels.size() && v < h_labels.size() && h_labels[u] != h_labels[v]) {
-                local_edge_cut++;
+    for (int u = 0; u < local_graph.num_vertices; ++u) {
+        int u_label = vertex_labels[u];
+        for (int edge_idx = local_graph.row_ptr[u]; edge_idx < local_graph.row_ptr[u + 1]; ++edge_idx) {
+            int v = local_graph.col_indices[edge_idx];
+            if (v < local_graph.num_vertices) {
+                int v_label = vertex_labels[v];
+                if (u_label != v_label) {
+                    local_edge_cut++;
+                }
             }
         }
     }
@@ -170,7 +161,7 @@ static void calculateEdgeCutAndExtractBoundary(int mpi_rank, int mpi_size, const
 }
 
 // Step 4: Dynamic Label Propagation
-static void performDynamicLabelPropagation(int mpi_rank, const Graph& local_graph, std::vector<int>& vertex_labels, std::vector<PartitionInfo>& PI, std::vector<int>& BV, PartitionUpdate& PU) {
+static void performDynamicLabelPropagation(int mpi_rank, const Graph& local_graph, std::vector<int>& vertex_labels, std::vector<PartitionInfo>& PI, std::vector<int>& BV, PartitionUpdate& PU, const std::vector<int>& remote_labels, int local_offset) {
     std::cout << "Step4 Rank " << mpi_rank << ": Dynamic LP 수행 (BV.size=" << BV.size() << ")\n";
     PU.PU_RO.clear(); PU.PU_OV.clear(); PU.PU_ON.clear();
     int updates_count = 0;
@@ -181,7 +172,13 @@ static void performDynamicLabelPropagation(int mpi_rank, const Graph& local_grap
         std::unordered_map<int, int> label_count;
         for (int edge_idx = local_graph.row_ptr[u]; edge_idx < local_graph.row_ptr[u + 1]; ++edge_idx) {
             int v = local_graph.col_indices[edge_idx];
-            int v_label = vertex_labels[v];
+            int v_label;
+            if (v >= 0) {
+                v_label = vertex_labels[v]; // 로컬 노드
+            } else {
+                int global_v = -1 - v;
+                v_label = remote_labels[global_v]; // remote 노드
+            }
             label_count[v_label]++;
         }
         int best_label = old_label;
@@ -297,7 +294,6 @@ static void calculateRatios(int mpi_rank, int num_partitions, const Graph& local
 static void calculateImbalance(int mpi_rank, int num_partitions, std::vector<PartitionInfo>& PI);
 static void calculateEdgeCutAndExtractBoundary(
     int mpi_rank, int mpi_size, const Graph& local_graph, std::vector<int>& vertex_labels, std::vector<PartitionInfo>& PI,
-    std::unique_ptr<cugraph::graph_t<int32_t, int32_t, false, true>>& cu_graph, rmm::device_uvector<int32_t>& d_labels,
     int& current_edge_cut, int& previous_edge_cut, double& edge_rate, std::vector<int>& BV, std::unordered_map<int, int>& NV, PartitionUpdate& PU);
 static void performDynamicLabelPropagation(int mpi_rank, const Graph& local_graph, std::vector<int>& vertex_labels, std::vector<PartitionInfo>& PI, std::vector<int>& BV, PartitionUpdate& PU);
 static void exchangePartitionUpdates(int mpi_rank, int mpi_size, std::vector<int>& BV, std::unordered_map<int, int>& NV, PartitionUpdate& PU);
@@ -305,36 +301,20 @@ static bool checkConvergence(int mpi_rank, int& convergence_count, int current_e
 static void printFinalResults(int mpi_rank, int num_partitions, const std::vector<PartitionInfo>& PI, int current_edge_cut, long execution_time_ms, const Phase1Metrics& phase1_metrics);
 
 // --- 메인 함수형 워크플로우 ---
-void dmolp_distributed_workflow_run(int argc, char** argv, const Graph& local_graph, const std::vector<int>& vertex_labels_in, const Phase1Metrics& phase1_metrics, raft::handle_t& raft_handle) {
+void dmolp_distributed_workflow_run(int argc, char** argv, const Graph& local_graph, const std::vector<int>& vertex_labels_in, const Phase1Metrics& phase1_metrics) {
     int mpi_rank = 0, mpi_size = 0;
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
     MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
 
     int num_partitions = phase1_metrics.partition_vertex_counts.size();
-    int num_gpus = 1;
-    int device_count = 0;
-    cudaError_t err = cudaGetDeviceCount(&device_count);
-    if (err != cudaSuccess || device_count == 0) {
-        if (mpi_rank == 0) {
-            std::cerr << "[DMOLP] No CUDA device found!" << std::endl;
-        }
-        num_gpus = 0;
-    } else {
-        int device_id = mpi_rank % device_count;
-        cudaSetDevice(device_id);
-        num_gpus = device_count;
-        if (mpi_rank == 0) {
-            std::cout << "[DMOLP] GPU count: " << device_count << std::endl;
-        }
-        std::cout << "[DMOLP] Rank " << mpi_rank << " uses GPU " << device_id << std::endl;
-    }
-
     std::cout << "[DMOLP] run() called (rank=" << mpi_rank << ")\n";
-
-    // main에서 전달된 raft_handle을 그대로 사용
-    std::unique_ptr<cugraph::graph_t<int32_t, int32_t, false, true>> cu_graph;
-    rmm::device_uvector<int32_t> d_labels(0, raft_handle.get_stream());
     std::vector<int> vertex_labels = vertex_labels_in;
+    // remote_labels: 전체 그래프의 라벨(모든 rank에서 Allgather)
+    int global_num_vertices = 0;
+    if (!phase1_metrics.partition_vertex_counts.empty()) {
+        for (int cnt : phase1_metrics.partition_vertex_counts) global_num_vertices += cnt;
+    }
+    std::vector<int> remote_labels(global_num_vertices, -1);
     std::vector<PartitionInfo> PI(num_partitions);
     PartitionUpdate PU;
     std::vector<int> BV;
@@ -343,54 +323,40 @@ void dmolp_distributed_workflow_run(int argc, char** argv, const Graph& local_gr
     double edge_rate = 0.0;
     int convergence_count = 0;
 
-    if (local_graph.num_vertices > 0) {
-        // CSR -> device_uvector 변환 및 벡터 래핑 (단일 파티션)
-        rmm::device_uvector<int32_t> d_row_ptr(local_graph.row_ptr.size(), raft_handle.get_stream());
-        rmm::device_uvector<int32_t> d_col_indices(local_graph.col_indices.size(), raft_handle.get_stream());
-        raft::copy(d_row_ptr.data(), local_graph.row_ptr.data(), local_graph.row_ptr.size(), raft_handle.get_stream());
-        raft::copy(d_col_indices.data(), local_graph.col_indices.data(), local_graph.col_indices.size(), raft_handle.get_stream());
-
-        std::vector<rmm::device_uvector<int32_t>> edge_partition_offsets;
-        edge_partition_offsets.emplace_back(std::move(d_row_ptr));
-        std::vector<rmm::device_uvector<int32_t>> edge_partition_indices;
-        edge_partition_indices.emplace_back(std::move(d_col_indices));
-
-        // graph_meta_t 준비
-        cugraph::graph_meta_t<int32_t, int32_t, true> meta;
-        meta.number_of_vertices = local_graph.num_vertices;
-        meta.number_of_edges = local_graph.num_edges;
-        // (필요시 partitioning 등 추가)
-
-        cu_graph = std::make_unique<cugraph::graph_t<int32_t, int32_t, false, true>>(
-            raft_handle,
-            std::move(edge_partition_offsets),
-            std::move(edge_partition_indices),
-            std::nullopt, // edge weights 없음
-            meta,
-            false // store_transposed
-        );
-
-        d_labels = rmm::device_uvector<int32_t>(local_graph.num_vertices, raft_handle.get_stream());
-        raft::copy(d_labels.data(), vertex_labels.data(), local_graph.num_vertices, raft_handle.get_stream());
-        cudaStreamSynchronize(raft_handle.get_stream());
-    } else {
-        std::cerr << "[DMOLP] Local graph has no vertices, skipping cuGraph initialization.\n";
-    }
-
     int max_iters = 100;
     int iter = 0;
     bool converged = false;
     double t_start = MPI_Wtime();
     while (iter < max_iters && !converged) {
+        // Step 0: 모든 rank의 vertex_labels를 Allgather하여 remote_labels로 동기화
+        int local_offset = 0;
+        for (int i = 0; i < mpi_rank; ++i) local_offset += phase1_metrics.partition_vertex_counts[i];
+        std::vector<int> all_part_sizes = phase1_metrics.partition_vertex_counts;
+        std::vector<int> all_displs(num_partitions, 0);
+        for (int i = 1; i < num_partitions; ++i) all_displs[i] = all_displs[i-1] + all_part_sizes[i-1];
+        // vertex_labels는 내 파티션 노드만, remote_labels는 전체
+        MPI_Allgatherv(vertex_labels.data(), vertex_labels.size(), MPI_INT,
+                      remote_labels.data(), all_part_sizes.data(), all_displs.data(), MPI_INT, MPI_COMM_WORLD);
+
         calculateRatios(mpi_rank, num_partitions, local_graph, vertex_labels, PI);
         calculateImbalance(mpi_rank, num_partitions, PI);
-        calculateEdgeCutAndExtractBoundary(mpi_rank, mpi_size, local_graph, vertex_labels, PI, cu_graph, d_labels, current_edge_cut, previous_edge_cut, edge_rate, BV, NV, PU);
-        performDynamicLabelPropagation(mpi_rank, local_graph, vertex_labels, PI, BV, PU);
+        calculateEdgeCutAndExtractBoundary(mpi_rank, mpi_size, local_graph, vertex_labels, PI, current_edge_cut, previous_edge_cut, edge_rate, BV, NV, PU);
+        performDynamicLabelPropagation(mpi_rank, local_graph, vertex_labels, PI, BV, PU, remote_labels, local_offset);
         exchangePartitionUpdates(mpi_rank, mpi_size, BV, NV, PU);
         converged = checkConvergence(mpi_rank, convergence_count, current_edge_cut, previous_edge_cut);
         ++iter;
     }
     double t_end = MPI_Wtime();
     long execution_time_ms = static_cast<long>((t_end - t_start) * 1000);
-    printFinalResults(mpi_rank, num_partitions, PI, current_edge_cut, execution_time_ms, phase1_metrics);
+
+    // results.cpp의 printFinalResults 호출 (상세 비교/출력)
+    extern void printFinalResults(
+        int mpi_rank,
+        const Phase1Metrics& phase1_metrics,
+        int current_edge_cut,
+        const std::vector<PartitionInfo>& PI,
+        int num_partitions,
+        long execution_time_ms
+    );
+    printFinalResults(mpi_rank, phase1_metrics, current_edge_cut, PI, num_partitions, execution_time_ms);
 }

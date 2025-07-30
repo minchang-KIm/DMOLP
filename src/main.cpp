@@ -1,47 +1,40 @@
 
-
 #include <iostream>
 #include <vector>
+#include <set>
 #include <mpi.h>
 #include "phase1.h"
 #include "types.h"
+#include <cuda_runtime.h>
+#include <unistd.h>
 
-// cuGraph/RAPIDS RAFT communicator 관련 헤더
-#include <raft/core/handle.hpp>
-#include <raft/comms/mpi_comms.hpp>
 
 
 // 메인 함수
 int main(int argc, char* argv[]) {
-
+    // [디버그] main 진입 즉시 host, rank, argc, argv[0] 출력 (노드별 실행 확인용)
+    char debug_hostname[256];
+    gethostname(debug_hostname, sizeof(debug_hostname));
+    std::cout << "[DEBUG] main() 진입: host=" << debug_hostname
+              << ", argc=" << argc
+              << ", argv[0]=" << (argc > 0 ? argv[0] : "(null)") << std::endl;
     MPI_Init(&argc, &argv);
     int mpi_rank, mpi_size;
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
     MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
 
-
-
-    // --- 프로세스별 GPU 지정 (OMPI_COMM_WORLD_LOCAL_RANK 사용) 및 디버깅 출력 ---
+    // 각 rank별로 GPU 할당
     int local_rank = 0;
     char* env_local_rank = std::getenv("OMPI_COMM_WORLD_LOCAL_RANK");
     if (env_local_rank != nullptr) {
         local_rank = std::atoi(env_local_rank);
     }
     cudaSetDevice(local_rank);
-    // 디버깅: 환경변수와 실제 device 정보 출력
-    char* env_cuda_visible = std::getenv("CUDA_VISIBLE_DEVICES");
     int device = -1;
     cudaGetDevice(&device);
-    std::cout << "[RANK " << mpi_rank << "] OMPI_COMM_WORLD_LOCAL_RANK=" << local_rank
-              << ", CUDA_VISIBLE_DEVICES=" << (env_cuda_visible ? env_cuda_visible : "(not set)")
-              << ", cudaGetDevice()=" << device << std::endl;
-
-    // --- RAFT communicator 초기화 (cuGraph 분산용) ---
-    raft::handle_t raft_handle;
-    // cuGraph/RAPIDS 24.x/25.x: communicator는 shared_ptr로 생성해야 하며, cuda stream도 필요
-    auto comms = std::make_shared<raft::comms::mpi_comms>(
-        MPI_COMM_WORLD, /*owning=*/false, rmm::cuda_stream_default);
-    raft_handle.set_comms(std::dynamic_pointer_cast<raft::comms::comms_t>(comms));
+    char hostname[256];
+    gethostname(hostname, sizeof(hostname));
+    std::cout << "[RANK " << mpi_rank << "] host: " << hostname << ", local_rank=" << local_rank << ", cudaGetDevice()=" << device << std::endl;
 
     if (argc < 3) {
         if (mpi_rank == 0) {
@@ -77,11 +70,22 @@ int main(int argc, char* argv[]) {
         extern void printPhase1PartitionSummary(int mpi_rank, int mpi_size, int num_partitions, const Graph& local_graph, const std::vector<int>& vertex_labels, int global_start);
         printPhase1PartitionSummary(mpi_rank, mpi_size, num_partitions, local_graph, vertex_labels, global_start);
 
+        // [디버그] 각 rank가 현재 가진 라벨 ID(고유값)와 노드 수 출력
+        std::set<int> unique_labels(vertex_labels.begin(), vertex_labels.end());
+        std::cout << "[RANK " << mpi_rank << "] part_id=" << part_id
+                  << ", 노드 수=" << local_graph.num_vertices
+                  << ", 라벨 ID(고유값)=";
+        for (auto it = unique_labels.begin(); it != unique_labels.end(); ++it) {
+            if (it != unique_labels.begin()) std::cout << ",";
+            std::cout << *it;
+        }
+        std::cout << std::endl;
+
         // Phase 2: 7단계 알고리즘 (각 파티션별)
         try {
             // phase2: 7단계 알고리즘을 함수형으로 직접 호출 (클래스 없이)
-            extern void dmolp_distributed_workflow_run(int argc, char** argv, const Graph& local_graph, const std::vector<int>& vertex_labels, const Phase1Metrics& phase1_metrics, raft::handle_t& raft_handle);
-            dmolp_distributed_workflow_run(argc, argv, local_graph, vertex_labels, phase1_metrics, raft_handle);
+            extern void dmolp_distributed_workflow_run(int argc, char** argv, const Graph& local_graph, const std::vector<int>& vertex_labels, const Phase1Metrics& phase1_metrics);
+            dmolp_distributed_workflow_run(argc, argv, local_graph, vertex_labels, phase1_metrics);
         } catch (const std::exception& e) {
             std::cerr << "Error: " << e.what() << std::endl;
             MPI_Finalize();
