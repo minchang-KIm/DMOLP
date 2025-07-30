@@ -33,7 +33,7 @@ struct Graph {
     std::vector<int> col_indices;
 };
 
-// Phase 1 메트릭 구조체 (phase1.cu에서 정의된 것과 동일)
+// Phase 1 메트릭 구조체
 struct Phase1Metrics {
     int total_vertices;
     int total_edges;
