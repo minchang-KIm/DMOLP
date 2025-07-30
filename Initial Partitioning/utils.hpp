@@ -49,5 +49,6 @@ void sync_global_partitions(int procId, int nprocs, std::vector<std::vector<int>
 void add_node_to_partition(int node, int partition_id, std::vector<std::vector<int>> &partitions, std::unordered_set<int> &global_partitioned, std::vector<PartitionUpdate> &pending_updates);
 void seed_redistribution(int procId, int nprocs, int numParts, const std::vector<int> &remaining_seeds, const std::unordered_map<int, std::vector<int>> &local_adj, std::vector<std::vector<int>> &partitions, std::unordered_set<int> &global_partitioned);
 void print_summary(int procId, int nprocs, const std::vector<std::vector<int>> &partitions, const std::unordered_map<int, int> &global_degree);
+void print_proc_partition(int procId, int nprocs, int numParts, const std::vector<std::vector<int>> &partitions, const std::unordered_map<int, std::vector<int>> &local_adj);
 
 #endif

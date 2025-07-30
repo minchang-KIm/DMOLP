@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <iterator>
 #include <iostream>
+#include <cstdint>
 
 #include "utils.hpp"
 #include "partition.hpp"
@@ -209,42 +210,79 @@ void partition_expansion(int procId, int nprocs, int numParts, int theta, const 
     if (procId == 0) cout << "[proc " << procId << "] Seeding partitions...\n";
 
     vector<NodeInfo> available_seeds;
-    vector<int> used_seeds;
-
     for (int seed : seeds) {
         auto it = local_adj.find(seed);
-        if (it != local_adj.end()) {
-            available_seeds.push_back({seed, it->second});
-            used_seeds.push_back(seed);
+        if (it != local_adj.end()) available_seeds.push_back({seed, it->second});
+    }
+
+    vector<int> sendbuf = serialize_node_info(available_seeds);
+    int local_size = (int)sendbuf.size();
+
+    vector<int> all_sizes(nprocs);
+    MPI_Allgather(&local_size, 1, MPI_INT, all_sizes.data(), 1, MPI_INT, MPI_COMM_WORLD);
+
+    vector<int> displacements(nprocs);
+    int total_size = 0;
+    for (int p = 0; p < nprocs; p++) {
+        displacements[p] = total_size;
+        total_size += all_sizes[p];
+    }
+
+    if (total_size <= 0) {
+        if (procId == 0) cout << "[proc " << procId << "] Warning: No data to gather\n";
+        return;
+    }
+
+    vector<int> all_data(total_size);
+    MPI_Allgatherv(sendbuf.data(), local_size, MPI_INT, all_data.data(), all_sizes.data(), displacements.data(), MPI_INT, MPI_COMM_WORLD);
+
+    vector<NodeInfo> all_available_seeds;
+    unordered_set<int> seen_seeds;
+
+    for (int p = 0; p < nprocs; p++) {
+        if (all_sizes[p] == 0) continue;
+
+        vector<int> proc_data(all_data.begin() + displacements[p], all_data.begin() + displacements[p] + all_sizes[p]);
+        vector<NodeInfo> proc_seeds = deserialize_node_info(proc_data);
+
+        for (const auto &s : proc_seeds) {
+            if (seen_seeds.find(s.vertex) == seen_seeds.end()) {
+                seen_seeds.insert(s.vertex);
+                all_available_seeds.push_back(s);
+            }
         }
     }
 
-    for (int i = 0; i < min((int)available_seeds.size(), numParts); i++) {
-        partitions[i].push_back(available_seeds[i].vertex);
-        global_partitioned.insert(available_seeds[i].vertex);
+    sort(all_available_seeds.begin(), all_available_seeds.end(), [](const NodeInfo &a, const NodeInfo &b) {
+        return a.vertex < b.vertex;
+    });
+
+    vector<int> used_seeds;
+    for (int i = 0; i < min((int)all_available_seeds.size(), numParts); i++) {
+        int seed = all_available_seeds[i].vertex;
+        partitions[i].push_back(seed);
+        global_partitioned.insert(seed);
+        used_seeds.push_back(seed);
     }
 
-    if (procId == 0) cout << "[proc " << procId << "] Local seeds assigned: " << available_seeds.size() << "/" << seeds.size() << "\n";
+    if (procId == 0) {
+        cout << "[proc " << procId << "] Initial seeds assigned: " << used_seeds.size() << "/" << seeds.size() << "\n";
+        for (size_t i = 0; i < used_seeds.size(); i++)
+            cout << "  Partition " << i << ": " << used_seeds[i] << "\n";
+    }
 
+    unordered_set<int> seeds_set(used_seeds.begin(), used_seeds.end());
     vector<int> remaining_seeds;
+
     for (int seed : seeds)
-        if (find(used_seeds.begin(), used_seeds.end(), seed) == used_seeds.end()) remaining_seeds.push_back(seed);
+        if (seeds_set.find(seed) == seeds_set.end()) remaining_seeds.push_back(seed);
 
     seed_redistribution(procId, nprocs, numParts, remaining_seeds, local_adj, partitions, global_partitioned);
 
-    for (int proc = 0; proc < nprocs; proc++) {
-        if (proc == procId) {
-            cout << "[proc " << procId << "] After redistribution, assigned seeds:\n";
-            for (int p = 0; p < numParts; ++p) {
-                cout << "  Partition " << p << ": ";
-                for (int v : partitions[p]) cout << v << " ";
-                cout << endl;
-            }
-            cout << flush;
-        }
-        MPI_Barrier(MPI_COMM_WORLD);
-    }
+    print_proc_partition(procId, nprocs, numParts, partitions, local_adj);
+
     sync_global_partitions(procId, nprocs, partitions, global_partitioned, pending_updates);
+    MPI_Barrier(MPI_COMM_WORLD);
 
     if (procId == 0) cout << "[proc " << procId << "] Starting iterative expansion...\n";
 
@@ -258,7 +296,6 @@ void partition_expansion(int procId, int nprocs, int numParts, int theta, const 
         bool expansion = false;
         vector<FrontierNode> all_candidates;
 
-        #pragma omp for schedule(dynamic)
         for (int p = 0; p < numParts; p++) {
             if (partitions[p].empty()) continue;
 
@@ -270,11 +307,10 @@ void partition_expansion(int procId, int nprocs, int numParts, int theta, const 
                 if (max_add < frontiers_size) nth_element(frontiers.begin(), frontiers.begin() + max_add, frontiers.end(), greater<FrontierNode>());
                 sort(frontiers.begin(), frontiers.begin() + max_add, greater<FrontierNode>());
 
-                #pragma omp critical
-                {
-                    for (int i = 0; i < max_add; i++) {
-                        const auto &frontier = frontiers[i];
-                        if (global_partitioned.find(frontier.vertex) == global_partitioned.end()) all_candidates.push_back(frontier);
+                for (int i = 0; i < max_add; i++) {
+                    const auto &frontier = frontiers[i];
+                    if (global_partitioned.find(frontier.vertex) == global_partitioned.end()) {
+                        all_candidates.push_back(frontier);
                     }
                 }
             }
@@ -299,12 +335,13 @@ void partition_expansion(int procId, int nprocs, int numParts, int theta, const 
             }
         }
 
+        const int threshold = (theta * 0.3) > 0 ? (theta * 0.3) : theta;
         if (!expansion && global_partitioned.size() < all_nodes.size()) {
             vector<int> isolated_nodes;
             for (int node : all_nodes) {
                 if (global_partitioned.find(node) == global_partitioned.end()) {
                     isolated_nodes.push_back(node);
-                    if (isolated_nodes.size() >= theta) break;
+                    if (isolated_nodes.size() >= threshold) break;
                 }
             }
 

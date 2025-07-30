@@ -4,6 +4,7 @@
 #include <unordered_set>
 #include <algorithm>
 #include <iostream>
+#include <cstdint>
 
 #include "utils.hpp"
 
@@ -94,20 +95,34 @@ void sync_updates(int procId, int nprocs, const vector<PartitionUpdate> &local_u
         total_size += all_sizes[p];
     }
 
+    if (total_size == 0) return;
+
     vector<int> total_serialized(total_size);
     MPI_Allgatherv(local_serialized.data(), local_size, MPI_INT, total_serialized.data(), all_sizes.data(), displacements.data(), MPI_INT, MPI_COMM_WORLD);
+
+    vector<PartitionUpdate> all_updates;
 
     for (int p = 0; p < nprocs; p++) {
         if (all_sizes[p] == 0) continue;
 
         vector<int> proc_data(total_serialized.begin() + displacements[p], total_serialized.begin() + displacements[p] + all_sizes[p]);
         vector<PartitionUpdate> proc_updates = deserialize_updates(proc_data);
+        all_updates.insert(all_updates.end(), proc_updates.begin(), proc_updates.end());
+    }
 
-        for (const auto &update : proc_updates) {
-            if (global_partitioned.find(update.node) == global_partitioned.end()) {
-                partitions[update.partition_id].push_back(update.node);
-                global_partitioned.insert(update.node);
-            }
+    sort(all_updates.begin(), all_updates.end(), [](const PartitionUpdate &a, const PartitionUpdate &b) {
+        if (a.node != b.node) return a.node < b.node;
+        return a.partition_id < b.partition_id;
+    });
+
+    unordered_set<int> processed_nodes;
+    for (const auto &u : all_updates) {
+        if (processed_nodes.count(u.node)) continue;
+
+        if (global_partitioned.find(u.node) == global_partitioned.end()) {
+            partitions[u.partition_id].push_back(u.node);
+            global_partitioned.insert(u.node);
+            processed_nodes.insert(u.node);
         }
     }
 }
@@ -134,7 +149,7 @@ vector<vector<int>> deserialize_partitions(const vector<int> &buffer) {
 
     for (int i = 0; i < num_partitions; i++) {
         int size = buffer[idx++];
-        vector<int> partition(buffer.begin() + idx, buffer.begin() + idx + size);
+        partitions[i] = vector<int>(buffer.begin() + idx, buffer.begin() + idx + size);
         idx += size;
     }
 
@@ -158,48 +173,133 @@ void add_node_to_partition(int node, int partition_id, vector<vector<int>> &part
 }
 
 void seed_redistribution(int procId, int nprocs, int numParts, const vector<int> &remaining_seeds, const unordered_map<int, vector<int>> &local_adj, vector<vector<int>> &partitions, unordered_set<int> &global_partitioned) {
-    if (remaining_seeds.empty()) return;
+    vector<int> all_empty(nprocs, 0);
+    int is_empty = remaining_seeds.empty() ? 1 : 0;
+    MPI_Allgather(&is_empty, 1, MPI_INT, all_empty.data(), 1, MPI_INT, MPI_COMM_WORLD);
+
+    bool empty = true;
+    for (int flag : all_empty) {
+        if (flag == 0) {
+            empty = false;
+            break;
+        }
+    }
+    if (empty) return;
 
     vector<NodeInfo> remaining_seed_infos;
+    remaining_seed_infos.reserve(remaining_seeds.size());
     for (int seed : remaining_seeds) {
         auto it = local_adj.find(seed);
         vector<int> neighbors = (it != local_adj.end()) ? it->second : vector<int>();
         remaining_seed_infos.push_back({seed, neighbors});
     }
+
+    vector<int> sendbuf = serialize_node_info(remaining_seed_infos);
+    int local_size = (int)sendbuf.size();
+
+    vector<int> all_sizes(nprocs);
+    MPI_Allgather(&local_size, 1, MPI_INT, all_sizes.data(), 1, MPI_INT, MPI_COMM_WORLD);
+
+    vector<int> displacements(nprocs);
+    int total_size = 0;
+    for (int p = 0; p < nprocs; p++) {
+        displacements[p] = total_size;
+        total_size += all_sizes[p];
+    }
+
+    if (total_size <= 0) {
+        if (procId == 0) cout << "[proc " << procId << "] Warning: No data to redistribute\n";
+        return;
+    }
+
+    vector<int> all_data;
+    try {
+        all_data.resize(total_size, 0);
+    } catch (const bad_alloc &e) {
+        cerr << "[proc " << procId << "] Memory allocation failed for size " << total_size << endl;
+        return;
+    }
+    
+    MPI_Allgatherv(sendbuf.data(), local_size, MPI_INT, all_data.data(), all_sizes.data(), displacements.data(), MPI_INT, MPI_COMM_WORLD);
     
     vector<NodeInfo> all_remaining_seeds;
+    unordered_set<int> duplicated_seeds;
+
+    for (int p = 0; p < nprocs; p++) {
+        if (all_sizes[p] == 0) continue;
+
+        vector<int> proc_data(all_data.begin() + displacements[p], all_data.begin() + displacements[p] + all_sizes[p]);
+        vector<NodeInfo> proc_seeds = deserialize_node_info(proc_data);
+
+        for (const auto &s : proc_seeds) {
+            if (duplicated_seeds.find(s.vertex) == duplicated_seeds.end()) {
+                duplicated_seeds.insert(s.vertex);
+                all_remaining_seeds.push_back(s);
+            }
+        }
+    }
+
+    vector<PartitionUpdate> updates;
+    vector<int> empty_partitions;
+
+    for (int p = 0; p < numParts; p++)
+        if (partitions[p].empty()) empty_partitions.push_back(p);
+
+    sort(all_remaining_seeds.begin(), all_remaining_seeds.end(), [](const NodeInfo &a, const NodeInfo &b) {
+        return a.vertex < b.vertex;
+    });
+
+    size_t seed_idx = 0;
+    size_t remaining_size = all_remaining_seeds.size();
+    for (int partition_id : empty_partitions) {
+        if (seed_idx >= remaining_size) break;
+
+        int seed = all_remaining_seeds[seed_idx].vertex;
+
+        if (global_partitioned.find(seed) == global_partitioned.end()) {
+            partitions[partition_id].push_back(seed);
+            global_partitioned.insert(seed);
+            updates.push_back(PartitionUpdate{partition_id, seed});
+        }
+
+        ++seed_idx;
+    }
+
+    while (seed_idx < remaining_size) {
+        int min_partition = 0;
+        size_t min_size = partitions[0].size();
+
+        for (int p = 1; p < numParts; p++) {
+            size_t current_size = partitions[p].size();
+            if (current_size < min_size || (current_size == min_size && p < min_partition)) {
+                min_size = current_size;
+                min_partition = p;
+            }
+        }
+
+        int seed = all_remaining_seeds[seed_idx].vertex;
+        if (global_partitioned.find(seed) == global_partitioned.end()) {
+            partitions[min_partition].push_back(seed);
+            global_partitioned.insert(seed);
+            updates.push_back(PartitionUpdate{min_partition, seed});
+        }
+
+        ++seed_idx;
+    }
 
     if (procId == 0) {
-        all_remaining_seeds = remaining_seed_infos;
-
-        for (int p = 1; p < nprocs; p++) {
-            int recv_size = 0;
-            MPI_Recv(&recv_size, 1, MPI_INT, p, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-
-            if (recv_size > 0) {
-                vector<int> recvbuf(recv_size);
-                MPI_Recv(recvbuf.data(), recv_size, MPI_INT, p, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-
-                vector<NodeInfo> proc_seeds = deserialize_node_info(recvbuf);
-                all_remaining_seeds.insert(all_remaining_seeds.end(), proc_seeds.begin(), proc_seeds.end());
+        cout << "[proc " << procId << "] Seed redistribution summary:\n";
+        cout << "  Total remaining seeds collected: " << all_remaining_seeds.size() << "\n";
+        cout << "  Empty partitions found: " << empty_partitions.size() << "\n";
+        cout << "  Updates generated: " << updates.size() << "\n";
+        
+        unordered_set<int> assigned_seeds;
+        for (int p = 0; p < numParts; p++) {
+            for (int node : partitions[p]) {
+                if (assigned_seeds.count(node)) cout << "  WARNING: Node " << node << " assigned to multiple partitions!\n";
+                else assigned_seeds.insert(node);
             }
         }
-
-        size_t seed_idx = 0;
-        size_t remaining_size = all_remaining_seeds.size();
-        for (int p = 0; p < numParts && seed_idx < remaining_size; p++) {
-            if (partitions[p].empty()) {
-                partitions[p].push_back(all_remaining_seeds[seed_idx].vertex);
-                global_partitioned.insert(all_remaining_seeds[seed_idx].vertex);
-                seed_idx++;
-            }
-        }
-    } else {
-        vector<int> sendbuf = serialize_node_info(remaining_seed_infos);
-        int send_size = (int)sendbuf.size();
-
-        MPI_Send(&send_size, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
-        if (send_size > 0) MPI_Send(sendbuf.data(), send_size, MPI_INT, 0, 1, MPI_COMM_WORLD);
     }
 }
 
@@ -235,4 +335,82 @@ void print_summary(int procId, int nprocs, const vector<vector<int>> &partitions
     }
     
     cout << "=======================================\n\n";
+}
+
+void print_proc_partition(int procId, int nprocs, int numParts, const vector<vector<int>> &partitions, const unordered_map<int, vector<int>> &local_adj) {
+    vector<int> local(numParts, 0);
+
+    for (int p = 0; p < numParts; p++) {
+        for (int node : partitions[p])
+            if (local_adj.find(node) != local_adj.end()) local[p]++;
+    }
+
+    vector<int> all_data(nprocs * numParts);
+    MPI_Allgather(local.data(), numParts, MPI_INT, all_data.data(), numParts, MPI_INT, MPI_COMM_WORLD);
+
+    if (procId == 0) {
+        cout << "\n=== Process-Partition Matrix ===\n";
+        cout << "Proc\\Partition";
+        for (int p = 0; p < numParts; p++) {
+            cout << "\tPart" << p;
+        }
+        cout << "\tTotal\n";
+        
+        for (int proc = 0; proc < nprocs; proc++) {
+            cout << "Process " << proc;
+            int proc_total = 0;
+            
+            for (int p = 0; p < numParts; p++) {
+                int responsibility = all_data[proc * numParts + p];
+                cout << "\t" << responsibility;
+                proc_total += responsibility;
+            }
+            cout << "\t" << proc_total << "\n";
+        }
+        
+        cout << "\n=== Process Workload Analysis ===\n";
+        for (int proc = 0; proc < nprocs; proc++) {
+            int proc_total = 0;
+            vector<int> proc_partitions;
+            
+            for (int p = 0; p < numParts; p++) {
+                int responsibility = all_data[proc * numParts + p];
+                proc_total += responsibility;
+                if (responsibility > 0) {
+                    proc_partitions.push_back(p);
+                }
+            }
+            
+            cout << "Process " << proc << ": " << proc_total << " nodes, responsible for partitions: ";
+            for (size_t i = 0; i < proc_partitions.size(); i++) {
+                cout << proc_partitions[i];
+                if (i < proc_partitions.size() - 1) cout << ", ";
+            }
+            cout << "\n";
+        }
+        
+        vector<int> proc_loads(nprocs, 0);
+        for (int proc = 0; proc < nprocs; proc++) {
+            for (int p = 0; p < numParts; p++) {
+                proc_loads[proc] += all_data[proc * numParts + p];
+            }
+        }
+        
+        int min_load = *min_element(proc_loads.begin(), proc_loads.end());
+        int max_load = *max_element(proc_loads.begin(), proc_loads.end());
+        double avg_load = 0.0;
+        for (int load : proc_loads) avg_load += load;
+        avg_load /= nprocs;
+        
+        cout << "\n=== Load Balance Metrics ===\n";
+        cout << "Min process load: " << min_load << " nodes\n";
+        cout << "Max process load: " << max_load << " nodes\n";
+        cout << "Average process load: " << avg_load << " nodes\n";
+        if (avg_load > 0) {
+            cout << "Load imbalance ratio: " << (double)max_load / avg_load << "\n";
+        }
+        cout << "=======================================\n\n";
+    }
+    
+    MPI_Barrier(MPI_COMM_WORLD);
 }
