@@ -1,4 +1,5 @@
 #include "phase1.h"
+#include "graph_types.h"
 #include <iostream>
 #include <vector>
 #include <mpi.h>
@@ -377,55 +378,5 @@ Phase1Metrics phase1_partition_and_distribute(int mpi_rank, int mpi_size, int nu
         
         global_metrics.distribution_time_ms = distribution_time;
     }
-    
-    // 메트릭을 다른 프로세스들에게 브로드캐스트
-    if (mpi_rank == 0) {
-        // 메트릭 데이터 준비
-        std::vector<int> metrics_data;
-        metrics_data.push_back(global_metrics.initial_edge_cut);
-        metrics_data.push_back(static_cast<int>(global_metrics.initial_vertex_balance * 1000000)); // 정밀도를 위해 스케일링
-        metrics_data.push_back(static_cast<int>(global_metrics.initial_edge_balance * 1000000));
-        metrics_data.push_back(static_cast<int>(global_metrics.loading_time_ms));
-        metrics_data.push_back(static_cast<int>(global_metrics.distribution_time_ms));
-        metrics_data.push_back(global_metrics.total_vertices);
-        metrics_data.push_back(global_metrics.total_edges);
-        
-        // 파티션 카운트 추가
-        for (int count : global_metrics.partition_vertex_counts) {
-            metrics_data.push_back(count);
-        }
-        for (int count : global_metrics.partition_edge_counts) {
-            metrics_data.push_back(count);
-        }
-        
-        int data_size = metrics_data.size();
-        MPI_Bcast(&data_size, 1, MPI_INT, 0, MPI_COMM_WORLD);
-        MPI_Bcast(metrics_data.data(), data_size, MPI_INT, 0, MPI_COMM_WORLD);
-    } else {
-        // 메트릭 데이터 수신
-        int data_size;
-        MPI_Bcast(&data_size, 1, MPI_INT, 0, MPI_COMM_WORLD);
-        
-        std::vector<int> metrics_data(data_size);
-        MPI_Bcast(metrics_data.data(), data_size, MPI_INT, 0, MPI_COMM_WORLD);
-        
-        // 메트릭 복원
-        global_metrics.initial_edge_cut = metrics_data[0];
-        global_metrics.initial_vertex_balance = static_cast<double>(metrics_data[1]) / 1000000.0;
-        global_metrics.initial_edge_balance = static_cast<double>(metrics_data[2]) / 1000000.0;
-        global_metrics.loading_time_ms = metrics_data[3];
-        global_metrics.distribution_time_ms = metrics_data[4];
-        global_metrics.total_vertices = metrics_data[5];
-        global_metrics.total_edges = metrics_data[6];
-        
-        global_metrics.partition_vertex_counts.resize(num_partitions);
-        global_metrics.partition_edge_counts.resize(num_partitions);
-        
-        for (int i = 0; i < num_partitions; ++i) {
-            global_metrics.partition_vertex_counts[i] = metrics_data[7 + i];
-            global_metrics.partition_edge_counts[i] = metrics_data[7 + num_partitions + i];
-        }
-    }
-    
     return global_metrics;
 }

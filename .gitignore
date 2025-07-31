@@ -1,3 +1,41 @@
 tmp
 hosts.txt
 .vscode
+
+# 빌드 산출물
+/build/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+*.o
+*.obj
+*.exe
+*.out
+*.a
+*.so
+*.dll
+*.mod
+*.pyc
+*.pyo
+*.pyd
+*.log
+*.tmp
+*.swp
+*.swo
+*.bak
+*.user
+*.DS_Store
+
+# VSCode
+.vscode/
+
+# 기타
+*.ipynb_checkpoints
+
+# CUDA
+*.cu.o
+*.ptx
+
+phase2.instructions.md 
+mpi_distributed_workflow_v2
