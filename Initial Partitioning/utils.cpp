@@ -164,6 +164,50 @@ void sync_global_partitions(int procId, int nprocs, vector<vector<int>> &partiti
     pending_updates.clear();
 }
 
+void sync_partitioned_status(int procId, int nprocs, unordered_set<int> &global_partitioned) {
+    vector<int> local_partitioned(global_partitioned.begin(), global_partitioned.end());
+    int local_size = (int)local_partitioned.size();
+
+    vector<int> all_sizes(nprocs);
+    MPI_Allgather(&local_size, 1, MPI_INT, all_sizes.data(), 1, MPI_INT, MPI_COMM_WORLD);
+
+    vector<int> displacements(nprocs);
+    int total_size = 0;
+    for (int p = 0; p < nprocs; p++) {
+        displacements[p] = total_size;
+        total_size += all_sizes[p];
+    }
+
+    if (total_size == 0) return;
+
+    vector<int> all_partitioned(total_size);
+    MPI_Allgatherv(local_partitioned.data(), local_size, MPI_INT, all_partitioned.data(), all_sizes.data(), displacements.data(), MPI_INT, MPI_COMM_WORLD);
+
+    global_partitioned.clear();
+    global_partitioned.insert(all_partitioned.begin(), all_partitioned.end());
+}
+
+void sync_partitioned(int procId, int nprocs, const vector<int> &newly_partitioned, unordered_set<int> &global_partitioned) {
+    int local_size = (int)newly_partitioned.size();
+
+    vector<int> all_sizes(nprocs);
+    MPI_Allgather(&local_size, 1, MPI_INT, all_sizes.data(), 1, MPI_INT, MPI_COMM_WORLD);
+
+    vector<int> displacements(nprocs);
+    int total_size = 0;
+    for (int p = 0; p < nprocs; p++) {
+        displacements[p] = total_size;
+        total_size += all_sizes[p];
+    }
+
+    if (total_size == 0) return;
+
+    vector<int> all_partitioned(total_size);
+    MPI_Allgatherv(newly_partitioned.data(), local_size, MPI_INT, all_partitioned.data(), all_sizes.data(), displacements.data(), MPI_INT, MPI_COMM_WORLD);
+
+    global_partitioned.insert(all_partitioned.begin(), all_partitioned.end());
+}
+
 void add_node_to_partition(int node, int partition_id, vector<vector<int>> &partitions, unordered_set<int> &global_partitioned, vector<PartitionUpdate> &pending_updates) {
     if (global_partitioned.find(node) == global_partitioned.end()) {
         partitions[partition_id].push_back(node);

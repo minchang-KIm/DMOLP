@@ -46,6 +46,8 @@ void sync_updates(int procId, int nprocs, const std::vector<PartitionUpdate> &lo
 std::vector<int> serialize_partitions(const std::vector<std::vector<int>> &partitions);
 std::vector<std::vector<int>> deserialize_partitions(const std::vector<int> &buffer);
 void sync_global_partitions(int procId, int nprocs, std::vector<std::vector<int>> &partitions, std::unordered_set<int> &global_partitioned, std::vector<PartitionUpdate> &pending_updates);
+void sync_partitioned_status(int procId, int nprocs, std::unordered_set<int> &global_partitioned);
+void sync_partitioned(int procId, int nprocs, const std::vector<int> &newly_partitioned, std::unordered_set<int> &global_partitioned);
 void add_node_to_partition(int node, int partition_id, std::vector<std::vector<int>> &partitions, std::unordered_set<int> &global_partitioned, std::vector<PartitionUpdate> &pending_updates);
 void seed_redistribution(int procId, int nprocs, int numParts, const std::vector<int> &remaining_seeds, const std::unordered_map<int, std::vector<int>> &local_adj, std::vector<std::vector<int>> &partitions, std::unordered_set<int> &global_partitioned);
 void print_summary(int procId, int nprocs, const std::vector<std::vector<int>> &partitions, const std::unordered_map<int, int> &global_degree);
