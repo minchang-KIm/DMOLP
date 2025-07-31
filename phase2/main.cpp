@@ -214,10 +214,16 @@ private:
     void calculateImbalance() {
         std::cout << "Step2 Rank " << mpi_rank_ << ": 불균형 계산\n";
         
+        // RV, RE의 평균 계산
+        double rv_mean = 0.0, re_mean = 0.0;
+        for (int i = 0; i < num_partitions_; ++i) {
+            rv_mean += PI_[i].RV;
+            re_mean += PI_[i].RE;
+        }
+        rv_mean /= num_partitions_;
+        re_mean /= num_partitions_;
+
         // RV, RE의 분산 계산
-        double rv_mean = 1.0; // 이상적으로는 1.0
-        double re_mean = 1.0;
-        
         double rv_variance = 0.0, re_variance = 0.0;
         for (int i = 0; i < num_partitions_; ++i) {
             rv_variance += (PI_[i].RV - rv_mean) * (PI_[i].RV - rv_mean);
