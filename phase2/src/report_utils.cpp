@@ -1,4 +1,7 @@
+#include <iostream>
+#include <iomanip>
 #include "report_utils.h"
+
 
 void printFinalResults(
     int mpi_rank,

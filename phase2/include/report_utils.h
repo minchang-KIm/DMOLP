@@ -1,6 +1,5 @@
-#ifndef DMOLP_REPORT_UTILS_H
-#define DMOLP_REPORT_UTILS_H
-
+#pragma once
+#include "phase1.h"
 #include <vector>
 #include <string>
 #include <iomanip>
@@ -15,5 +14,3 @@ void printFinalResults(
     int num_partitions_,
     long execution_time_ms,
     const Phase1Metrics& phase1_metrics_);
-
-#endif // DMOLP_REPORT_UTILS_H

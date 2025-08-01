@@ -1,38 +1,35 @@
-cmake_minimum_required(VERSION 3.10)
-project(DMOLP_Phase2 LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.18)
+project(HPCPartitioning LANGUAGES CXX CUDA)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-# MPI
+# MPI 찾기
 find_package(MPI REQUIRED)
+find_package(CUDAToolkit REQUIRED)
 include_directories(${MPI_INCLUDE_PATH})
 
-# OpenMP
-find_package(OpenMP REQUIRED)
-if(OpenMP_CXX_FOUND)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-endif()
+# CUDA 설정
+set(CMAKE_CUDA_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
-# CUDA (주석 해제 시 사용)
-# find_package(CUDA)
-# if(CUDA_FOUND)
-#     include_directories(${CUDA_INCLUDE_DIRS})
-#     set(CUDA_NVCC_FLAGS "-arch=sm_60")
-# endif()
-
-# 헤더 포함
-include_directories(${CMAKE_SOURCE_DIR}/../Initial Partitioning)
+# include 디렉토리
+include_directories(${CMAKE_SOURCE_DIR}/include)
 
 # 소스 파일
 set(SOURCES
     main.cpp
-    phase1.cpp
-    report_utils.cpp
+    src/phase1.cpp
+    src/phase2.cpp
+    src/gpu_lp_boundary.cu
 )
 
-add_executable(mpi_distributed_workflow_v2 ${SOURCES})
+add_executable(hpc_partitioning ${SOURCES})
 
-target_link_libraries(mpi_distributed_workflow_v2 PRIVATE MPI::MPI_CXX OpenMP::OpenMP_CXX)
-# CUDA 라이브러리 필요시 아래 주석 해제
-# target_link_libraries(mpi_distributed_workflow_v2 PRIVATE ${CUDA_LIBRARIES})
+target_link_libraries(hpc_partitioning ${MPI_CXX_LIBRARIES} cuda cudart)
+
+# GPU 아키텍처 (원하는 경우 수정)
+set_target_properties(hpc_partitioning PROPERTIES
+    CUDA_ARCHITECTURES "60;70;75;80"
+)
+
+# MPI 실행 시 빌드 후 사용법 출력
+message(STATUS "Build complete. Run with:")
+message(STATUS "mpirun -np <servers> ./hpc_partitioning <graph_file> <num_partitions>")

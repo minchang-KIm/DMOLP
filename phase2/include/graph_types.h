@@ -24,9 +24,9 @@ struct Phase1Metrics {
     std::vector<int> partition_edge_counts;
 };
 
+
 // 파티션 정보 구조체 (Phase2 등에서 사용)
 struct PartitionInfo {
-    int partition_id = 0;
     double RV = 1.0;  // Ratio of Vertex
     double RE = 1.0;  // Ratio of Edge
     double imb_RV = 0.0;  // imbalance RV
