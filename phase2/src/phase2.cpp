@@ -239,9 +239,6 @@ PartitioningMetrics run_phase2(
             if (mpi_rank == 0) std::cout << "수렴!\n";
             break;
         }
-        if (mpi_rank == 0) {
-            std::cout << "현재 Edge-cut: " << curr_edge_cut << ", 변화율: " << delta << "\n";
-        }
     }
         if (mpi_rank == 0) {
             std::cout << "Phase 2 완료 - 최종 Edge-cut: " << prev_edge_cut << "\n";
