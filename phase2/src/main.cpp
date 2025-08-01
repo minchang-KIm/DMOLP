@@ -36,7 +36,7 @@ int main(int argc, char** argv) {
         std::cout << "\n=== Phase 1: Initial Partitioning & Distribution ===\n";
     }
 
-    Phase1Metrics metrics = phase1_partition_and_distribute(
+    Phase1Metrics metrics1_raw = phase1_partition_and_distribute(
         mpi_rank,
         mpi_size,
         num_partitions,
@@ -46,14 +46,23 @@ int main(int argc, char** argv) {
         global_ids,        // 글로벌 ID 배열
         global_to_local);  // 글로벌→로컬 매핑
 
+    PartitioningMetrics metrics1(metrics1_raw, num_partitions);
     // --------------------
     // Phase 2 실행
     // --------------------
-    run_phase2(mpi_rank, mpi_size, num_partitions,
-               local_graph, vertex_labels,
-               global_ids, global_to_local,
-               metrics);
-    
+
+    PartitioningMetrics metrics2 = run_phase2(
+        mpi_rank, mpi_size,
+        num_partitions,
+        local_graph,
+        vertex_labels,
+        global_ids,
+        global_to_local
+    );
+
+    if (mpi_rank == 0) {
+        printComparisonReport(metrics1, metrics2);
+    }
     MPI_Finalize();
     return 0;
 }

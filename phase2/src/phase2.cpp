@@ -8,7 +8,9 @@
 #include <numeric>
 #include <algorithm>
 #include "graph_types.h"
+#include "report_utils.h"
 #include <iomanip>
+#include <chrono>
 
 void calculatePartitionRatios(
     const Graph &g,
@@ -118,18 +120,19 @@ static int computeEdgeCut(const Graph &g, const std::vector<int> &labels)
     return global_cut / 2;
 }
 
-void run_phase2(
+PartitioningMetrics run_phase2(
     int mpi_rank, int mpi_size,
     int num_partitions,
     Graph &local_graph,
     std::vector<int> &vertex_labels,
     const std::vector<int> &global_ids,
-    const std::unordered_map<int, int> &global_to_local,
-    const Phase1Metrics &metrics)
+    const std::unordered_map<int, int> &global_to_local)
 {
     const int max_iter = 500;
     const double epsilon = 0.03;
     const int k_limit = 10;
+
+    auto t_phase2_start = std::chrono::high_resolution_clock::now();
 
     std::vector<int> labels_new = vertex_labels;
     std::vector<PartitionInfo> PI(num_partitions);
@@ -249,100 +252,29 @@ void run_phase2(
             }
         }
     }
-    // Phase 1 메트릭 출력
-    if (mpi_rank == 0) {
-        std::cout << "Phase 1 메트릭:\n";
-        std::cout << "초기 Edge-cut: " << metrics.initial_edge_cut << "\n";
-        std::cout << "초기 Vertex Balance: " << metrics.initial_vertex_balance << "\n";
-        std::cout << "초기 Edge Balance: " << metrics.initial_edge_balance << "\n";
-        std::cout << "총 정점 수: " << metrics.total_vertices << "\n";
-        std::cout << "총 간선 수: " << metrics.total_edges << "\n";
-        std::cout << "파티션별 정점 수: ";
-        for (int count : metrics.partition_vertex_counts) {
-            std::cout << count << " ";
-        }
-        std::cout << "\n";
-        std::cout << "파티션별 간선 수: ";
-        for (int count : metrics.partition_edge_counts) {
-            std::cout << count << " ";
-        }
-        std::cout << "\n";
-        std::cout << "로딩 시간 (ms): " << metrics.loading_time_ms << "\n";
-        std::cout << "분배 시간 (ms): " << metrics.distribution_time_ms << "\n";
-        std::cout << "총 실행 시간 (ms): " << (metrics.loading_time_ms + metrics.distribution_time_ms) << "\n";
 
-        std::cout << "Phase 2 실행 시간 (ms): " << (metrics.loading_time_ms + metrics.distribution_time_ms) << "\n";
-        std::cout << "총 소요 시간 (ms): "
-                  << (metrics.loading_time_ms + metrics.distribution_time_ms +
-                      (metrics.loading_time_ms + metrics.distribution_time_ms)) << "\n";
-        std::cout << "Phase 2 완료 - 최종 Edge-cut: " << prev_edge_cut << "\n";
-        std::cout << "각 파티션의 라벨 분포:\n";
-        for (int i = 0; i < num_partitions; i++) {
-            int count = std::count(vertex_labels.begin(), vertex_labels.end(), i);
-            std::cout << "Partition " << i << ": " << count << "개\n";
-        }
-
-        std::cout << "\n=== Phase 1 vs Phase 2 (7단계 알고리즘) 비교 ===\n";
-        double edge_cut_improvement = 0.0;
-        if (metrics.initial_edge_cut > 0) {
-            edge_cut_improvement = (static_cast<double>(metrics.initial_edge_cut - prev_edge_cut) / metrics.initial_edge_cut) * 100.0;
-        }
-        double vertex_balance_improvement = 0.0;
-        if (metrics.initial_vertex_balance > 0) {
-            vertex_balance_improvement = ((metrics.initial_vertex_balance - metrics.initial_edge_balance) / metrics.initial_vertex_balance) * 100.0;
-        }
-        double edge_balance_improvement = 0.0;
-        if (metrics.initial_edge_balance > 0) {
-            edge_balance_improvement = ((metrics.initial_edge_balance - metrics.initial_edge_balance) / metrics.initial_edge_balance) * 100.0;
-        }
-        std::cout << "┌─────────────────────────────────────────────────────────────┐\n";
-        std::cout << "│                    메트릭 비교 결과                         │\n";
-        std::cout << "├─────────────────────────────────────────────────────────────┤\n";
-        std::cout << "│ Edge-cut:                                                   │\n";
-        std::cout << "│   Phase 1 (초기): " << std::setw(10) << metrics.initial_edge_cut << "                              │\n";
-        std::cout << "│   Phase 2 (최종): " << std::setw(10) << prev_edge_cut << "                              │\n";
-        std::cout << "│   개선율:         " << std::setw(8) << std::fixed << std::setprecision(2) << edge_cut_improvement << "%                             │\n";
-        std::cout << "│                                                             │\n";
-        std::cout << "│ Vertex Balance:                                             │\n";
-        std::cout << "│   Phase 1 (초기): " << std::setw(8) << std::fixed << std::setprecision(4) << metrics.initial_vertex_balance << "                             │\n";
-        std::cout << "│   Phase 2 (최종): " << std::setw(8) << std::fixed << std::setprecision(4) << metrics.initial_edge_balance << "                             │\n";
-        std::cout << "│   개선율:         " << std::setw(8) << std::fixed << std::setprecision(2) << vertex_balance_improvement << "%                             │\n";
-        std::cout << "│                                                             │\n";
-        std::cout << "│ Edge Balance:                                               │\n";
-        std::cout << "│   Phase 1 (초기): " << std::setw(8) << std::fixed << std::setprecision(4) << metrics.initial_edge_balance << "                             │\n";
-        std::cout << "│   Phase 2 (최종): " << std::setw(8) << std::fixed << std::setprecision(4) << metrics.initial_edge_balance << "                             │\n";
-        std::cout << "│   개선율:         " << std::setw(8) << std::fixed << std::setprecision(2) << edge_balance_improvement << "%                             │\n";
-        std::cout << "│                                                             │\n";
-        std::cout << "│ 실행 시간:                                                  │\n";
-        std::cout << "│   Phase 1 (로딩): " << std::setw(6) << metrics.loading_time_ms << " ms                          │\n";
-        std::cout << "│   Phase 1 (분산): " << std::setw(6) << metrics.distribution_time_ms << " ms                          │\n";
-        std::cout << "│   Phase 2 (7단계): " << std::setw(5) << (metrics.loading_time_ms + metrics.distribution_time_ms) << " ms                          │\n";
-        std::cout << "│   총 소요시간:     " << std::setw(5) << (metrics.loading_time_ms + metrics.distribution_time_ms + (metrics.loading_time_ms + metrics.distribution_time_ms)) << " ms                          │\n";
-        std::cout << "└─────────────────────────────────────────────────────────────┘\n";
-        std::cout << "\n=== 알고리즘 성능 요약 ===\n";
-        if (edge_cut_improvement > 0) {
-            std::cout << "✓ Edge-cut " << std::fixed << std::setprecision(1) << edge_cut_improvement << "% 개선 ("
-                      << metrics.initial_edge_cut << " → " << prev_edge_cut << ")\n";
-        } else {
-            std::cout << "⚠ Edge-cut " << std::fixed << std::setprecision(1) << -edge_cut_improvement << "% 악화 ("
-                      << metrics.initial_edge_cut << " → " << prev_edge_cut << ")\n";
-        }
-        if (vertex_balance_improvement > 0) {
-            std::cout << "✓ Vertex Balance " << std::fixed << std::setprecision(1) << vertex_balance_improvement << "% 개선 ("
-                      << metrics.initial_vertex_balance << " → " << metrics.initial_edge_balance << ")\n";
-        } else {
-            std::cout << "⚠ Vertex Balance " << std::fixed << std::setprecision(1) << -vertex_balance_improvement << "% 악화 ("
-                      << metrics.initial_vertex_balance << " → " << metrics.initial_edge_balance << ")\n";
-        }
-        if (edge_balance_improvement > 0) {
-            std::cout << "✓ Edge Balance " << std::fixed << std::setprecision(1) << edge_balance_improvement << "% 개선 ("
-                      << metrics.initial_edge_balance << " → " << metrics.initial_edge_balance << ")\n";
-        } else {
-            std::cout << "⚠ Edge Balance " << std::fixed << std::setprecision(1) << -edge_balance_improvement << "% 악화 ("
-                      << metrics.initial_edge_balance << " → " << metrics.initial_edge_balance << ")\n";
-        }
-        std::cout << "총 소요시간: " << (metrics.loading_time_ms + metrics.distribution_time_ms + (metrics.loading_time_ms + metrics.distribution_time_ms)) << " ms\n";
+    auto t_phase2_end = std::chrono::high_resolution_clock::now();
+    long exec_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t_phase2_end - t_phase2_start).count();
+    // Vertex/Edge Balance 계산 (최대값/평균값)
+    double max_vertex_ratio = 0.0, max_edge_ratio = 0.0;
+    for (const auto &p : PI) {
+        max_vertex_ratio = std::max(max_vertex_ratio, p.RV);
+        max_edge_ratio = std::max(max_edge_ratio, p.RE);
     }
+    double avg_vertex_ratio = std::accumulate(PI.begin(), PI.end(), 0.0, [](double acc, const PartitionInfo& p){ return acc + p.RV; }) / num_partitions;
+    double avg_edge_ratio = std::accumulate(PI.begin(), PI.end(), 0.0, [](double acc, const PartitionInfo& p){ return acc + p.RE; }) / num_partitions;
+    // Vertex Balance: 최대값 / 평균값 (1에 가까울수록 균형)
+    double final_vertex_balance = max_vertex_ratio / avg_vertex_ratio;
+    // Edge Balance: 최대값 / 평균값 (1에 가까울수록 균형)
+    double final_edge_balance = max_edge_ratio / avg_edge_ratio;
+    
 
-
+    PartitioningMetrics m2;
+    m2.edge_cut = prev_edge_cut;
+    m2.vertex_balance = final_vertex_balance;
+    m2.edge_balance = final_edge_balance;
+    m2.loading_time_ms = exec_ms; // Phase2 실행시간
+    m2.distribution_time_ms = 0;
+    m2.num_partitions = num_partitions;
+    return m2;
 }

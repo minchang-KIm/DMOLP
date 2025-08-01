@@ -11,6 +11,7 @@ struct Graph {
     std::vector<int> col_indices;
 };
 
+
 // Phase 1 메트릭 구조체
 struct Phase1Metrics {
     int initial_edge_cut = 0;
@@ -22,6 +23,26 @@ struct Phase1Metrics {
     int total_edges = 0;
     std::vector<int> partition_vertex_counts;
     std::vector<int> partition_edge_counts;
+};
+
+// Phase 1/2 공통 비교용 메트릭 구조체
+struct PartitioningMetrics {
+    int edge_cut = 0;
+    double vertex_balance = 0.0;
+    double edge_balance = 0.0;
+    long loading_time_ms = 0;
+    long distribution_time_ms = 0;
+    int num_partitions = 0;
+
+    PartitioningMetrics() = default;
+    PartitioningMetrics(const Phase1Metrics& m, int num_parts) {
+        edge_cut = m.initial_edge_cut;
+        vertex_balance = m.initial_vertex_balance;
+        edge_balance = m.initial_edge_balance;
+        loading_time_ms = m.loading_time_ms;
+        distribution_time_ms = m.distribution_time_ms;
+        num_partitions = num_parts;
+    }
 };
 
 

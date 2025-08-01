@@ -15,10 +15,11 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 
 # 소스 파일
 set(SOURCES
-    main.cpp
+    src/main.cpp
     src/phase1.cpp
     src/phase2.cpp
     src/gpu_lp_boundary.cu
+    src/report_utils.cpp
 )
 
 add_executable(hpc_partitioning ${SOURCES})
