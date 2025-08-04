@@ -4,7 +4,14 @@
 #include <vector>
 #include <unordered_map>
 
-// 그래프 구조체 (CSR)
+// 그래프 구조체 (CSR) 각 스레드마다 로컬 그래프를 표현
+// global_ids: 글로벌 ID 배열
+// vertex_labels: 각 정점의 라벨
+// row_ptr: 각 정점의 시작 인덱스 (CSR 형식)
+// col_indices: 인접 정점의 로컬 인덱스 배열
+// num_edges: 총 엣지 수
+// num_vertices: 총 정점 수
+// vertex_labels: 각 정점의 라벨
 struct Graph {
     int num_vertices = 0;
     int num_edges = 0;
@@ -14,14 +21,17 @@ struct Graph {
     std::vector<int> vertex_labels; // 각 정점의 라벨
 };
 
-// Ghost 노드 정보 구조체
+// Ghost 노드 정보 구조체 각 스레드마다 Ghost 노드 정보를 표현
+// global_ids: Ghost 노드의 글로벌 ID 배열
+// ghost_labels: Ghost 노드의 라벨 배열
+// global_to_local: 글로벌 ID → 로컬 인덱스 매핑
 struct GhostNodes {
     std::vector<int> global_ids;  // 글로벌 ID
     std::vector<int> ghost_labels; // Ghost 노드의 라벨
     std::unordered_map<int, int> global_to_local; // 글로벌 → 로컬 인덱스 매핑
 };
 
-// Phase 1 메트릭 구조체
+// Phase 1 메트릭 구조체 
 struct Phase1Metrics {
     int initial_edge_cut = 0;
     double initial_vertex_balance = 0.0;

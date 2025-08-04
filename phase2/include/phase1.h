@@ -10,5 +10,6 @@ Phase1Metrics phase1_partition_and_distribute(
     int mpi_rank, int mpi_size, int num_partitions,
     const std::string& filename,
     Graph& local_graph,
-    GhostNodes& ghost_nodes
+    GhostNodes& ghost_nodes,
+    double thetta
 );
