@@ -25,9 +25,7 @@ int main(int argc, char** argv) {
 
     // Phase 1 데이터
     Graph local_graph;
-    std::vector<int> vertex_labels;
-    std::vector<int> global_ids;
-    std::unordered_map<int, int> global_to_local;
+    GhostNodes ghost_nodes;
 
     // --------------------
     // Phase 1 실행
@@ -42,9 +40,8 @@ int main(int argc, char** argv) {
         num_partitions,
         graph_file,        // 파일 이름
         local_graph,       // 로컬 그래프
-        vertex_labels,     // 초기 라벨
-        global_ids,        // 글로벌 ID 배열
-        global_to_local);  // 글로벌→로컬 매핑
+        ghost_nodes        // Ghost 노드 정보
+    );
 
     PartitioningMetrics metrics1(metrics1_raw, num_partitions);
     // --------------------
@@ -55,9 +52,7 @@ int main(int argc, char** argv) {
         mpi_rank, mpi_size,
         num_partitions,
         local_graph,
-        vertex_labels,
-        global_ids,
-        global_to_local
+        ghost_nodes
     );
 
     if (mpi_rank == 0) {

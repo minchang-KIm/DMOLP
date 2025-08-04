@@ -2,6 +2,7 @@
 #define DMOLP_GRAPH_TYPES_H
 
 #include <vector>
+#include <unordered_map>
 
 // 그래프 구조체 (CSR)
 struct Graph {
@@ -9,8 +10,16 @@ struct Graph {
     int num_edges = 0;
     std::vector<int> row_ptr;
     std::vector<int> col_indices;
+    std::vector<int> global_ids; // 글로벌 ID 배열
+    std::vector<int> vertex_labels; // 각 정점의 라벨
 };
 
+// Ghost 노드 정보 구조체
+struct GhostNodes {
+    std::vector<int> global_ids;  // 글로벌 ID
+    std::vector<int> ghost_labels; // Ghost 노드의 라벨
+    std::unordered_map<int, int> global_to_local; // 글로벌 → 로컬 인덱스 매핑
+};
 
 // Phase 1 메트릭 구조체
 struct Phase1Metrics {
@@ -57,13 +66,5 @@ struct PartitionInfo {
     double P_L = 0.0;     // Penalty function
 };
 
-// 파티션 업데이트 배열들 (Phase2 등에서 사용)
-struct PartitionUpdate {
-    std::vector<int> PU_RO;  // 자신 파티션 추가 정점들
-    std::vector<int> PU_OV;  // 다른 파티션으로 보낼 정점들 (adjacency list)
-    std::vector<std::pair<int, int>> PU_ON;  // 다른 파티션으로 보낼 이웃 정보 (key-value)
-    std::vector<int> PU_RV;  // 다른 파티션으로부터 받은 정점들 (adjacency list)
-    std::vector<std::pair<int, int>> PU_RN;  // 다른 파티션으로부터 받은 이웃 정보 (key-value)
-};
 
 #endif // DMOLP_GRAPH_TYPES_H

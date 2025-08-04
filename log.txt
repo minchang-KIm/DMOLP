@@ -1,0 +1,7098 @@
+
+=== Phase 1: Initial Partitioning & Distribution ===
+[Phase1] 그래프 크기 로딩: 0 ms
+[Phase1] 라벨링: 0 ms
+[Phase1] 내 Rank 담당 vertex 집합 추출: 0 ms
+[Phase1] 내 vertex adjacency 읽기: 27 ms
+[Phase1] ghost node 포함 vertex 집합 추출: 2129 ms
+[Phase1] global→local index 매핑: 1 ms
+[Phase1] CSR 구성: 3 ms
+=== Iter 1 ===
+RV, RE 계산 완료
+Partition 0: RV = 1, RE = 0.883395, P_L = 0
+Partition 1: RV = 1, RE = 0.962304, P_L = 0
+Partition 2: RV = 1, RE = 1.09141, P_L = 0
+Partition 3: RV = 1, RE = 1.06289, P_L = 0
+Penalty 계산 완료
+Partition 0: P_L = 0.0291513
+Partition 1: P_L = 0.00942406
+Partition 2: P_L = -0.022852
+Partition 3: P_L = -0.0157234
+Boundary 노드 추출 완료: 47831개
+로컬 경계 노드 변환 완료: 47831개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 47831개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 62836
+각 파티션의 라벨 분포:
+Partition 0: 8735개
+Partition 1: 15166개
+Partition 2: 16256개
+Partition 3: 15319개
+=== Iter 2 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.629822, RE = 0.566326, P_L = 0.0291513
+Partition 1: RV = 1.09352, RE = 1.01806, P_L = 0.00942406
+Partition 2: RV = 1.17211, RE = 1.36589, P_L = -0.022852
+Partition 3: RV = 1.10455, RE = 1.04972, P_L = -0.0157234
+Penalty 계산 완료
+Partition 0: P_L = 0.102631
+Partition 1: P_L = -0.0113923
+Partition 2: P_L = -0.0738108
+Partition 3: P_L = -0.017428
+Boundary 노드 추출 완료: 31517개
+로컬 경계 노드 변환 완료: 31517개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 31517개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 51411
+각 파티션의 라벨 분포:
+Partition 0: 7607개
+Partition 1: 14945개
+Partition 2: 16655개
+Partition 3: 16269개
+=== Iter 3 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.548489, RE = 0.483879, P_L = 0.102631
+Partition 1: RV = 1.07758, RE = 1.00378, P_L = -0.0113923
+Partition 2: RV = 1.20088, RE = 1.36706, P_L = -0.0738108
+Partition 3: RV = 1.17305, RE = 1.14528, P_L = -0.017428
+Penalty 계산 완료
+Partition 0: P_L = 0.122587
+Partition 1: P_L = -0.0083046
+Partition 2: P_L = -0.0751932
+Partition 3: P_L = -0.0390894
+Boundary 노드 추출 완료: 27155개
+로컬 경계 노드 변환 완료: 27155개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 27155개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 50563
+각 파티션의 라벨 분포:
+Partition 0: 7380개
+Partition 1: 14753개
+Partition 2: 16521개
+Partition 3: 16822개
+=== Iter 4 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.532122, RE = 0.467245, P_L = 0.122587
+Partition 1: RV = 1.06374, RE = 0.993228, P_L = -0.0083046
+Partition 2: RV = 1.19122, RE = 1.3358, P_L = -0.0751932
+Partition 3: RV = 1.21292, RE = 1.20373, P_L = -0.0390894
+Penalty 계산 완료
+Partition 0: P_L = 0.126534
+Partition 1: P_L = -0.00554001
+Partition 2: P_L = -0.0691181
+Partition 3: P_L = -0.0518757
+Boundary 노드 추출 완료: 26691개
+로컬 경계 노드 변환 완료: 26691개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 26691개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 48240
+각 파티션의 라벨 분포:
+Partition 0: 7007개
+Partition 1: 14332개
+Partition 2: 16349개
+Partition 3: 17788개
+=== Iter 5 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.505227, RE = 0.437806, P_L = 0.126534
+Partition 1: RV = 1.03338, RE = 0.959098, P_L = -0.00554001
+Partition 2: RV = 1.17882, RE = 1.30756, P_L = -0.0691181
+Partition 3: RV = 1.28257, RE = 1.29553, P_L = -0.0518757
+Penalty 계산 완료
+Partition 0: P_L = 0.133516
+Partition 1: P_L = 0.00247686
+Partition 2: P_L = -0.0634612
+Partition 3: P_L = -0.0725317
+Boundary 노드 추출 완료: 25819개
+로컬 경계 노드 변환 완료: 25819개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 25819개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 49238
+각 파티션의 라벨 분포:
+Partition 0: 6877개
+Partition 1: 13865개
+Partition 2: 16482개
+Partition 3: 18252개
+=== Iter 6 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.495854, RE = 0.422759, P_L = 0.133516
+Partition 1: RV = 0.999712, RE = 0.924053, P_L = 0.00247686
+Partition 2: RV = 1.18841, RE = 1.30396, P_L = -0.0634612
+Partition 3: RV = 1.31603, RE = 1.34923, P_L = -0.0725317
+Penalty 계산 완료
+Partition 0: P_L = 0.136761
+Partition 1: P_L = 0.0111724
+Partition 2: P_L = -0.064055
+Partition 3: P_L = -0.083878
+Boundary 노드 추출 완료: 26364개
+로컬 경계 노드 변환 완료: 26364개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 26364개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 48144
+각 파티션의 라벨 분포:
+Partition 0: 6797개
+Partition 1: 13774개
+Partition 2: 16456개
+Partition 3: 18449개
+=== Iter 7 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.490086, RE = 0.423422, P_L = 0.136761
+Partition 1: RV = 0.99315, RE = 0.916046, P_L = 0.0111724
+Partition 2: RV = 1.18653, RE = 1.29894, P_L = -0.064055
+Partition 3: RV = 1.33023, RE = 1.36159, P_L = -0.083878
+Penalty 계산 완료
+Partition 0: P_L = 0.137158
+Partition 1: P_L = 0.012908
+Partition 2: P_L = -0.0629545
+Partition 3: P_L = -0.0871116
+Boundary 노드 추출 완료: 25897개
+로컬 경계 노드 변환 완료: 25897개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 25897개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 47593
+각 파티션의 라벨 분포:
+Partition 0: 6248개
+Partition 1: 13634개
+Partition 2: 16814개
+Partition 3: 18780개
+=== Iter 8 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.450501, RE = 0.381519, P_L = 0.137158
+Partition 1: RV = 0.983056, RE = 0.897596, P_L = 0.012908
+Partition 2: RV = 1.21234, RE = 1.33297, P_L = -0.0629545
+Partition 3: RV = 1.3541, RE = 1.38791, P_L = -0.0871116
+Penalty 계산 완료
+Partition 0: P_L = 0.147387
+Partition 1: P_L = 0.0166402
+Partition 2: P_L = -0.0705949
+Partition 3: P_L = -0.0934323
+Boundary 노드 추출 완료: 25440개
+로컬 경계 노드 변환 완료: 25440개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 25440개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 47171
+각 파티션의 라벨 분포:
+Partition 0: 5814개
+Partition 1: 13561개
+Partition 2: 17236개
+Partition 3: 18865개
+=== Iter 9 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.419208, RE = 0.352788, P_L = 0.147387
+Partition 1: RV = 0.977792, RE = 0.892551, P_L = 0.0166402
+Partition 2: RV = 1.24277, RE = 1.36679, P_L = -0.0705949
+Partition 3: RV = 1.36023, RE = 1.38787, P_L = -0.0934323
+Penalty 계산 완료
+Partition 0: P_L = 0.154763
+Partition 1: P_L = 0.0178276
+Partition 2: P_L = -0.0785538
+Partition 3: P_L = -0.0940371
+Boundary 노드 추출 완료: 25215개
+로컬 경계 노드 변환 완료: 25215개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 25215개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 44955
+각 파티션의 라벨 분포:
+Partition 0: 5324개
+Partition 1: 13274개
+Partition 2: 17734개
+Partition 3: 19144개
+=== Iter 10 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.383878, RE = 0.322934, P_L = 0.154763
+Partition 1: RV = 0.957099, RE = 0.864818, P_L = 0.0178276
+Partition 2: RV = 1.27868, RE = 1.40807, P_L = -0.0785538
+Partition 3: RV = 1.38034, RE = 1.40418, P_L = -0.0940371
+Penalty 계산 완료
+Partition 0: P_L = 0.162744
+Partition 1: P_L = 0.0239191
+Partition 2: P_L = -0.0881694
+Partition 3: P_L = -0.0984937
+Boundary 노드 추출 완료: 24158개
+로컬 경계 노드 변환 완료: 24158개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 24158개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 45303
+각 파티션의 라벨 분포:
+Partition 0: 5199개
+Partition 1: 13451개
+Partition 2: 17569개
+Partition 3: 19257개
+=== Iter 11 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.374865, RE = 0.314242, P_L = 0.162744
+Partition 1: RV = 0.969861, RE = 0.888136, P_L = 0.0239191
+Partition 2: RV = 1.26678, RE = 1.39456, P_L = -0.0881694
+Partition 3: RV = 1.38849, RE = 1.40306, P_L = -0.0984937
+Penalty 계산 완료
+Partition 0: P_L = 0.164864
+Partition 1: P_L = 0.0191015
+Partition 2: P_L = -0.0847806
+Partition 3: P_L = -0.0991848
+Boundary 노드 추출 완료: 23976개
+로컬 경계 노드 변환 완료: 23976개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 23976개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 43707
+각 파티션의 라벨 분포:
+Partition 0: 5001개
+Partition 1: 13143개
+Partition 2: 17927개
+Partition 3: 19405개
+=== Iter 12 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.360588, RE = 0.300417, P_L = 0.164864
+Partition 1: RV = 0.947653, RE = 0.856899, P_L = 0.0191015
+Partition 2: RV = 1.29259, RE = 1.41053, P_L = -0.0847806
+Partition 3: RV = 1.39916, RE = 1.43215, P_L = -0.0991848
+Penalty 계산 완료
+Partition 0: P_L = 0.168406
+Partition 1: P_L = 0.0259865
+Partition 2: P_L = -0.0899119
+Partition 3: P_L = -0.10448
+Boundary 노드 추출 완료: 23397개
+로컬 경계 노드 변환 완료: 23397개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 23397개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 42875
+각 파티션의 라벨 분포:
+Partition 0: 4829개
+Partition 1: 13338개
+Partition 2: 18139개
+Partition 3: 19170개
+=== Iter 13 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.348187, RE = 0.290688, P_L = 0.168406
+Partition 1: RV = 0.961713, RE = 0.867175, P_L = 0.0259865
+Partition 2: RV = 1.30788, RE = 1.43062, P_L = -0.0899119
+Partition 3: RV = 1.38222, RE = 1.41152, P_L = -0.10448
+Penalty 계산 완료
+Partition 0: P_L = 0.171111
+Partition 1: P_L = 0.0229847
+Partition 2: P_L = -0.0943841
+Partition 3: P_L = -0.099712
+Boundary 노드 추출 완료: 23025개
+로컬 경계 노드 변환 완료: 23025개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 23025개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 43200
+각 파티션의 라벨 분포:
+Partition 0: 4760개
+Partition 1: 13334개
+Partition 2: 17996개
+Partition 3: 19386개
+=== Iter 14 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.343211, RE = 0.290799, P_L = 0.171111
+Partition 1: RV = 0.961425, RE = 0.861137, P_L = 0.0229847
+Partition 2: RV = 1.29757, RE = 1.42042, P_L = -0.0943841
+Partition 3: RV = 1.39779, RE = 1.42764, P_L = -0.099712
+Penalty 계산 완료
+Partition 0: P_L = 0.171597
+Partition 1: P_L = 0.0238033
+Partition 2: P_L = -0.0917377
+Partition 3: P_L = -0.103663
+Boundary 노드 추출 완료: 23206개
+로컬 경계 노드 변환 완료: 23206개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 23206개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 41197
+각 파티션의 라벨 분포:
+Partition 0: 4597개
+Partition 1: 13263개
+Partition 2: 18275개
+Partition 3: 19341개
+=== Iter 15 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.331459, RE = 0.282368, P_L = 0.171597
+Partition 1: RV = 0.956305, RE = 0.854357, P_L = 0.0238033
+Partition 2: RV = 1.31769, RE = 1.43912, P_L = -0.0917377
+Partition 3: RV = 1.39455, RE = 1.42416, P_L = -0.103663
+Penalty 계산 완료
+Partition 0: P_L = 0.174045
+Partition 1: P_L = 0.0252735
+Partition 2: P_L = -0.0965136
+Partition 3: P_L = -0.102805
+Boundary 노드 추출 완료: 22283개
+로컬 경계 노드 변환 완료: 22283개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 22283개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 41925
+각 파티션의 라벨 분포:
+Partition 0: 4424개
+Partition 1: 13199개
+Partition 2: 18407개
+Partition 3: 19446개
+=== Iter 16 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.318985, RE = 0.271158, P_L = 0.174045
+Partition 1: RV = 0.951691, RE = 0.848936, P_L = 0.0252735
+Partition 2: RV = 1.3272, RE = 1.45164, P_L = -0.0965136
+Partition 3: RV = 1.40212, RE = 1.42826, P_L = -0.102805
+Penalty 계산 완료
+Partition 0: P_L = 0.176969
+Partition 1: P_L = 0.0265042
+Partition 2: P_L = -0.0992726
+Partition 3: P_L = -0.1042
+Boundary 노드 추출 완료: 22397개
+로컬 경계 노드 변환 완료: 22397개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 22397개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 42044
+각 파티션의 라벨 분포:
+Partition 0: 4296개
+Partition 1: 13316개
+Partition 2: 18197개
+Partition 3: 19667개
+=== Iter 17 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.309756, RE = 0.260315, P_L = 0.176969
+Partition 1: RV = 0.960127, RE = 0.854523, P_L = 0.0265042
+Partition 2: RV = 1.31206, RE = 1.43374, P_L = -0.0992726
+Partition 3: RV = 1.41805, RE = 1.45143, P_L = -0.1042
+Penalty 계산 완료
+Partition 0: P_L = 0.1795
+Partition 1: P_L = 0.0247897
+Partition 2: P_L = -0.0950924
+Partition 3: P_L = -0.109197
+Boundary 노드 추출 완료: 22511개
+로컬 경계 노드 변환 완료: 22511개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 22511개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 39541
+각 파티션의 라벨 분포:
+Partition 0: 4295개
+Partition 1: 12657개
+Partition 2: 18110개
+Partition 3: 20414개
+=== Iter 18 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.309683, RE = 0.260572, P_L = 0.1795
+Partition 1: RV = 0.912611, RE = 0.800302, P_L = 0.0247897
+Partition 2: RV = 1.30579, RE = 1.42207, P_L = -0.0950924
+Partition 3: RV = 1.47192, RE = 1.51706, P_L = -0.109197
+Penalty 계산 완료
+Partition 0: P_L = 0.179494
+Partition 1: P_L = 0.0376612
+Partition 2: P_L = -0.0928201
+Partition 3: P_L = -0.124336
+Boundary 노드 추출 완료: 21461개
+로컬 경계 노드 변환 완료: 21461개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 21461개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 37179
+각 파티션의 라벨 분포:
+Partition 0: 4310개
+Partition 1: 11910개
+Partition 2: 18401개
+Partition 3: 20855개
+=== Iter 19 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.310765, RE = 0.260345, P_L = 0.179494
+Partition 1: RV = 0.85875, RE = 0.742502, P_L = 0.0376612
+Partition 2: RV = 1.32677, RE = 1.42879, P_L = -0.0928201
+Partition 3: RV = 1.50371, RE = 1.56837, P_L = -0.124336
+Penalty 계산 완료
+Partition 0: P_L = 0.179456
+Partition 1: P_L = 0.0517909
+Partition 2: P_L = -0.0961537
+Partition 3: P_L = -0.135093
+Boundary 노드 추출 완료: 20170개
+로컬 경계 노드 변환 완료: 20170개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 20170개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 35513
+각 파티션의 라벨 분포:
+Partition 0: 4256개
+Partition 1: 11399개
+Partition 2: 18359개
+Partition 3: 21462개
+=== Iter 20 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.306871, RE = 0.256222, P_L = 0.179456
+Partition 1: RV = 0.821905, RE = 0.708678, P_L = 0.0517909
+Partition 2: RV = 1.32374, RE = 1.41732, P_L = -0.0961537
+Partition 3: RV = 1.54748, RE = 1.61778, P_L = -0.135093
+Penalty 계산 완료
+Partition 0: P_L = 0.180445
+Partition 1: P_L = 0.060536
+Partition 2: P_L = -0.0941689
+Partition 3: P_L = -0.146812
+Boundary 노드 추출 완료: 19040개
+로컬 경계 노드 변환 완료: 19040개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 19040개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 35634
+각 파티션의 라벨 분포:
+Partition 0: 4458개
+Partition 1: 11502개
+Partition 2: 18025개
+Partition 3: 21491개
+=== Iter 21 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.321436, RE = 0.271595, P_L = 0.180445
+Partition 1: RV = 0.829332, RE = 0.716226, P_L = 0.060536
+Partition 2: RV = 1.29966, RE = 1.39159, P_L = -0.0941689
+Partition 3: RV = 1.54957, RE = 1.62059, P_L = -0.146812
+Penalty 계산 완료
+Partition 0: P_L = 0.176694
+Partition 1: P_L = 0.0586721
+Partition 2: P_L = -0.0879242
+Partition 3: P_L = -0.147442
+Boundary 노드 추출 완료: 19215개
+로컬 경계 노드 변환 완료: 19215개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 19215개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 32742
+각 파티션의 라벨 분포:
+Partition 0: 4301개
+Partition 1: 11484개
+Partition 2: 18220개
+Partition 3: 21471개
+=== Iter 22 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.310116, RE = 0.258107, P_L = 0.176694
+Partition 1: RV = 0.828034, RE = 0.721436, P_L = 0.0586721
+Partition 2: RV = 1.31372, RE = 1.3991, P_L = -0.0879242
+Partition 3: RV = 1.54813, RE = 1.62135, P_L = -0.147442
+Penalty 계산 완료
+Partition 0: P_L = 0.179814
+Partition 1: P_L = 0.0580413
+Partition 2: P_L = -0.0904848
+Partition 3: P_L = -0.14737
+Boundary 노드 추출 완료: 18092개
+로컬 경계 노드 변환 완료: 18092개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 18092개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 35217
+각 파티션의 라벨 분포:
+Partition 0: 4289개
+Partition 1: 11191개
+Partition 2: 18443개
+Partition 3: 21553개
+=== Iter 23 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.309251, RE = 0.257762, P_L = 0.179814
+Partition 1: RV = 0.806907, RE = 0.692863, P_L = 0.0580413
+Partition 2: RV = 1.3298, RE = 1.42529, P_L = -0.0904848
+Partition 3: RV = 1.55404, RE = 1.62408, P_L = -0.14737
+Penalty 계산 완료
+Partition 0: P_L = 0.17998
+Partition 1: P_L = 0.0644252
+Partition 2: P_L = -0.0959747
+Partition 3: P_L = -0.14843
+Boundary 노드 추출 완료: 18974개
+로컬 경계 노드 변환 완료: 18974개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 18974개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 37072
+각 파티션의 라벨 분포:
+Partition 0: 4384개
+Partition 1: 11470개
+Partition 2: 18072개
+Partition 3: 21550개
+=== Iter 24 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.316101, RE = 0.266501, P_L = 0.17998
+Partition 1: RV = 0.827024, RE = 0.714189, P_L = 0.0644252
+Partition 2: RV = 1.30305, RE = 1.39212, P_L = -0.0959747
+Partition 3: RV = 1.55383, RE = 1.62719, P_L = -0.14843
+Penalty 계산 완료
+Partition 0: P_L = 0.177988
+Partition 1: P_L = 0.0591986
+Partition 2: P_L = -0.0883564
+Partition 3: P_L = -0.14883
+Boundary 노드 추출 완료: 19656개
+로컬 경계 노드 변환 완료: 19656개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 19656개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 32913
+각 파티션의 라벨 분포:
+Partition 0: 4435개
+Partition 1: 11054개
+Partition 2: 18188개
+Partition 3: 21799개
+=== Iter 25 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.319778, RE = 0.266024, P_L = 0.177988
+Partition 1: RV = 0.797029, RE = 0.689692, P_L = 0.0591986
+Partition 2: RV = 1.31141, RE = 1.39883, P_L = -0.0883564
+Partition 3: RV = 1.57178, RE = 1.64546, P_L = -0.14883
+Penalty 계산 완료
+Partition 0: P_L = 0.177664
+Partition 1: P_L = 0.0659346
+Partition 2: P_L = -0.0902253
+Partition 3: P_L = -0.153373
+Boundary 노드 추출 완료: 18029개
+로컬 경계 노드 변환 완료: 18029개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 18029개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 34624
+각 파티션의 라벨 분포:
+Partition 0: 4515개
+Partition 1: 11039개
+Partition 2: 18145개
+Partition 3: 21777개
+=== Iter 26 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.325546, RE = 0.272242, P_L = 0.177664
+Partition 1: RV = 0.795948, RE = 0.692085, P_L = 0.0659346
+Partition 2: RV = 1.30831, RE = 1.39736, P_L = -0.0902253
+Partition 3: RV = 1.57019, RE = 1.63832, P_L = -0.153373
+Penalty 계산 완료
+Partition 0: P_L = 0.17614
+Partition 1: P_L = 0.0656789
+Partition 2: P_L = -0.0896517
+Partition 3: P_L = -0.152167
+Boundary 노드 추출 완료: 18604개
+로컬 경계 노드 변환 완료: 18604개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 18604개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 33651
+각 파티션의 라벨 분포:
+Partition 0: 4170개
+Partition 1: 11270개
+Partition 2: 18421개
+Partition 3: 21615개
+=== Iter 27 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.300671, RE = 0.249062, P_L = 0.17614
+Partition 1: RV = 0.812604, RE = 0.707436, P_L = 0.0656789
+Partition 2: RV = 1.32821, RE = 1.41949, P_L = -0.0896517
+Partition 3: RV = 1.55851, RE = 1.62401, P_L = -0.152167
+Penalty 계산 완료
+Partition 0: P_L = 0.182093
+Partition 1: P_L = 0.0616455
+Partition 2: P_L = -0.0948959
+Partition 3: P_L = -0.148843
+Boundary 노드 추출 완료: 18115개
+로컬 경계 노드 변환 완료: 18115개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 18115개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 34130
+각 파티션의 라벨 분포:
+Partition 0: 4178개
+Partition 1: 11240개
+Partition 2: 18356개
+Partition 3: 21702개
+=== Iter 28 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.301247, RE = 0.249324, P_L = 0.182093
+Partition 1: RV = 0.810441, RE = 0.701146, P_L = 0.0616455
+Partition 2: RV = 1.32353, RE = 1.41908, P_L = -0.0948959
+Partition 3: RV = 1.56478, RE = 1.63045, P_L = -0.148843
+Penalty 계산 완료
+Partition 0: P_L = 0.182009
+Partition 1: P_L = 0.0627995
+Partition 2: P_L = -0.0943536
+Partition 3: P_L = -0.150455
+Boundary 노드 추출 완료: 18323개
+로컬 경계 노드 변환 완료: 18323개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 18323개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 32758
+각 파티션의 라벨 분포:
+Partition 0: 4177개
+Partition 1: 11158개
+Partition 2: 18117개
+Partition 3: 22024개
+=== Iter 29 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.301175, RE = 0.249869, P_L = 0.182009
+Partition 1: RV = 0.804528, RE = 0.70154, P_L = 0.0627995
+Partition 2: RV = 1.30629, RE = 1.39399, P_L = -0.0943536
+Partition 3: RV = 1.588, RE = 1.6546, P_L = -0.150455
+Penalty 계산 완료
+Partition 0: P_L = 0.181904
+Partition 1: P_L = 0.0633166
+Partition 2: P_L = -0.0888768
+Partition 3: P_L = -0.156344
+Boundary 노드 추출 완료: 17859개
+로컬 경계 노드 변환 완료: 17859개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 17859개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 33272
+각 파티션의 라벨 분포:
+Partition 0: 4113개
+Partition 1: 11247개
+Partition 2: 18011개
+Partition 3: 22105개
+=== Iter 30 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.296561, RE = 0.244189, P_L = 0.181904
+Partition 1: RV = 0.810945, RE = 0.707085, P_L = 0.0633166
+Partition 2: RV = 1.29865, RE = 1.38166, P_L = -0.0888768
+Partition 3: RV = 1.59384, RE = 1.66706, P_L = -0.156344
+Penalty 계산 완료
+Partition 0: P_L = 0.183218
+Partition 1: P_L = 0.061856
+Partition 2: P_L = -0.0863262
+Partition 3: P_L = -0.158748
+Boundary 노드 추출 완료: 18304개
+로컬 경계 노드 변환 완료: 18304개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 18304개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 34351
+각 파티션의 라벨 분포:
+Partition 0: 4143개
+Partition 1: 11290개
+Partition 2: 17781개
+Partition 3: 22262개
+=== Iter 31 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.298724, RE = 0.248264, P_L = 0.183218
+Partition 1: RV = 0.814046, RE = 0.70084, P_L = 0.061856
+Partition 2: RV = 1.28207, RE = 1.37353, P_L = -0.0863262
+Partition 3: RV = 1.60516, RE = 1.67736, P_L = -0.158748
+Penalty 계산 완료
+Partition 0: P_L = 0.182422
+Partition 1: P_L = 0.062425
+Partition 2: P_L = -0.0833928
+Partition 3: P_L = -0.161455
+Boundary 노드 추출 완료: 18587개
+로컬 경계 노드 변환 완료: 18587개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 18587개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 32920
+각 파티션의 라벨 분포:
+Partition 0: 4062개
+Partition 1: 11093개
+Partition 2: 18098개
+Partition 3: 22223개
+=== Iter 32 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.292883, RE = 0.239473, P_L = 0.182422
+Partition 1: RV = 0.799841, RE = 0.696347, P_L = 0.062425
+Partition 2: RV = 1.30492, RE = 1.39333, P_L = -0.0833928
+Partition 3: RV = 1.60235, RE = 1.67085, P_L = -0.161455
+Penalty 계산 완료
+Partition 0: P_L = 0.184277
+Partition 1: P_L = 0.0645684
+Partition 2: P_L = -0.0886419
+Partition 3: P_L = -0.160203
+Boundary 노드 추출 완료: 17708개
+로컬 경계 노드 변환 완료: 17708개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 17708개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 32265
+각 파티션의 라벨 분포:
+Partition 0: 4046개
+Partition 1: 10957개
+Partition 2: 18031개
+Partition 3: 22442개
+=== Iter 33 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.29173, RE = 0.241908, P_L = 0.184277
+Partition 1: RV = 0.790035, RE = 0.687446, P_L = 0.0645684
+Partition 2: RV = 1.30009, RE = 1.38072, P_L = -0.0886419
+Partition 3: RV = 1.61814, RE = 1.68993, P_L = -0.160203
+Penalty 계산 완료
+Partition 0: P_L = 0.184038
+Partition 1: P_L = 0.0668432
+Partition 2: P_L = -0.0863024
+Partition 3: P_L = -0.164578
+Boundary 노드 추출 완료: 17517개
+로컬 경계 노드 변환 완료: 17517개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 17517개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 32215
+각 파티션의 라벨 분포:
+Partition 0: 3994개
+Partition 1: 10797개
+Partition 2: 18172개
+Partition 3: 22513개
+=== Iter 34 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.28798, RE = 0.239758, P_L = 0.184038
+Partition 1: RV = 0.778499, RE = 0.666627, P_L = 0.0668432
+Partition 2: RV = 1.31026, RE = 1.39499, P_L = -0.0863024
+Partition 3: RV = 1.62326, RE = 1.69863, P_L = -0.164578
+Penalty 계산 완료
+Partition 0: P_L = 0.184775
+Partition 1: P_L = 0.071082
+Partition 2: P_L = -0.0894607
+Partition 3: P_L = -0.166397
+Boundary 노드 추출 완료: 17440개
+로컬 경계 노드 변환 완료: 17440개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 17440개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 33107
+각 파티션의 라벨 분포:
+Partition 0: 4122개
+Partition 1: 10446개
+Partition 2: 18388개
+Partition 3: 22520개
+=== Iter 35 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.29721, RE = 0.247159, P_L = 0.184775
+Partition 1: RV = 0.753191, RE = 0.649, P_L = 0.071082
+Partition 2: RV = 1.32583, RE = 1.40949, P_L = -0.0894607
+Partition 3: RV = 1.62377, RE = 1.69435, P_L = -0.166397
+Penalty 계산 완료
+Partition 0: P_L = 0.182712
+Partition 1: P_L = 0.0763049
+Partition 2: P_L = -0.0931832
+Partition 3: P_L = -0.165834
+Boundary 노드 추출 완료: 17778개
+로컬 경계 노드 변환 완료: 17778개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 17778개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 32554
+각 파티션의 라벨 분포:
+Partition 0: 4073개
+Partition 1: 10674개
+Partition 2: 18222개
+Partition 3: 22507개
+=== Iter 36 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.293677, RE = 0.244654, P_L = 0.182712
+Partition 1: RV = 0.76963, RE = 0.665983, P_L = 0.0763049
+Partition 2: RV = 1.31387, RE = 1.39647, P_L = -0.0931832
+Partition 3: RV = 1.62283, RE = 1.6929, P_L = -0.165834
+Penalty 계산 완료
+Partition 0: P_L = 0.183439
+Partition 1: P_L = 0.0720926
+Partition 2: P_L = -0.0900221
+Partition 3: P_L = -0.165509
+Boundary 노드 추출 완료: 17512개
+로컬 경계 노드 변환 완료: 17512개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 17512개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 34101
+각 파티션의 라벨 분포:
+Partition 0: 4184개
+Partition 1: 10551개
+Partition 2: 18297개
+Partition 3: 22444개
+=== Iter 37 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.30168, RE = 0.251539, P_L = 0.183439
+Partition 1: RV = 0.760761, RE = 0.660797, P_L = 0.0720926
+Partition 2: RV = 1.31927, RE = 1.40508, P_L = -0.0900221
+Partition 3: RV = 1.61829, RE = 1.68258, P_L = -0.165509
+Penalty 계산 완료
+Partition 0: P_L = 0.181589
+Partition 1: P_L = 0.0737835
+Partition 2: P_L = -0.0918131
+Partition 3: P_L = -0.163559
+Boundary 노드 추출 완료: 18083개
+로컬 경계 노드 변환 완료: 18083개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 18083개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 32225
+각 파티션의 라벨 분포:
+Partition 0: 4132개
+Partition 1: 10255개
+Partition 2: 18682개
+Partition 3: 22407개
+=== Iter 38 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.297931, RE = 0.248752, P_L = 0.181589
+Partition 1: RV = 0.739419, RE = 0.639099, P_L = 0.0737835
+Partition 2: RV = 1.34703, RE = 1.43217, P_L = -0.0918131
+Partition 3: RV = 1.61562, RE = 1.67998, P_L = -0.163559
+Penalty 계산 완료
+Partition 0: P_L = 0.18239
+Partition 1: P_L = 0.0791643
+Partition 2: P_L = -0.0986551
+Partition 3: P_L = -0.162899
+Boundary 노드 추출 완료: 17055개
+로컬 경계 노드 변환 완료: 17055개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 17055개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 32170
+각 파티션의 라벨 분포:
+Partition 0: 4116개
+Partition 1: 10476개
+Partition 2: 18458개
+Partition 3: 22426개
+=== Iter 39 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.296777, RE = 0.24736, P_L = 0.18239
+Partition 1: RV = 0.755354, RE = 0.65826, P_L = 0.0791643
+Partition 2: RV = 1.33088, RE = 1.41392, P_L = -0.0986551
+Partition 3: RV = 1.61699, RE = 1.68046, P_L = -0.162899
+Penalty 계산 완료
+Partition 0: P_L = 0.182697
+Partition 1: P_L = 0.0747013
+Partition 2: P_L = -0.0943008
+Partition 3: P_L = -0.163098
+Boundary 노드 추출 완료: 17100개
+로컬 경계 노드 변환 완료: 17100개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 17100개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 31013
+각 파티션의 라벨 분포:
+Partition 0: 4085개
+Partition 1: 10188개
+Partition 2: 18720개
+Partition 3: 22483개
+=== Iter 40 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.294542, RE = 0.245498, P_L = 0.182697
+Partition 1: RV = 0.734588, RE = 0.633288, P_L = 0.0747013
+Partition 2: RV = 1.34977, RE = 1.4329, P_L = -0.0943008
+Partition 3: RV = 1.6211, RE = 1.68831, P_L = -0.163098
+Penalty 계산 완료
+Partition 0: P_L = 0.18322
+Partition 1: P_L = 0.0805131
+Partition 2: P_L = -0.0990633
+Partition 3: P_L = -0.16467
+Boundary 노드 추출 완료: 16602개
+로컬 경계 노드 변환 완료: 16602개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 16602개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 32077
+각 파티션의 라벨 분포:
+Partition 0: 4077개
+Partition 1: 10161개
+Partition 2: 18636개
+Partition 3: 22602개
+=== Iter 41 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.293965, RE = 0.245177, P_L = 0.18322
+Partition 1: RV = 0.732641, RE = 0.632357, P_L = 0.0805131
+Partition 2: RV = 1.34372, RE = 1.42292, P_L = -0.0990633
+Partition 3: RV = 1.62968, RE = 1.69954, P_L = -0.16467
+Penalty 계산 완료
+Partition 0: P_L = 0.183323
+Partition 1: P_L = 0.0808469
+Partition 2: P_L = -0.0969921
+Partition 3: P_L = -0.167178
+Boundary 노드 추출 완료: 17143개
+로컬 경계 노드 변환 완료: 17143개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 17143개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 31118
+각 파티션의 라벨 분포:
+Partition 0: 4188개
+Partition 1: 9969개
+Partition 2: 18600개
+Partition 3: 22719개
+=== Iter 42 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.301968, RE = 0.251295, P_L = 0.183323
+Partition 1: RV = 0.718797, RE = 0.620802, P_L = 0.0808469
+Partition 2: RV = 1.34112, RE = 1.4172, P_L = -0.0969921
+Partition 3: RV = 1.63811, RE = 1.7107, P_L = -0.167178
+Penalty 계산 완료
+Partition 0: P_L = 0.181594
+Partition 1: P_L = 0.0840042
+Partition 2: P_L = -0.0959194
+Partition 3: P_L = -0.169679
+Boundary 노드 추출 완료: 16619개
+로컬 경계 노드 변환 완료: 16619개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 16619개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 30330
+각 파티션의 라벨 분포:
+Partition 0: 4215개
+Partition 1: 9809개
+Partition 2: 18550개
+Partition 3: 22902개
+=== Iter 43 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.303915, RE = 0.253327, P_L = 0.181594
+Partition 1: RV = 0.707261, RE = 0.606422, P_L = 0.0840042
+Partition 2: RV = 1.33752, RE = 1.41411, P_L = -0.0959194
+Partition 3: RV = 1.65131, RE = 1.72615, P_L = -0.169679
+Penalty 계산 완료
+Partition 0: P_L = 0.181105
+Partition 1: P_L = 0.0873048
+Partition 2: P_L = -0.0951034
+Partition 3: P_L = -0.173306
+Boundary 노드 추출 완료: 16400개
+로컬 경계 노드 변환 완료: 16400개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 16400개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 31230
+각 파티션의 라벨 분포:
+Partition 0: 4125개
+Partition 1: 9855개
+Partition 2: 18535개
+Partition 3: 22961개
+=== Iter 44 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.297426, RE = 0.248355, P_L = 0.181105
+Partition 1: RV = 0.710578, RE = 0.607748, P_L = 0.0873048
+Partition 2: RV = 1.33643, RE = 1.41672, P_L = -0.0951034
+Partition 3: RV = 1.65556, RE = 1.72717, P_L = -0.173306
+Penalty 계산 완료
+Partition 0: P_L = 0.182504
+Partition 1: P_L = 0.0867313
+Partition 2: P_L = -0.0953332
+Partition 3: P_L = -0.173902
+Boundary 노드 추출 완료: 16617개
+로컬 경계 노드 변환 완료: 16617개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 16617개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 30603
+각 파티션의 라벨 분포:
+Partition 0: 4206개
+Partition 1: 9594개
+Partition 2: 18547개
+Partition 3: 23129개
+=== Iter 45 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.303266, RE = 0.254127, P_L = 0.182504
+Partition 1: RV = 0.691759, RE = 0.590794, P_L = 0.0867313
+Partition 2: RV = 1.3373, RE = 1.41684, P_L = -0.0953332
+Partition 3: RV = 1.66768, RE = 1.73824, P_L = -0.173902
+Penalty 계산 완료
+Partition 0: P_L = 0.181045
+Partition 1: P_L = 0.0911593
+Partition 2: P_L = -0.0954315
+Partition 3: P_L = -0.176773
+Boundary 노드 추출 완료: 16264개
+로컬 경계 노드 변환 완료: 16264개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 16264개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 29263
+각 파티션의 라벨 분포:
+Partition 0: 4160개
+Partition 1: 9556개
+Partition 2: 18527개
+Partition 3: 23233개
+=== Iter 46 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.29995, RE = 0.248824, P_L = 0.181045
+Partition 1: RV = 0.689019, RE = 0.593148, P_L = 0.0911593
+Partition 2: RV = 1.33586, RE = 1.40922, P_L = -0.0954315
+Partition 3: RV = 1.67517, RE = 1.7488, P_L = -0.176773
+Penalty 계산 완료
+Partition 0: P_L = 0.182143
+Partition 1: P_L = 0.0911164
+Partition 2: P_L = -0.0941967
+Partition 3: P_L = -0.179063
+Boundary 노드 추출 완료: 15760개
+로컬 경계 노드 변환 완료: 15760개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15760개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 29717
+각 파티션의 라벨 분포:
+Partition 0: 4208개
+Partition 1: 9514개
+Partition 2: 18433개
+Partition 3: 23321개
+=== Iter 47 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.30341, RE = 0.252077, P_L = 0.182143
+Partition 1: RV = 0.68599, RE = 0.592147, P_L = 0.0911164
+Partition 2: RV = 1.32908, RE = 1.40219, P_L = -0.0941967
+Partition 3: RV = 1.68152, RE = 1.75359, P_L = -0.179063
+Penalty 계산 완료
+Partition 0: P_L = 0.181298
+Partition 1: P_L = 0.0915746
+Partition 2: P_L = -0.0924541
+Partition 3: P_L = -0.180419
+Boundary 노드 추출 완료: 15809개
+로컬 경계 노드 변환 완료: 15809개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15809개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 30351
+각 파티션의 라벨 분포:
+Partition 0: 4239개
+Partition 1: 9544개
+Partition 2: 18400개
+Partition 3: 23293개
+=== Iter 48 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.305646, RE = 0.255941, P_L = 0.181298
+Partition 1: RV = 0.688153, RE = 0.590978, P_L = 0.0915746
+Partition 2: RV = 1.3267, RE = 1.39813, P_L = -0.0924541
+Partition 3: RV = 1.6795, RE = 1.75495, P_L = -0.180419
+Penalty 계산 완료
+Partition 0: P_L = 0.180523
+Partition 1: P_L = 0.091519
+Partition 2: P_L = -0.0916405
+Partition 3: P_L = -0.180402
+Boundary 노드 추출 완료: 16112개
+로컬 경계 노드 변환 완료: 16112개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 16112개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 30355
+각 파티션의 라벨 분포:
+Partition 0: 4209개
+Partition 1: 9287개
+Partition 2: 18493개
+Partition 3: 23487개
+=== Iter 49 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.303483, RE = 0.254241, P_L = 0.180523
+Partition 1: RV = 0.669623, RE = 0.575588, P_L = 0.091519
+Partition 2: RV = 1.33341, RE = 1.40411, P_L = -0.0916405
+Partition 3: RV = 1.69349, RE = 1.76606, P_L = -0.180402
+Penalty 계산 완료
+Partition 0: P_L = 0.180975
+Partition 1: P_L = 0.0956682
+Partition 2: P_L = -0.093182
+Partition 3: P_L = -0.183462
+Boundary 노드 추출 완료: 15902개
+로컬 경계 노드 변환 완료: 15902개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15902개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 30048
+각 파티션의 라벨 분포:
+Partition 0: 4403개
+Partition 1: 8983개
+Partition 2: 18611개
+Partition 3: 23479개
+=== Iter 50 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.317471, RE = 0.267594, P_L = 0.180975
+Partition 1: RV = 0.647704, RE = 0.55854, P_L = 0.0956682
+Partition 2: RV = 1.34191, RE = 1.41504, P_L = -0.093182
+Partition 3: RV = 1.69291, RE = 1.75883, P_L = -0.183462
+Penalty 계산 완료
+Partition 0: P_L = 0.177551
+Partition 1: P_L = 0.100442
+Partition 2: P_L = -0.0956217
+Partition 3: P_L = -0.182371
+Boundary 노드 추출 완료: 15707개
+로컬 경계 노드 변환 완료: 15707개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15707개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 29181
+각 파티션의 라벨 분포:
+Partition 0: 4318개
+Partition 1: 8874개
+Partition 2: 18593개
+Partition 3: 23691개
+=== Iter 51 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.311342, RE = 0.25905, P_L = 0.177551
+Partition 1: RV = 0.639844, RE = 0.552187, P_L = 0.100442
+Partition 2: RV = 1.34062, RE = 1.40419, P_L = -0.0956217
+Partition 3: RV = 1.7082, RE = 1.78458, P_L = -0.182371
+Penalty 계산 완료
+Partition 0: P_L = 0.179431
+Partition 1: P_L = 0.102219
+Partition 2: P_L = -0.0939871
+Partition 3: P_L = -0.187662
+Boundary 노드 추출 완료: 15343개
+로컬 경계 노드 변환 완료: 15343개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15343개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 28935
+각 파티션의 라벨 분포:
+Partition 0: 4315개
+Partition 1: 8740개
+Partition 2: 18559개
+Partition 3: 23862개
+=== Iter 52 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.311126, RE = 0.259521, P_L = 0.179431
+Partition 1: RV = 0.630182, RE = 0.544826, P_L = 0.102219
+Partition 2: RV = 1.33816, RE = 1.40324, P_L = -0.0939871
+Partition 3: RV = 1.72053, RE = 1.79241, P_L = -0.187662
+Penalty 계산 완료
+Partition 0: P_L = 0.179365
+Partition 1: P_L = 0.104275
+Partition 2: P_L = -0.0935535
+Partition 3: P_L = -0.190087
+Boundary 노드 추출 완료: 15147개
+로컬 경계 노드 변환 완료: 15147개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15147개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 28148
+각 파티션의 라벨 분포:
+Partition 0: 4322개
+Partition 1: 8428개
+Partition 2: 18758개
+Partition 3: 23968개
+=== Iter 53 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.31163, RE = 0.258644, P_L = 0.179365
+Partition 1: RV = 0.607686, RE = 0.52262, P_L = 0.104275
+Partition 2: RV = 1.35251, RE = 1.41451, P_L = -0.0935535
+Partition 3: RV = 1.72817, RE = 1.80423, P_L = -0.190087
+Penalty 계산 완료
+Partition 0: P_L = 0.179438
+Partition 1: P_L = 0.109871
+Partition 2: P_L = -0.0967226
+Partition 3: P_L = -0.192586
+Boundary 노드 추출 완료: 14620개
+로컬 경계 노드 변환 완료: 14620개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14620개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 28477
+각 파티션의 라벨 분포:
+Partition 0: 4367개
+Partition 1: 8360개
+Partition 2: 18687개
+Partition 3: 24062개
+=== Iter 54 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.314875, RE = 0.260241, P_L = 0.179438
+Partition 1: RV = 0.602783, RE = 0.520792, P_L = 0.109871
+Partition 2: RV = 1.34739, RE = 1.40543, P_L = -0.0967226
+Partition 3: RV = 1.73495, RE = 1.81354, P_L = -0.192586
+Penalty 계산 완료
+Partition 0: P_L = 0.178855
+Partition 1: P_L = 0.11067
+Partition 2: P_L = -0.0948938
+Partition 3: P_L = -0.194631
+Boundary 노드 추출 완료: 14696개
+로컬 경계 노드 변환 완료: 14696개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14696개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26920
+각 파티션의 라벨 분포:
+Partition 0: 4269개
+Partition 1: 8496개
+Partition 2: 18518개
+Partition 3: 24193개
+=== Iter 55 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.307809, RE = 0.253094, P_L = 0.178855
+Partition 1: RV = 0.612589, RE = 0.530238, P_L = 0.11067
+Partition 2: RV = 1.33521, RE = 1.39776, P_L = -0.0948938
+Partition 3: RV = 1.74439, RE = 1.81891, P_L = -0.194631
+Penalty 계산 완료
+Partition 0: P_L = 0.180621
+Partition 1: P_L = 0.108252
+Partition 2: P_L = -0.0924602
+Partition 3: P_L = -0.196413
+Boundary 노드 추출 완료: 14255개
+로컬 경계 노드 변환 완료: 14255개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14255개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27355
+각 파티션의 라벨 분포:
+Partition 0: 4223개
+Partition 1: 8606개
+Partition 2: 18208개
+Partition 3: 24439개
+=== Iter 56 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.304492, RE = 0.250786, P_L = 0.180621
+Partition 1: RV = 0.620521, RE = 0.532659, P_L = 0.108252
+Partition 2: RV = 1.31286, RE = 1.37752, P_L = -0.0924602
+Partition 3: RV = 1.76213, RE = 1.83904, P_L = -0.196413
+Penalty 계산 완료
+Partition 0: P_L = 0.181322
+Partition 1: P_L = 0.10705
+Partition 2: P_L = -0.087178
+Partition 3: P_L = -0.201194
+Boundary 노드 추출 완료: 14528개
+로컬 경계 노드 변환 완료: 14528개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14528개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 28525
+각 파티션의 라벨 분포:
+Partition 0: 4305개
+Partition 1: 9031개
+Partition 2: 17719개
+Partition 3: 24421개
+=== Iter 57 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.310404, RE = 0.256783, P_L = 0.181322
+Partition 1: RV = 0.651164, RE = 0.564018, P_L = 0.10705
+Partition 2: RV = 1.2776, RE = 1.33389, P_L = -0.087178
+Partition 3: RV = 1.76083, RE = 1.84531, P_L = -0.201194
+Penalty 계산 완료
+Partition 0: P_L = 0.179851
+Partition 1: P_L = 0.0993195
+Partition 2: P_L = -0.0772216
+Partition 3: P_L = -0.201949
+Boundary 노드 추출 완료: 15129개
+로컬 경계 노드 변환 완료: 15129개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15129개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 28014
+각 파티션의 라벨 분포:
+Partition 0: 4319개
+Partition 1: 8973개
+Partition 2: 17868개
+Partition 3: 24316개
+=== Iter 58 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.311414, RE = 0.257587, P_L = 0.179851
+Partition 1: RV = 0.646982, RE = 0.559379, P_L = 0.0993195
+Partition 2: RV = 1.28834, RE = 1.34982, P_L = -0.0772216
+Partition 3: RV = 1.75326, RE = 1.83321, P_L = -0.201949
+Penalty 계산 완료
+Partition 0: P_L = 0.179623
+Partition 1: P_L = 0.100423
+Partition 2: P_L = -0.0806247
+Partition 3: P_L = -0.199421
+Boundary 노드 추출 완료: 15054개
+로컬 경계 노드 변환 완료: 15054개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15054개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 28978
+각 파티션의 라벨 분포:
+Partition 0: 4265개
+Partition 1: 8924개
+Partition 2: 18046개
+Partition 3: 24241개
+=== Iter 59 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.30752, RE = 0.253641, P_L = 0.179623
+Partition 1: RV = 0.643449, RE = 0.554142, P_L = 0.100423
+Partition 2: RV = 1.30118, RE = 1.36326, P_L = -0.0806247
+Partition 3: RV = 1.74785, RE = 1.82896, P_L = -0.199421
+Penalty 계산 완료
+Partition 0: P_L = 0.180612
+Partition 1: P_L = 0.101556
+Partition 2: P_L = -0.0839271
+Partition 3: P_L = -0.198241
+Boundary 노드 추출 완료: 15351개
+로컬 경계 노드 변환 완료: 15351개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15351개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 28889
+각 파티션의 라벨 분포:
+Partition 0: 4336개
+Partition 1: 8764개
+Partition 2: 18364개
+Partition 3: 24012개
+=== Iter 60 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.31264, RE = 0.259002, P_L = 0.180612
+Partition 1: RV = 0.631913, RE = 0.544823, P_L = 0.101556
+Partition 2: RV = 1.3241, RE = 1.38567, P_L = -0.0839271
+Partition 3: RV = 1.73134, RE = 1.8105, P_L = -0.198241
+Penalty 계산 완료
+Partition 0: P_L = 0.179294
+Partition 1: P_L = 0.104125
+Partition 2: P_L = -0.0895824
+Partition 3: P_L = -0.193837
+Boundary 노드 추출 완료: 15266개
+로컬 경계 노드 변환 완료: 15266개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15266개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 29501
+각 파티션의 라벨 분포:
+Partition 0: 4407개
+Partition 1: 8814개
+Partition 2: 18365개
+Partition 3: 23890개
+=== Iter 61 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.317759, RE = 0.262765, P_L = 0.179294
+Partition 1: RV = 0.635518, RE = 0.548273, P_L = 0.104125
+Partition 2: RV = 1.32418, RE = 1.38571, P_L = -0.0895824
+Partition 3: RV = 1.72255, RE = 1.80325, P_L = -0.193837
+Penalty 계산 완료
+Partition 0: P_L = 0.17822
+Partition 1: P_L = 0.103272
+Partition 2: P_L = -0.0896145
+Partition 3: P_L = -0.191877
+Boundary 노드 추출 완료: 15754개
+로컬 경계 노드 변환 완료: 15754개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15754개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27380
+각 파티션의 라벨 분포:
+Partition 0: 4298개
+Partition 1: 8520개
+Partition 2: 18572개
+Partition 3: 24086개
+=== Iter 62 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.3099, RE = 0.253896, P_L = 0.17822
+Partition 1: RV = 0.61432, RE = 0.532528, P_L = 0.103272
+Partition 2: RV = 1.3391, RE = 1.39991, P_L = -0.0896145
+Partition 3: RV = 1.73668, RE = 1.81367, P_L = -0.191877
+Penalty 계산 완료
+Partition 0: P_L = 0.18029
+Partition 1: P_L = 0.107761
+Partition 2: P_L = -0.0932066
+Partition 3: P_L = -0.194844
+Boundary 노드 추출 완료: 14784개
+로컬 경계 노드 변환 완료: 14784개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14784개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27312
+각 파티션의 라벨 분포:
+Partition 0: 4207개
+Partition 1: 8641개
+Partition 2: 18682개
+Partition 3: 23946개
+=== Iter 63 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.303338, RE = 0.25026, P_L = 0.18029
+Partition 1: RV = 0.623044, RE = 0.539384, P_L = 0.107761
+Partition 2: RV = 1.34703, RE = 1.40901, P_L = -0.0932066
+Partition 3: RV = 1.72658, RE = 1.80135, P_L = -0.194844
+Penalty 계산 완료
+Partition 0: P_L = 0.181515
+Partition 1: P_L = 0.105823
+Partition 2: P_L = -0.0953396
+Partition 3: P_L = -0.191998
+Boundary 노드 추출 완료: 14475개
+로컬 경계 노드 변환 완료: 14475개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14475개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 28313
+각 파티션의 라벨 분포:
+Partition 0: 4176개
+Partition 1: 8895개
+Partition 2: 18458개
+Partition 3: 23947개
+=== Iter 64 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.301103, RE = 0.249156, P_L = 0.181515
+Partition 1: RV = 0.641358, RE = 0.557043, P_L = 0.105823
+Partition 2: RV = 1.33088, RE = 1.38817, P_L = -0.0953396
+Partition 3: RV = 1.72666, RE = 1.80563, P_L = -0.191998
+Penalty 계산 완료
+Partition 0: P_L = 0.181921
+Partition 1: P_L = 0.101342
+Partition 2: P_L = -0.0906583
+Partition 3: P_L = -0.192606
+Boundary 노드 추출 완료: 15016개
+로컬 경계 노드 변환 완료: 15016개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15016개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 28560
+각 파티션의 라벨 분포:
+Partition 0: 4152개
+Partition 1: 8951개
+Partition 2: 18448개
+Partition 3: 23925개
+=== Iter 65 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.299373, RE = 0.246047, P_L = 0.181921
+Partition 1: RV = 0.645396, RE = 0.55947, P_L = 0.101342
+Partition 2: RV = 1.33016, RE = 1.38967, P_L = -0.0906583
+Partition 3: RV = 1.72507, RE = 1.80482, P_L = -0.192606
+Penalty 계산 완료
+Partition 0: P_L = 0.182559
+Partition 1: P_L = 0.100578
+Partition 2: P_L = -0.0907997
+Partition 3: P_L = -0.192337
+Boundary 노드 추출 완료: 15078개
+로컬 경계 노드 변환 완료: 15078개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15078개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 28079
+각 파티션의 라벨 분포:
+Partition 0: 4019개
+Partition 1: 9108개
+Partition 2: 18369개
+Partition 3: 23980개
+=== Iter 66 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.289783, RE = 0.240413, P_L = 0.182559
+Partition 1: RV = 0.656716, RE = 0.56729, P_L = 0.100578
+Partition 2: RV = 1.32446, RE = 1.38203, P_L = -0.0907997
+Partition 3: RV = 1.72904, RE = 1.81027, P_L = -0.192337
+Penalty 계산 완료
+Partition 0: P_L = 0.184397
+Partition 1: P_L = 0.0982164
+Partition 2: P_L = -0.0890947
+Partition 3: P_L = -0.193519
+Boundary 노드 추출 완료: 15161개
+로컬 경계 노드 변환 완료: 15161개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15161개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27887
+각 파티션의 라벨 분포:
+Partition 0: 4392개
+Partition 1: 8680개
+Partition 2: 18321개
+Partition 3: 24083개
+=== Iter 67 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.316677, RE = 0.26459, P_L = 0.184397
+Partition 1: RV = 0.625856, RE = 0.541635, P_L = 0.0982164
+Partition 2: RV = 1.321, RE = 1.38417, P_L = -0.0890947
+Partition 3: RV = 1.73646, RE = 1.80961, P_L = -0.193519
+Penalty 계산 완료
+Partition 0: P_L = 0.178041
+Partition 1: P_L = 0.105195
+Partition 2: P_L = -0.088995
+Partition 3: P_L = -0.194242
+Boundary 노드 추출 완료: 14900개
+로컬 경계 노드 변환 완료: 14900개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14900개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26673
+각 파티션의 라벨 분포:
+Partition 0: 4348개
+Partition 1: 8466개
+Partition 2: 18332개
+Partition 3: 24330개
+=== Iter 68 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.313505, RE = 0.259586, P_L = 0.178041
+Partition 1: RV = 0.610426, RE = 0.529652, P_L = 0.105195
+Partition 2: RV = 1.3218, RE = 1.38463, P_L = -0.088995
+Partition 3: RV = 1.75427, RE = 1.82613, P_L = -0.194242
+Penalty 계산 완료
+Partition 0: P_L = 0.179072
+Partition 1: P_L = 0.108552
+Partition 2: P_L = -0.0891293
+Partition 3: P_L = -0.198494
+Boundary 노드 추출 완료: 14290개
+로컬 경계 노드 변환 완료: 14290개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14290개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27344
+각 파티션의 라벨 분포:
+Partition 0: 4379개
+Partition 1: 8495개
+Partition 2: 18470개
+Partition 3: 24132개
+=== Iter 69 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.31574, RE = 0.262523, P_L = 0.179072
+Partition 1: RV = 0.612517, RE = 0.527101, P_L = 0.108552
+Partition 2: RV = 1.33175, RE = 1.39756, P_L = -0.0891293
+Partition 3: RV = 1.74, RE = 1.81281, P_L = -0.198494
+Penalty 계산 완료
+Partition 0: P_L = 0.178438
+Partition 1: P_L = 0.108705
+Partition 2: P_L = -0.0920555
+Partition 3: P_L = -0.195088
+Boundary 노드 추출 완료: 14540개
+로컬 경계 노드 변환 완료: 14540개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14540개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 29160
+각 파티션의 라벨 분포:
+Partition 0: 4313개
+Partition 1: 8750개
+Partition 2: 18572개
+Partition 3: 23841개
+=== Iter 70 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.310981, RE = 0.259269, P_L = 0.178438
+Partition 1: RV = 0.630903, RE = 0.53805, P_L = 0.108705
+Partition 2: RV = 1.3391, RE = 1.4056, P_L = -0.0920555
+Partition 3: RV = 1.71901, RE = 1.79708, P_L = -0.195088
+Penalty 계산 완료
+Partition 0: P_L = 0.179454
+Partition 1: P_L = 0.105201
+Partition 2: P_L = -0.0940337
+Partition 3: P_L = -0.190621
+Boundary 노드 추출 완료: 15408개
+로컬 경계 노드 변환 완료: 15408개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15408개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27699
+각 파티션의 라벨 분포:
+Partition 0: 4261개
+Partition 1: 8704개
+Partition 2: 18866개
+Partition 3: 23645개
+=== Iter 71 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.307232, RE = 0.25433, P_L = 0.179454
+Partition 1: RV = 0.627587, RE = 0.543848, P_L = 0.105201
+Partition 2: RV = 1.3603, RE = 1.42239, P_L = -0.0940337
+Partition 3: RV = 1.70488, RE = 1.77943, P_L = -0.190621
+Penalty 계산 완료
+Partition 0: P_L = 0.180526
+Partition 1: P_L = 0.104712
+Partition 2: P_L = -0.0986819
+Partition 3: P_L = -0.186555
+Boundary 노드 추출 완료: 14548개
+로컬 경계 노드 변환 완료: 14548개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14548개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27428
+각 파티션의 라벨 분포:
+Partition 0: 4350개
+Partition 1: 8732개
+Partition 2: 18714개
+Partition 3: 23680개
+=== Iter 72 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.313649, RE = 0.260423, P_L = 0.180526
+Partition 1: RV = 0.629606, RE = 0.537151, P_L = 0.104712
+Partition 2: RV = 1.34934, RE = 1.42098, P_L = -0.0986819
+Partition 3: RV = 1.70741, RE = 1.78145, P_L = -0.186555
+Penalty 계산 완료
+Partition 0: P_L = 0.179003
+Partition 1: P_L = 0.105479
+Partition 2: P_L = -0.0973154
+Partition 3: P_L = -0.187167
+Boundary 노드 추출 완료: 14577개
+로컬 경계 노드 변환 완료: 14577개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14577개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27979
+각 파티션의 라벨 분포:
+Partition 0: 4416개
+Partition 1: 8456개
+Partition 2: 18600개
+Partition 3: 24004개
+=== Iter 73 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.318408, RE = 0.264196, P_L = 0.179003
+Partition 1: RV = 0.609705, RE = 0.523273, P_L = 0.105479
+Partition 2: RV = 1.34112, RE = 1.41086, P_L = -0.0973154
+Partition 3: RV = 1.73077, RE = 1.80167, P_L = -0.187167
+Penalty 계산 완료
+Partition 0: P_L = 0.177919
+Partition 1: P_L = 0.109565
+Partition 2: P_L = -0.0949554
+Partition 3: P_L = -0.192529
+Boundary 노드 추출 완료: 14865개
+로컬 경계 노드 변환 완료: 14865개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14865개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26662
+각 파티션의 라벨 분포:
+Partition 0: 4393개
+Partition 1: 8456개
+Partition 2: 18940개
+Partition 3: 23687개
+=== Iter 74 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.31675, RE = 0.262575, P_L = 0.177919
+Partition 1: RV = 0.609705, RE = 0.525592, P_L = 0.109565
+Partition 2: RV = 1.36564, RE = 1.43137, P_L = -0.0949554
+Partition 3: RV = 1.70791, RE = 1.78046, P_L = -0.192529
+Penalty 계산 완료
+Partition 0: P_L = 0.17833
+Partition 1: P_L = 0.109245
+Partition 2: P_L = -0.10053
+Partition 3: P_L = -0.187044
+Boundary 노드 추출 완료: 13919개
+로컬 경계 노드 변환 완료: 13919개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 13919개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26665
+각 파티션의 라벨 분포:
+Partition 0: 4340개
+Partition 1: 8407개
+Partition 2: 19010개
+Partition 3: 23719개
+=== Iter 75 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.312928, RE = 0.258977, P_L = 0.17833
+Partition 1: RV = 0.606172, RE = 0.522218, P_L = 0.109245
+Partition 2: RV = 1.37068, RE = 1.4354, P_L = -0.10053
+Partition 3: RV = 1.71022, RE = 1.7834, P_L = -0.187044
+Penalty 계산 완료
+Partition 0: P_L = 0.179249
+Partition 1: P_L = 0.110099
+Partition 2: P_L = -0.101645
+Partition 3: P_L = -0.187703
+Boundary 노드 추출 완료: 13971개
+로컬 경계 노드 변환 완료: 13971개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 13971개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27712
+각 파티션의 라벨 분포:
+Partition 0: 4440개
+Partition 1: 8385개
+Partition 2: 18850개
+Partition 3: 23801개
+=== Iter 76 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.320138, RE = 0.264965, P_L = 0.179249
+Partition 1: RV = 0.604586, RE = 0.52288, P_L = 0.110099
+Partition 2: RV = 1.35915, RE = 1.42714, P_L = -0.101645
+Partition 3: RV = 1.71613, RE = 1.78502, P_L = -0.187703
+Penalty 계산 완료
+Partition 0: P_L = 0.177609
+Partition 1: P_L = 0.110173
+Partition 2: P_L = -0.0992064
+Partition 3: P_L = -0.188576
+Boundary 노드 추출 완료: 14390개
+로컬 경계 노드 변환 완료: 14390개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14390개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 28770
+각 파티션의 라벨 분포:
+Partition 0: 4451개
+Partition 1: 8614개
+Partition 2: 18720개
+Partition 3: 23691개
+=== Iter 77 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.320932, RE = 0.263977, P_L = 0.177609
+Partition 1: RV = 0.621097, RE = 0.543732, P_L = 0.110173
+Partition 2: RV = 1.34977, RE = 1.41158, P_L = -0.0992064
+Partition 3: RV = 1.7082, RE = 1.78071, P_L = -0.188576
+Penalty 계산 완료
+Partition 0: P_L = 0.177662
+Partition 1: P_L = 0.105449
+Partition 2: P_L = -0.0960099
+Partition 3: P_L = -0.187101
+Boundary 노드 추출 완료: 14966개
+로컬 경계 노드 변환 완료: 14966개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14966개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 28037
+각 파티션의 라벨 분포:
+Partition 0: 4465개
+Partition 1: 8832개
+Partition 2: 18295개
+Partition 3: 23884개
+=== Iter 78 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.321941, RE = 0.268426, P_L = 0.177662
+Partition 1: RV = 0.636816, RE = 0.552966, P_L = 0.105449
+Partition 2: RV = 1.31913, RE = 1.38625, P_L = -0.0960099
+Partition 3: RV = 1.72211, RE = 1.79236, P_L = -0.187101
+Penalty 계산 완료
+Partition 0: P_L = 0.176933
+Partition 1: P_L = 0.102419
+Partition 2: P_L = -0.0890866
+Partition 3: P_L = -0.190266
+Boundary 노드 추출 완료: 14871개
+로컬 경계 노드 변환 완료: 14871개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14871개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 29419
+각 파티션의 라벨 분포:
+Partition 0: 4509개
+Partition 1: 8752개
+Partition 2: 18342개
+Partition 3: 23873개
+=== Iter 79 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.325114, RE = 0.27188, P_L = 0.176933
+Partition 1: RV = 0.631048, RE = 0.541468, P_L = 0.102419
+Partition 2: RV = 1.32252, RE = 1.38998, P_L = -0.0890866
+Partition 3: RV = 1.72132, RE = 1.79667, P_L = -0.190266
+Penalty 계산 완료
+Partition 0: P_L = 0.176131
+Partition 1: P_L = 0.104706
+Partition 2: P_L = -0.0900191
+Partition 3: P_L = -0.190818
+Boundary 노드 추출 완료: 15492개
+로컬 경계 노드 변환 완료: 15492개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15492개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 28118
+각 파티션의 라벨 분포:
+Partition 0: 4530개
+Partition 1: 8545개
+Partition 2: 18483개
+Partition 3: 23918개
+=== Iter 80 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.326628, RE = 0.272035, P_L = 0.176131
+Partition 1: RV = 0.616122, RE = 0.527076, P_L = 0.104706
+Partition 2: RV = 1.33268, RE = 1.39508, P_L = -0.0900191
+Partition 3: RV = 1.72457, RE = 1.80581, P_L = -0.190818
+Penalty 계산 완료
+Partition 0: P_L = 0.175955
+Partition 1: P_L = 0.108384
+Partition 2: P_L = -0.0918699
+Partition 3: P_L = -0.192469
+Boundary 노드 추출 완료: 14717개
+로컬 경계 노드 변환 완료: 14717개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14717개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27345
+각 파티션의 라벨 분포:
+Partition 0: 4297개
+Partition 1: 8824개
+Partition 2: 18603개
+Partition 3: 23752개
+=== Iter 81 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.309828, RE = 0.254927, P_L = 0.175955
+Partition 1: RV = 0.636239, RE = 0.546999, P_L = 0.108384
+Partition 2: RV = 1.34134, RE = 1.40683, P_L = -0.0918699
+Partition 3: RV = 1.7126, RE = 1.79125, P_L = -0.192469
+Penalty 계산 완료
+Partition 0: P_L = 0.180192
+Partition 1: P_L = 0.103373
+Partition 2: P_L = -0.094458
+Partition 3: P_L = -0.189107
+Boundary 노드 추출 완료: 14380개
+로컬 경계 노드 변환 완료: 14380개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14380개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26211
+각 파티션의 라벨 분포:
+Partition 0: 4302개
+Partition 1: 8571개
+Partition 2: 18514개
+Partition 3: 24089개
+=== Iter 82 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.310188, RE = 0.255905, P_L = 0.180192
+Partition 1: RV = 0.617997, RE = 0.53279, P_L = 0.103373
+Partition 2: RV = 1.33492, RE = 1.40144, P_L = -0.094458
+Partition 3: RV = 1.7369, RE = 1.80986, P_L = -0.189107
+Penalty 계산 완료
+Partition 0: P_L = 0.179977
+Partition 1: P_L = 0.107311
+Partition 2: P_L = -0.0929506
+Partition 3: P_L = -0.194338
+Boundary 노드 추출 완료: 14075개
+로컬 경계 노드 변환 완료: 14075개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14075개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 28457
+각 파티션의 라벨 분포:
+Partition 0: 4365개
+Partition 1: 8504개
+Partition 2: 18475개
+Partition 3: 24132개
+=== Iter 83 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.314731, RE = 0.262498, P_L = 0.179977
+Partition 1: RV = 0.613166, RE = 0.530544, P_L = 0.107311
+Partition 2: RV = 1.33211, RE = 1.39639, P_L = -0.0929506
+Partition 3: RV = 1.74, RE = 1.81057, P_L = -0.194338
+Penalty 계산 완료
+Partition 0: P_L = 0.178535
+Partition 1: P_L = 0.108126
+Partition 2: P_L = -0.0919099
+Partition 3: P_L = -0.194752
+Boundary 노드 추출 완료: 14670개
+로컬 경계 노드 변환 완료: 14670개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14670개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 29535
+각 파티션의 라벨 분포:
+Partition 0: 4453개
+Partition 1: 8655개
+Partition 2: 18341개
+Partition 3: 24027개
+=== Iter 84 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.321076, RE = 0.267862, P_L = 0.178535
+Partition 1: RV = 0.624054, RE = 0.537435, P_L = 0.108126
+Partition 2: RV = 1.32245, RE = 1.39026, P_L = -0.0919099
+Partition 3: RV = 1.73242, RE = 1.80445, P_L = -0.194752
+Penalty 계산 완료
+Partition 0: P_L = 0.177113
+Partition 1: P_L = 0.106003
+Partition 2: P_L = -0.090019
+Partition 3: P_L = -0.193098
+Boundary 노드 추출 완료: 15300개
+로컬 경계 노드 변환 완료: 15300개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15300개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 28601
+각 파티션의 라벨 분포:
+Partition 0: 4504개
+Partition 1: 8892개
+Partition 2: 18117개
+Partition 3: 23963개
+=== Iter 85 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.324753, RE = 0.27317, P_L = 0.177113
+Partition 1: RV = 0.641142, RE = 0.550234, P_L = 0.106003
+Partition 2: RV = 1.30629, RE = 1.37783, P_L = -0.090019
+Partition 3: RV = 1.72781, RE = 1.79877, P_L = -0.193098
+Penalty 계산 완료
+Partition 0: P_L = 0.175978
+Partition 1: P_L = 0.102344
+Partition 2: P_L = -0.0865118
+Partition 3: P_L = -0.191811
+Boundary 노드 추출 완료: 15377개
+로컬 경계 노드 변환 완료: 15377개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15377개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 29390
+각 파티션의 라벨 분포:
+Partition 0: 4447개
+Partition 1: 8899개
+Partition 2: 18159개
+Partition 3: 23971개
+=== Iter 86 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.320643, RE = 0.265871, P_L = 0.175978
+Partition 1: RV = 0.641647, RE = 0.552644, P_L = 0.102344
+Partition 2: RV = 1.30932, RE = 1.37766, P_L = -0.0865118
+Partition 3: RV = 1.72839, RE = 1.80382, P_L = -0.191811
+Penalty 계산 완료
+Partition 0: P_L = 0.177463
+Partition 1: P_L = 0.101977
+Partition 2: P_L = -0.0868436
+Partition 3: P_L = -0.192597
+Boundary 노드 추출 완료: 15597개
+로컬 경계 노드 변환 완료: 15597개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15597개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 28752
+각 파티션의 라벨 분포:
+Partition 0: 4405개
+Partition 1: 8890개
+Partition 2: 18280개
+Partition 3: 23901개
+=== Iter 87 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.317615, RE = 0.264753, P_L = 0.177463
+Partition 1: RV = 0.640998, RE = 0.552556, P_L = 0.101977
+Partition 2: RV = 1.31805, RE = 1.38433, P_L = -0.0868436
+Partition 3: RV = 1.72334, RE = 1.79836, P_L = -0.192597
+Penalty 계산 완료
+Partition 0: P_L = 0.177943
+Partition 1: P_L = 0.102042
+Partition 2: P_L = -0.0887241
+Partition 3: P_L = -0.191261
+Boundary 노드 추출 완료: 15363개
+로컬 경계 노드 변환 완료: 15363개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15363개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 28449
+각 파티션의 라벨 분포:
+Partition 0: 4434개
+Partition 1: 8750개
+Partition 2: 18368개
+Partition 3: 23924개
+=== Iter 88 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.319706, RE = 0.265136, P_L = 0.177943
+Partition 1: RV = 0.630903, RE = 0.54134, P_L = 0.102042
+Partition 2: RV = 1.32439, RE = 1.39261, P_L = -0.0887241
+Partition 3: RV = 1.725, RE = 1.80091, P_L = -0.191261
+Penalty 계산 완료
+Partition 0: P_L = 0.177672
+Partition 1: P_L = 0.104744
+Partition 2: P_L = -0.0905965
+Partition 3: P_L = -0.19182
+Boundary 노드 추출 완료: 15073개
+로컬 경계 노드 변환 완료: 15073개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15073개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27692
+각 파티션의 라벨 분포:
+Partition 0: 4440개
+Partition 1: 8523개
+Partition 2: 18386개
+Partition 3: 24127개
+=== Iter 89 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.320138, RE = 0.266045, P_L = 0.177672
+Partition 1: RV = 0.614536, RE = 0.526311, P_L = 0.104744
+Partition 2: RV = 1.32569, RE = 1.39666, P_L = -0.0905965
+Partition 3: RV = 1.73964, RE = 1.81099, P_L = -0.19182
+Penalty 계산 완료
+Partition 0: P_L = 0.177474
+Partition 1: P_L = 0.108613
+Partition 2: P_L = -0.0912743
+Partition 3: P_L = -0.194813
+Boundary 노드 추출 완료: 14747개
+로컬 경계 노드 변환 완료: 14747개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14747개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27728
+각 파티션의 라벨 분포:
+Partition 0: 4471개
+Partition 1: 8638개
+Partition 2: 17984개
+Partition 3: 24383개
+=== Iter 90 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.322374, RE = 0.268244, P_L = 0.177474
+Partition 1: RV = 0.622828, RE = 0.532249, P_L = 0.108613
+Partition 2: RV = 1.2967, RE = 1.36759, P_L = -0.0912743
+Partition 3: RV = 1.75809, RE = 1.83192, P_L = -0.194813
+Penalty 계산 완료
+Partition 0: P_L = 0.176927
+Partition 1: P_L = 0.106878
+Partition 2: P_L = -0.0840246
+Partition 3: P_L = -0.199781
+Boundary 노드 추출 완료: 14941개
+로컬 경계 노드 변환 완료: 14941개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14941개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27531
+각 파티션의 라벨 분포:
+Partition 0: 4480개
+Partition 1: 8693개
+Partition 2: 18035개
+Partition 3: 24268개
+=== Iter 91 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.323023, RE = 0.26871, P_L = 0.176927
+Partition 1: RV = 0.626794, RE = 0.538972, P_L = 0.106878
+Partition 2: RV = 1.30038, RE = 1.36245, P_L = -0.0840246
+Partition 3: RV = 1.7498, RE = 1.82987, P_L = -0.199781
+Penalty 계산 완료
+Partition 0: P_L = 0.176798
+Partition 1: P_L = 0.105516
+Partition 2: P_L = -0.0837275
+Partition 3: P_L = -0.198587
+Boundary 노드 추출 완료: 14795개
+로컬 경계 노드 변환 완료: 14795개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14795개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 28893
+각 파티션의 라벨 분포:
+Partition 0: 4531개
+Partition 1: 8756개
+Partition 2: 17955개
+Partition 3: 24234개
+=== Iter 92 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.3267, RE = 0.273058, P_L = 0.176798
+Partition 1: RV = 0.631336, RE = 0.541477, P_L = 0.105516
+Partition 2: RV = 1.29461, RE = 1.3575, P_L = -0.0837275
+Partition 3: RV = 1.74735, RE = 1.82797, P_L = -0.198587
+Penalty 계산 완료
+Partition 0: P_L = 0.175794
+Partition 1: P_L = 0.104678
+Partition 2: P_L = -0.0824094
+Partition 3: P_L = -0.198063
+Boundary 노드 추출 완료: 15439개
+로컬 경계 노드 변환 완료: 15439개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15439개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 29866
+각 파티션의 라벨 분포:
+Partition 0: 4560개
+Partition 1: 8976개
+Partition 2: 17750개
+Partition 3: 24190개
+=== Iter 93 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.328791, RE = 0.274528, P_L = 0.175794
+Partition 1: RV = 0.647199, RE = 0.55712, P_L = 0.104678
+Partition 2: RV = 1.27983, RE = 1.34555, P_L = -0.0824094
+Partition 3: RV = 1.74418, RE = 1.8228, P_L = -0.198063
+Penalty 계산 완료
+Partition 0: P_L = 0.175361
+Partition 1: P_L = 0.100748
+Partition 2: P_L = -0.0791125
+Partition 3: P_L = -0.196996
+Boundary 노드 추출 완료: 16006개
+로컬 경계 노드 변환 완료: 16006개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 16006개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 28436
+각 파티션의 라벨 분포:
+Partition 0: 4413개
+Partition 1: 8786개
+Partition 2: 18251개
+Partition 3: 24026개
+=== Iter 94 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.318192, RE = 0.264001, P_L = 0.175361
+Partition 1: RV = 0.633499, RE = 0.542455, P_L = 0.100748
+Partition 2: RV = 1.31596, RE = 1.38094, P_L = -0.0791125
+Partition 3: RV = 1.73235, RE = 1.8126, P_L = -0.196996
+Penalty 계산 완료
+Partition 0: P_L = 0.178005
+Partition 1: P_L = 0.104315
+Partition 2: P_L = -0.0880468
+Partition 3: P_L = -0.194273
+Boundary 노드 추출 완료: 15118개
+로컬 경계 노드 변환 완료: 15118개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15118개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27743
+각 파티션의 라벨 분포:
+Partition 0: 4394개
+Partition 1: 8810개
+Partition 2: 18409개
+Partition 3: 23863개
+=== Iter 95 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.316822, RE = 0.264016, P_L = 0.178005
+Partition 1: RV = 0.63523, RE = 0.546794, P_L = 0.104315
+Partition 2: RV = 1.32735, RE = 1.39353, P_L = -0.0880468
+Partition 3: RV = 1.7206, RE = 1.79566, P_L = -0.194273
+Penalty 계산 완료
+Partition 0: P_L = 0.178133
+Partition 1: P_L = 0.103483
+Partition 2: P_L = -0.0910344
+Partition 3: P_L = -0.190582
+Boundary 노드 추출 완료: 14765개
+로컬 경계 노드 변환 완료: 14765개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14765개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 28775
+각 파티션의 라벨 분포:
+Partition 0: 4453개
+Partition 1: 9029개
+Partition 2: 18152개
+Partition 3: 23842개
+=== Iter 96 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.321076, RE = 0.268161, P_L = 0.178133
+Partition 1: RV = 0.65102, RE = 0.566148, P_L = 0.103483
+Partition 2: RV = 1.30882, RE = 1.37389, P_L = -0.0910344
+Partition 3: RV = 1.71909, RE = 1.7918, P_L = -0.190582
+Penalty 계산 완료
+Partition 0: P_L = 0.177073
+Partition 1: P_L = 0.0990207
+Partition 2: P_L = -0.0862337
+Partition 3: P_L = -0.18986
+Boundary 노드 추출 완료: 15222개
+로컬 경계 노드 변환 완료: 15222개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15222개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 28528
+각 파티션의 라벨 분포:
+Partition 0: 4514개
+Partition 1: 9192개
+Partition 2: 17920개
+Partition 3: 23850개
+=== Iter 97 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.325474, RE = 0.272108, P_L = 0.177073
+Partition 1: RV = 0.662773, RE = 0.568101, P_L = 0.0990207
+Partition 2: RV = 1.29209, RE = 1.35948, P_L = -0.0862337
+Partition 3: RV = 1.71966, RE = 1.80032, P_L = -0.18986
+Penalty 계산 완료
+Partition 0: P_L = 0.176091
+Partition 1: P_L = 0.0975394
+Partition 2: P_L = -0.0824413
+Partition 3: P_L = -0.191189
+Boundary 노드 추출 완료: 15360개
+로컬 경계 노드 변환 완료: 15360개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15360개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 28201
+각 파티션의 라벨 분포:
+Partition 0: 4427개
+Partition 1: 8977개
+Partition 2: 18260개
+Partition 3: 23812개
+=== Iter 98 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.319201, RE = 0.263081, P_L = 0.176091
+Partition 1: RV = 0.647271, RE = 0.555739, P_L = 0.0975394
+Partition 2: RV = 1.31661, RE = 1.38408, P_L = -0.0824413
+Partition 3: RV = 1.71692, RE = 1.7971, P_L = -0.191189
+Penalty 계산 완료
+Partition 0: P_L = 0.178041
+Partition 1: P_L = 0.100972
+Partition 2: P_L = -0.0885791
+Partition 3: P_L = -0.190434
+Boundary 노드 추출 완료: 15343개
+로컬 경계 노드 변환 완료: 15343개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15343개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 28298
+각 파티션의 라벨 분포:
+Partition 0: 4378개
+Partition 1: 9426개
+Partition 2: 18056개
+Partition 3: 23616개
+=== Iter 99 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.315668, RE = 0.262444, P_L = 0.178041
+Partition 1: RV = 0.679645, RE = 0.585059, P_L = 0.100972
+Partition 2: RV = 1.3019, RE = 1.36378, P_L = -0.0885791
+Partition 3: RV = 1.70279, RE = 1.78871, P_L = -0.190434
+Penalty 계산 완료
+Partition 0: P_L = 0.178533
+Partition 1: P_L = 0.093328
+Partition 2: P_L = -0.0841365
+Partition 3: P_L = -0.187724
+Boundary 노드 추출 완료: 15381개
+로컬 경계 노드 변환 완료: 15381개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15381개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 29413
+각 파티션의 라벨 분포:
+Partition 0: 4402개
+Partition 1: 9539개
+Partition 2: 18118개
+Partition 3: 23417개
+=== Iter 100 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.317399, RE = 0.262941, P_L = 0.178533
+Partition 1: RV = 0.687793, RE = 0.590673, P_L = 0.093328
+Partition 2: RV = 1.30637, RE = 1.36899, P_L = -0.0841365
+Partition 3: RV = 1.68844, RE = 1.7774, P_L = -0.187724
+Penalty 계산 완료
+Partition 0: P_L = 0.178301
+Partition 1: P_L = 0.0916964
+Partition 2: P_L = -0.0853897
+Partition 3: P_L = -0.184608
+Boundary 노드 추출 완료: 15742개
+로컬 경계 노드 변환 완료: 15742개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15742개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26519
+각 파티션의 라벨 분포:
+Partition 0: 4387개
+Partition 1: 9592개
+Partition 2: 18428개
+Partition 3: 23069개
+=== Iter 101 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.316317, RE = 0.260716, P_L = 0.178301
+Partition 1: RV = 0.691614, RE = 0.602507, P_L = 0.0916964
+Partition 2: RV = 1.32872, RE = 1.39281, P_L = -0.0853897
+Partition 3: RV = 1.66335, RE = 1.74397, P_L = -0.184608
+Penalty 계산 완료
+Partition 0: P_L = 0.178702
+Partition 1: P_L = 0.0895669
+Partition 2: P_L = -0.0911489
+Partition 3: P_L = -0.17712
+Boundary 노드 추출 완료: 14488개
+로컬 경계 노드 변환 완료: 14488개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14488개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27005
+각 파티션의 라벨 분포:
+Partition 0: 4529개
+Partition 1: 10181개
+Partition 2: 18236개
+Partition 3: 22530개
+=== Iter 102 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.326556, RE = 0.272014, P_L = 0.178702
+Partition 1: RV = 0.734083, RE = 0.650365, P_L = 0.0895669
+Partition 2: RV = 1.31487, RE = 1.3746, P_L = -0.0911489
+Partition 3: RV = 1.62449, RE = 1.70303, P_L = -0.17712
+Penalty 계산 완료
+Partition 0: P_L = 0.175989
+Partition 1: P_L = 0.0781879
+Partition 2: P_L = -0.0870712
+Partition 3: P_L = -0.167106
+Boundary 노드 추출 완료: 14721개
+로컬 경계 노드 변환 완료: 14721개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14721개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 28060
+각 파티션의 라벨 분포:
+Partition 0: 4409개
+Partition 1: 10329개
+Partition 2: 18228개
+Partition 3: 22510개
+=== Iter 103 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.317903, RE = 0.265965, P_L = 0.175989
+Partition 1: RV = 0.744754, RE = 0.661044, P_L = 0.0781879
+Partition 2: RV = 1.3143, RE = 1.36906, P_L = -0.0870712
+Partition 3: RV = 1.62304, RE = 1.70393, P_L = -0.167106
+Penalty 계산 완료
+Partition 0: P_L = 0.177772
+Partition 1: P_L = 0.0754932
+Partition 2: P_L = -0.0862169
+Partition 3: P_L = -0.167048
+Boundary 노드 추출 완료: 15168개
+로컬 경계 노드 변환 완료: 15168개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15168개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26550
+각 파티션의 라벨 분포:
+Partition 0: 4439개
+Partition 1: 9861개
+Partition 2: 18509개
+Partition 3: 22667개
+=== Iter 104 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.320066, RE = 0.266857, P_L = 0.177772
+Partition 1: RV = 0.71101, RE = 0.633748, P_L = 0.0754932
+Partition 2: RV = 1.33456, RE = 1.39003, P_L = -0.0862169
+Partition 3: RV = 1.63436, RE = 1.70937, P_L = -0.167048
+Penalty 계산 완료
+Partition 0: P_L = 0.177378
+Partition 1: P_L = 0.0829846
+Partition 2: P_L = -0.0913485
+Partition 3: P_L = -0.169014
+Boundary 노드 추출 완료: 14340개
+로컬 경계 노드 변환 완료: 14340개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14340개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26480
+각 파티션의 라벨 분포:
+Partition 0: 4594개
+Partition 1: 10321개
+Partition 2: 18473개
+Partition 3: 22088개
+=== Iter 105 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.331242, RE = 0.27688, P_L = 0.177378
+Partition 1: RV = 0.744178, RE = 0.668423, P_L = 0.0829846
+Partition 2: RV = 1.33196, RE = 1.38866, P_L = -0.0913485
+Partition 3: RV = 1.59262, RE = 1.66603, P_L = -0.169014
+Penalty 계산 완료
+Partition 0: P_L = 0.174767
+Partition 1: P_L = 0.074515
+Partition 2: P_L = -0.0908941
+Partition 3: P_L = -0.158388
+Boundary 노드 추출 완료: 14187개
+로컬 경계 노드 변환 완료: 14187개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14187개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27152
+각 파티션의 라벨 분포:
+Partition 0: 4711개
+Partition 1: 10902개
+Partition 2: 18394개
+Partition 3: 21469개
+=== Iter 106 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.339678, RE = 0.282977, P_L = 0.174767
+Partition 1: RV = 0.78607, RE = 0.712661, P_L = 0.074515
+Partition 2: RV = 1.32627, RE = 1.38397, P_L = -0.0908941
+Partition 3: RV = 1.54798, RE = 1.6204, P_L = -0.158388
+Penalty 계산 완료
+Partition 0: P_L = 0.173013
+Partition 1: P_L = 0.0637525
+Partition 2: P_L = -0.0896388
+Partition 3: P_L = -0.147126
+Boundary 노드 추출 완료: 14449개
+로컬 경계 노드 변환 완료: 14449개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14449개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26590
+각 파티션의 라벨 분포:
+Partition 0: 4603개
+Partition 1: 11246개
+Partition 2: 18267개
+Partition 3: 21360개
+=== Iter 107 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.331891, RE = 0.27534, P_L = 0.173013
+Partition 1: RV = 0.810873, RE = 0.735874, P_L = 0.0637525
+Partition 2: RV = 1.31711, RE = 1.3763, P_L = -0.0896388
+Partition 3: RV = 1.54013, RE = 1.61249, P_L = -0.147126
+Penalty 계산 완료
+Partition 0: P_L = 0.17494
+Partition 1: P_L = 0.0577762
+Partition 2: P_L = -0.0875593
+Partition 3: P_L = -0.145157
+Boundary 노드 추출 완료: 14482개
+로컬 경계 노드 변환 완료: 14482개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14482개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26873
+각 파티션의 라벨 분포:
+Partition 0: 4582개
+Partition 1: 11501개
+Partition 2: 18132개
+Partition 3: 21261개
+=== Iter 108 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.330377, RE = 0.275137, P_L = 0.17494
+Partition 1: RV = 0.829259, RE = 0.75573, P_L = 0.0577762
+Partition 2: RV = 1.30738, RE = 1.36696, P_L = -0.0875593
+Partition 3: RV = 1.53299, RE = 1.60218, P_L = -0.145157
+Penalty 계산 완료
+Partition 0: P_L = 0.175117
+Partition 1: P_L = 0.0529492
+Partition 2: P_L = -0.085161
+Partition 3: P_L = -0.142905
+Boundary 노드 추출 완료: 14803개
+로컬 경계 노드 변환 완료: 14803개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14803개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26507
+각 파티션의 라벨 분포:
+Partition 0: 4590개
+Partition 1: 11370개
+Partition 2: 18433개
+Partition 3: 21083개
+=== Iter 109 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.330954, RE = 0.275614, P_L = 0.175117
+Partition 1: RV = 0.819814, RE = 0.746862, P_L = 0.0529492
+Partition 2: RV = 1.32908, RE = 1.38858, P_L = -0.085161
+Partition 3: RV = 1.52015, RE = 1.58894, P_L = -0.142905
+Penalty 계산 완료
+Partition 0: P_L = 0.174989
+Partition 1: P_L = 0.0552329
+Partition 2: P_L = -0.0905781
+Partition 3: P_L = -0.139643
+Boundary 노드 추출 완료: 14550개
+로컬 경계 노드 변환 완료: 14550개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14550개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26744
+각 파티션의 라벨 분포:
+Partition 0: 4460개
+Partition 1: 11551개
+Partition 2: 18553개
+Partition 3: 20912개
+=== Iter 110 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.321581, RE = 0.26441, P_L = 0.174989
+Partition 1: RV = 0.832865, RE = 0.754545, P_L = 0.0552329
+Partition 2: RV = 1.33773, RE = 1.39996, P_L = -0.0905781
+Partition 3: RV = 1.50782, RE = 1.58108, P_L = -0.139643
+Penalty 계산 완료
+Partition 0: P_L = 0.177622
+Partition 1: P_L = 0.0527672
+Partition 2: P_L = -0.0931603
+Partition 3: P_L = -0.137229
+Boundary 노드 추출 완료: 14672개
+로컬 경계 노드 변환 완료: 14672개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14672개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25007
+각 파티션의 라벨 분포:
+Partition 0: 4390개
+Partition 1: 11211개
+Partition 2: 18862개
+Partition 3: 21013개
+=== Iter 111 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.316533, RE = 0.260831, P_L = 0.177622
+Partition 1: RV = 0.80835, RE = 0.733537, P_L = 0.0527672
+Partition 2: RV = 1.36001, RE = 1.41879, P_L = -0.0931603
+Partition 3: RV = 1.51511, RE = 1.58684, P_L = -0.137229
+Penalty 계산 완료
+Partition 0: P_L = 0.178645
+Partition 1: P_L = 0.058359
+Partition 2: P_L = -0.0982103
+Partition 3: P_L = -0.138793
+Boundary 노드 추출 완료: 13749개
+로컬 경계 노드 변환 완료: 13749개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 13749개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25900
+각 파티션의 라벨 분포:
+Partition 0: 4426개
+Partition 1: 11448개
+Partition 2: 18849개
+Partition 3: 20753개
+=== Iter 112 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.319129, RE = 0.263249, P_L = 0.178645
+Partition 1: RV = 0.825438, RE = 0.749358, P_L = 0.058359
+Partition 2: RV = 1.35907, RE = 1.41771, P_L = -0.0982103
+Partition 3: RV = 1.49636, RE = 1.56969, P_L = -0.138793
+Penalty 계산 완료
+Partition 0: P_L = 0.178035
+Partition 1: P_L = 0.054284
+Partition 2: P_L = -0.0979713
+Partition 3: P_L = -0.134348
+Boundary 노드 추출 완료: 14199개
+로컬 경계 노드 변환 완료: 14199개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14199개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 23916
+각 파티션의 라벨 분포:
+Partition 0: 4424개
+Partition 1: 11297개
+Partition 2: 18849개
+Partition 3: 20906개
+=== Iter 113 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.318985, RE = 0.261633, P_L = 0.178035
+Partition 1: RV = 0.81455, RE = 0.738787, P_L = 0.054284
+Partition 2: RV = 1.35907, RE = 1.41632, P_L = -0.0979713
+Partition 3: RV = 1.50739, RE = 1.58326, P_L = -0.134348
+Penalty 계산 완료
+Partition 0: P_L = 0.178287
+Partition 1: P_L = 0.056974
+Partition 2: P_L = -0.0977861
+Partition 3: P_L = -0.137474
+Boundary 노드 추출 완료: 13492개
+로컬 경계 노드 변환 완료: 13492개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 13492개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25630
+각 파티션의 라벨 분포:
+Partition 0: 4335개
+Partition 1: 11416개
+Partition 2: 18896개
+Partition 3: 20829개
+=== Iter 114 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.312568, RE = 0.25872, P_L = 0.178287
+Partition 1: RV = 0.823131, RE = 0.747293, P_L = 0.056974
+Partition 2: RV = 1.36246, RE = 1.42462, P_L = -0.0977861
+Partition 3: RV = 1.50184, RE = 1.56937, P_L = -0.137474
+Penalty 계산 완료
+Partition 0: P_L = 0.179364
+Partition 1: P_L = 0.0547881
+Partition 2: P_L = -0.0992796
+Partition 3: P_L = -0.134872
+Boundary 노드 추출 완료: 14250개
+로컬 경계 노드 변환 완료: 14250개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14250개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25947
+각 파티션의 라벨 분포:
+Partition 0: 4510개
+Partition 1: 11369개
+Partition 2: 18871개
+Partition 3: 20726개
+=== Iter 115 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.325186, RE = 0.269416, P_L = 0.179364
+Partition 1: RV = 0.819742, RE = 0.746671, P_L = 0.0547881
+Partition 2: RV = 1.36066, RE = 1.4183, P_L = -0.0992796
+Partition 3: RV = 1.49441, RE = 1.56561, P_L = -0.134872
+Penalty 계산 완료
+Partition 0: P_L = 0.176496
+Partition 1: P_L = 0.0552749
+Partition 2: P_L = -0.0982198
+Partition 3: P_L = -0.133551
+Boundary 노드 추출 완료: 14298개
+로컬 경계 노드 변환 완료: 14298개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14298개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26462
+각 파티션의 라벨 분포:
+Partition 0: 4577개
+Partition 1: 11342개
+Partition 2: 18724개
+Partition 3: 20833개
+=== Iter 116 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.330017, RE = 0.275625, P_L = 0.176496
+Partition 1: RV = 0.817795, RE = 0.744683, P_L = 0.0552749
+Partition 2: RV = 1.35006, RE = 1.40761, P_L = -0.0982198
+Partition 3: RV = 1.50213, RE = 1.57209, P_L = -0.133551
+Penalty 계산 완료
+Partition 0: P_L = 0.175089
+Partition 1: P_L = 0.0557575
+Partition 2: P_L = -0.0955484
+Partition 3: P_L = -0.135298
+Boundary 노드 추출 완료: 14314개
+로컬 경계 노드 변환 완료: 14314개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14314개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25377
+각 파티션의 라벨 분포:
+Partition 0: 4568개
+Partition 1: 11392개
+Partition 2: 18852개
+Partition 3: 20664개
+=== Iter 117 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.329368, RE = 0.272789, P_L = 0.175089
+Partition 1: RV = 0.8214, RE = 0.750019, P_L = 0.0557575
+Partition 2: RV = 1.35929, RE = 1.41987, P_L = -0.0955484
+Partition 3: RV = 1.48994, RE = 1.55732, P_L = -0.135298
+Penalty 계산 완료
+Partition 0: P_L = 0.175564
+Partition 1: P_L = 0.0546246
+Partition 2: P_L = -0.0982879
+Partition 3: P_L = -0.131901
+Boundary 노드 추출 완료: 13873개
+로컬 경계 노드 변환 완료: 13873개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 13873개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26899
+각 파티션의 라벨 분포:
+Partition 0: 4661개
+Partition 1: 11233개
+Partition 2: 18829개
+Partition 3: 20753개
+=== Iter 118 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.336073, RE = 0.281196, P_L = 0.175564
+Partition 1: RV = 0.809936, RE = 0.739069, P_L = 0.0546246
+Partition 2: RV = 1.35763, RE = 1.41745, P_L = -0.0982879
+Partition 3: RV = 1.49636, RE = 1.56228, P_L = -0.131901
+Penalty 계산 완료
+Partition 0: P_L = 0.173639
+Partition 1: P_L = 0.0574044
+Partition 2: P_L = -0.0977548
+Partition 3: P_L = -0.133289
+Boundary 노드 추출 완료: 14359개
+로컬 경계 노드 변환 완료: 14359개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14359개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27216
+각 파티션의 라벨 분포:
+Partition 0: 4659개
+Partition 1: 11350개
+Partition 2: 18848개
+Partition 3: 20619개
+=== Iter 119 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.335929, RE = 0.281298, P_L = 0.173639
+Partition 1: RV = 0.818372, RE = 0.749451, P_L = 0.0574044
+Partition 2: RV = 1.359, RE = 1.41773, P_L = -0.0977548
+Partition 3: RV = 1.4867, RE = 1.55153, P_L = -0.133289
+Penalty 계산 완료
+Partition 0: P_L = 0.173632
+Partition 1: P_L = 0.0550129
+Partition 2: P_L = -0.0979351
+Partition 3: P_L = -0.13071
+Boundary 노드 추출 완료: 14663개
+로컬 경계 노드 변환 완료: 14663개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14663개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27984
+각 파티션의 라벨 분포:
+Partition 0: 4631개
+Partition 1: 11681개
+Partition 2: 18693개
+Partition 3: 20471개
+=== Iter 120 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.33391, RE = 0.280286, P_L = 0.173632
+Partition 1: RV = 0.842238, RE = 0.769668, P_L = 0.0550129
+Partition 2: RV = 1.34783, RE = 1.407, P_L = -0.0979351
+Partition 3: RV = 1.47603, RE = 1.54305, P_L = -0.13071
+Penalty 계산 완료
+Partition 0: P_L = 0.174007
+Partition 1: P_L = 0.0495694
+Partition 2: P_L = -0.0952151
+Partition 3: P_L = -0.128361
+Boundary 노드 추출 완료: 15010개
+로컬 경계 노드 변환 완료: 15010개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15010개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27261
+각 파티션의 라벨 분포:
+Partition 0: 4499개
+Partition 1: 11756개
+Partition 2: 18644개
+Partition 3: 20577개
+=== Iter 121 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.324393, RE = 0.270247, P_L = 0.174007
+Partition 1: RV = 0.847646, RE = 0.781323, P_L = 0.0495694
+Partition 2: RV = 1.34429, RE = 1.39843, P_L = -0.0952151
+Partition 3: RV = 1.48367, RE = 1.55001, P_L = -0.128361
+Penalty 계산 완료
+Partition 0: P_L = 0.176427
+Partition 1: P_L = 0.0473057
+Partition 2: P_L = -0.0935962
+Partition 3: P_L = -0.130136
+Boundary 노드 추출 완료: 14650개
+로컬 경계 노드 변환 완료: 14650개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14650개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26680
+각 파티션의 라벨 분포:
+Partition 0: 4661개
+Partition 1: 11687개
+Partition 2: 18658개
+Partition 3: 20470개
+=== Iter 122 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.336073, RE = 0.281203, P_L = 0.176427
+Partition 1: RV = 0.842671, RE = 0.776931, P_L = 0.0473057
+Partition 2: RV = 1.3453, RE = 1.40371, P_L = -0.0935962
+Partition 3: RV = 1.47595, RE = 1.53816, P_L = -0.130136
+Penalty 계산 완료
+Partition 0: P_L = 0.173619
+Partition 1: P_L = 0.0484823
+Partition 2: P_L = -0.0944546
+Partition 3: P_L = -0.127646
+Boundary 노드 추출 완료: 14458개
+로컬 경계 노드 변환 완료: 14458개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14458개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26871
+각 파티션의 라벨 분포:
+Partition 0: 4542개
+Partition 1: 11657개
+Partition 2: 18973개
+Partition 3: 20304개
+=== Iter 123 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.327493, RE = 0.273316, P_L = 0.173619
+Partition 1: RV = 0.840508, RE = 0.775198, P_L = 0.0484823
+Partition 2: RV = 1.36801, RE = 1.42457, P_L = -0.0944546
+Partition 3: RV = 1.46398, RE = 1.52692, P_L = -0.127646
+Penalty 계산 완료
+Partition 0: P_L = 0.175655
+Partition 1: P_L = 0.0489476
+Partition 2: P_L = -0.0998619
+Partition 3: P_L = -0.12474
+Boundary 노드 추출 완료: 14444개
+로컬 경계 노드 변환 완료: 14444개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14444개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26844
+각 파티션의 라벨 분포:
+Partition 0: 4535개
+Partition 1: 11993개
+Partition 2: 18700개
+Partition 3: 20248개
+=== Iter 124 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.326988, RE = 0.273293, P_L = 0.175655
+Partition 1: RV = 0.864734, RE = 0.795196, P_L = 0.0489476
+Partition 2: RV = 1.34833, RE = 1.41308, P_L = -0.0998619
+Partition 3: RV = 1.45995, RE = 1.51843, P_L = -0.12474
+Penalty 계산 완료
+Partition 0: P_L = 0.175725
+Partition 1: P_L = 0.0434928
+Partition 2: P_L = -0.0960928
+Partition 3: P_L = -0.123125
+Boundary 노드 추출 완료: 14766개
+로컬 경계 노드 변환 완료: 14766개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14766개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27001
+각 파티션의 라벨 분포:
+Partition 0: 4642개
+Partition 1: 12022개
+Partition 2: 18561개
+Partition 3: 20251개
+=== Iter 125 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.334703, RE = 0.281173, P_L = 0.175725
+Partition 1: RV = 0.866825, RE = 0.803599, P_L = 0.0434928
+Partition 2: RV = 1.33831, RE = 1.39752, P_L = -0.0960928
+Partition 3: RV = 1.46016, RE = 1.51771, P_L = -0.123125
+Penalty 계산 완료
+Partition 0: P_L = 0.173753
+Partition 1: P_L = 0.0420677
+Partition 2: P_L = -0.0927935
+Partition 3: P_L = -0.123027
+Boundary 노드 추출 완료: 14874개
+로컬 경계 노드 변환 완료: 14874개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14874개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27043
+각 파티션의 라벨 분포:
+Partition 0: 4613개
+Partition 1: 12039개
+Partition 2: 18675개
+Partition 3: 20149개
+=== Iter 126 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.332612, RE = 0.280447, P_L = 0.173753
+Partition 1: RV = 0.868051, RE = 0.801845, P_L = 0.0420677
+Partition 2: RV = 1.34653, RE = 1.40584, P_L = -0.0927935
+Partition 3: RV = 1.45281, RE = 1.51187, P_L = -0.123027
+Penalty 계산 완료
+Partition 0: P_L = 0.174088
+Partition 1: P_L = 0.0421776
+Partition 2: P_L = -0.0948654
+Partition 3: P_L = -0.1214
+Boundary 노드 추출 완료: 14686개
+로컬 경계 노드 변환 완료: 14686개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14686개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27909
+각 파티션의 라벨 분포:
+Partition 0: 4699개
+Partition 1: 12207개
+Partition 2: 18569개
+Partition 3: 20001개
+=== Iter 127 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.338813, RE = 0.284501, P_L = 0.174088
+Partition 1: RV = 0.880164, RE = 0.812126, P_L = 0.0421776
+Partition 2: RV = 1.33889, RE = 1.40159, P_L = -0.0948654
+Partition 3: RV = 1.44214, RE = 1.50178, P_L = -0.1214
+Penalty 계산 완료
+Partition 0: P_L = 0.172868
+Partition 1: P_L = 0.0394437
+Partition 2: P_L = -0.0934624
+Partition 3: P_L = -0.118849
+Boundary 노드 추출 완료: 15150개
+로컬 경계 노드 변환 완료: 15150개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15150개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26581
+각 파티션의 라벨 분포:
+Partition 0: 4715개
+Partition 1: 12566개
+Partition 2: 18563개
+Partition 3: 19632개
+=== Iter 128 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.339967, RE = 0.284496, P_L = 0.172868
+Partition 1: RV = 0.906049, RE = 0.837495, P_L = 0.0394437
+Partition 2: RV = 1.33845, RE = 1.41036, P_L = -0.0934624
+Partition 3: RV = 1.41553, RE = 1.46765, P_L = -0.118849
+Penalty 계산 완료
+Partition 0: P_L = 0.172753
+Partition 1: P_L = 0.033059
+Partition 2: P_L = -0.0946519
+Partition 3: P_L = -0.11116
+Boundary 노드 추출 완료: 14559개
+로컬 경계 노드 변환 완료: 14559개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14559개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26940
+각 파티션의 라벨 분포:
+Partition 0: 4810개
+Partition 1: 12381개
+Partition 2: 18682개
+Partition 3: 19603개
+=== Iter 129 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.346817, RE = 0.291032, P_L = 0.172753
+Partition 1: RV = 0.89271, RE = 0.828102, P_L = 0.033059
+Partition 2: RV = 1.34703, RE = 1.41317, P_L = -0.0946519
+Partition 3: RV = 1.41344, RE = 1.4677, P_L = -0.11116
+Penalty 계산 완료
+Partition 0: P_L = 0.17108
+Partition 1: P_L = 0.0358381
+Partition 2: P_L = -0.0959867
+Partition 3: P_L = -0.110932
+Boundary 노드 추출 완료: 14599개
+로컬 경계 노드 변환 완료: 14599개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14599개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27075
+각 파티션의 라벨 분포:
+Partition 0: 4827개
+Partition 1: 12446개
+Partition 2: 18487개
+Partition 3: 19716개
+=== Iter 130 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.348042, RE = 0.295766, P_L = 0.17108
+Partition 1: RV = 0.897397, RE = 0.834363, P_L = 0.0358381
+Partition 2: RV = 1.33297, RE = 1.39491, P_L = -0.0959867
+Partition 3: RV = 1.42159, RE = 1.47496, P_L = -0.110932
+Penalty 계산 완료
+Partition 0: P_L = 0.170249
+Partition 1: P_L = 0.0344041
+Partition 2: P_L = -0.0918438
+Partition 3: P_L = -0.112809
+Boundary 노드 추출 완료: 14706개
+로컬 경계 노드 변환 완료: 14706개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14706개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25375
+각 파티션의 라벨 분포:
+Partition 0: 5020개
+Partition 1: 12527개
+Partition 2: 18629개
+Partition 3: 19300개
+=== Iter 131 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.361958, RE = 0.307224, P_L = 0.170249
+Partition 1: RV = 0.903237, RE = 0.840511, P_L = 0.0344041
+Partition 2: RV = 1.34321, RE = 1.40522, P_L = -0.0918438
+Partition 3: RV = 1.39159, RE = 1.44704, P_L = -0.112809
+Penalty 계산 완료
+Partition 0: P_L = 0.167151
+Partition 1: P_L = 0.0329471
+Partition 2: P_L = -0.0944598
+Partition 3: P_L = -0.105639
+Boundary 노드 추출 완료: 13978개
+로컬 경계 노드 변환 완료: 13978개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 13978개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26912
+각 파티션의 라벨 분포:
+Partition 0: 5191개
+Partition 1: 12144개
+Partition 2: 18448개
+Partition 3: 19693개
+=== Iter 132 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.374288, RE = 0.313138, P_L = 0.167151
+Partition 1: RV = 0.875622, RE = 0.823568, P_L = 0.0329471
+Partition 2: RV = 1.33016, RE = 1.39292, P_L = -0.0944598
+Partition 3: RV = 1.41993, RE = 1.47038, P_L = -0.105639
+Penalty 계산 완료
+Partition 0: P_L = 0.164978
+Partition 1: P_L = 0.0383726
+Partition 2: P_L = -0.0913146
+Partition 3: P_L = -0.112036
+Boundary 노드 추출 완료: 14427개
+로컬 경계 노드 변환 완료: 14427개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14427개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26482
+각 파티션의 라벨 분포:
+Partition 0: 5443개
+Partition 1: 12292개
+Partition 2: 18036개
+Partition 3: 19705개
+=== Iter 133 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.392458, RE = 0.335134, P_L = 0.164978
+Partition 1: RV = 0.886293, RE = 0.824187, P_L = 0.0383726
+Partition 2: RV = 1.30045, RE = 1.3706, P_L = -0.0913146
+Partition 3: RV = 1.42079, RE = 1.47008, P_L = -0.112036
+Penalty 계산 완료
+Partition 0: P_L = 0.159931
+Partition 1: P_L = 0.0371436
+Partition 2: P_L = -0.0849584
+Partition 3: P_L = -0.112116
+Boundary 노드 추출 완료: 14405개
+로컬 경계 노드 변환 완료: 14405개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14405개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25773
+각 파티션의 라벨 분포:
+Partition 0: 5384개
+Partition 1: 12199개
+Partition 2: 18014개
+Partition 3: 19879개
+=== Iter 134 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.388204, RE = 0.330302, P_L = 0.159931
+Partition 1: RV = 0.879588, RE = 0.822716, P_L = 0.0371436
+Partition 2: RV = 1.29887, RE = 1.35745, P_L = -0.0849584
+Partition 3: RV = 1.43334, RE = 1.48953, P_L = -0.112116
+Penalty 계산 완료
+Partition 0: P_L = 0.161055
+Partition 1: P_L = 0.0380644
+Partition 2: P_L = -0.0829178
+Partition 3: P_L = -0.116201
+Boundary 노드 추출 완료: 14011개
+로컬 경계 노드 변환 완료: 14011개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14011개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25424
+각 파티션의 라벨 분포:
+Partition 0: 5503개
+Partition 1: 12511개
+Partition 2: 17947개
+Partition 3: 19515개
+=== Iter 135 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.396784, RE = 0.338064, P_L = 0.161055
+Partition 1: RV = 0.902084, RE = 0.842338, P_L = 0.0380644
+Partition 2: RV = 1.29404, RE = 1.35594, P_L = -0.0829178
+Partition 3: RV = 1.40709, RE = 1.46366, P_L = -0.116201
+Penalty 계산 완료
+Partition 0: P_L = 0.159063
+Partition 1: P_L = 0.0328821
+Partition 2: P_L = -0.0822157
+Partition 3: P_L = -0.109729
+Boundary 노드 추출 완료: 14138개
+로컬 경계 노드 변환 완료: 14138개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14138개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26612
+각 파티션의 라벨 분포:
+Partition 0: 5694개
+Partition 1: 12644개
+Partition 2: 17552개
+Partition 3: 19586개
+=== Iter 136 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.410556, RE = 0.352871, P_L = 0.159063
+Partition 1: RV = 0.911674, RE = 0.85003, P_L = 0.0328821
+Partition 2: RV = 1.26556, RE = 1.32964, P_L = -0.0822157
+Partition 3: RV = 1.41221, RE = 1.46746, P_L = -0.109729
+Penalty 계산 완료
+Partition 0: P_L = 0.155485
+Partition 1: P_L = 0.0307629
+Partition 2: P_L = -0.0754134
+Partition 3: P_L = -0.110834
+Boundary 노드 추출 완료: 14795개
+로컬 경계 노드 변환 완료: 14795개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14795개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26340
+각 파티션의 라벨 분포:
+Partition 0: 5670개
+Partition 1: 12663개
+Partition 2: 17538개
+Partition 3: 19605개
+=== Iter 137 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.408825, RE = 0.351865, P_L = 0.155485
+Partition 1: RV = 0.913043, RE = 0.853285, P_L = 0.0307629
+Partition 2: RV = 1.26455, RE = 1.329, P_L = -0.0754134
+Partition 3: RV = 1.41358, RE = 1.46585, P_L = -0.110834
+Penalty 계산 완료
+Partition 0: P_L = 0.155794
+Partition 1: P_L = 0.0301325
+Partition 2: P_L = -0.0751902
+Partition 3: P_L = -0.110736
+Boundary 노드 추출 완료: 14598개
+로컬 경계 노드 변환 완료: 14598개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14598개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26773
+각 파티션의 라벨 분포:
+Partition 0: 5609개
+Partition 1: 12527개
+Partition 2: 17825개
+Partition 3: 19515개
+=== Iter 138 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.404427, RE = 0.350194, P_L = 0.155794
+Partition 1: RV = 0.903237, RE = 0.843347, P_L = 0.0301325
+Partition 2: RV = 1.28524, RE = 1.34668, P_L = -0.0751902
+Partition 3: RV = 1.40709, RE = 1.45978, P_L = -0.110736
+Penalty 계산 완료
+Partition 0: P_L = 0.156488
+Partition 1: P_L = 0.0325778
+Partition 2: P_L = -0.0799137
+Partition 3: P_L = -0.109152
+Boundary 노드 추출 완료: 14861개
+로컬 경계 노드 변환 완료: 14861개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14861개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26417
+각 파티션의 라벨 분포:
+Partition 0: 5712개
+Partition 1: 12601개
+Partition 2: 17845개
+Partition 3: 19318개
+=== Iter 139 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.411854, RE = 0.356797, P_L = 0.156488
+Partition 1: RV = 0.908573, RE = 0.850013, P_L = 0.0325778
+Partition 2: RV = 1.28668, RE = 1.35067, P_L = -0.0799137
+Partition 3: RV = 1.39289, RE = 1.44252, P_L = -0.109152
+Penalty 계산 완료
+Partition 0: P_L = 0.154758
+Partition 1: P_L = 0.0310697
+Partition 2: P_L = -0.0806445
+Partition 3: P_L = -0.105183
+Boundary 노드 추출 완료: 14540개
+로컬 경계 노드 변환 완료: 14540개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14540개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25904
+각 파티션의 라벨 분포:
+Partition 0: 5812개
+Partition 1: 12182개
+Partition 2: 17890개
+Partition 3: 19592개
+=== Iter 140 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.419064, RE = 0.361997, P_L = 0.154758
+Partition 1: RV = 0.878362, RE = 0.821772, P_L = 0.0310697
+Partition 2: RV = 1.28993, RE = 1.34888, P_L = -0.0806445
+Partition 3: RV = 1.41265, RE = 1.46736, P_L = -0.105183
+Penalty 계산 완료
+Partition 0: P_L = 0.153255
+Partition 1: P_L = 0.0383631
+Partition 2: P_L = -0.0807668
+Partition 3: P_L = -0.110851
+Boundary 노드 추출 완료: 14222개
+로컬 경계 노드 변환 완료: 14222개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14222개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26645
+각 파티션의 라벨 분포:
+Partition 0: 5931개
+Partition 1: 12113개
+Partition 2: 17853개
+Partition 3: 19579개
+=== Iter 141 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.427644, RE = 0.368509, P_L = 0.153255
+Partition 1: RV = 0.873387, RE = 0.82202, P_L = 0.0383631
+Partition 2: RV = 1.28726, RE = 1.34091, P_L = -0.0807668
+Partition 3: RV = 1.41171, RE = 1.46856, P_L = -0.110851
+Penalty 계산 완료
+Partition 0: P_L = 0.151407
+Partition 1: P_L = 0.0388784
+Partition 2: P_L = -0.0793616
+Partition 3: P_L = -0.110923
+Boundary 노드 추출 완료: 14692개
+로컬 경계 노드 변환 완료: 14692개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14692개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25408
+각 파티션의 라벨 분포:
+Partition 0: 6152개
+Partition 1: 12144개
+Partition 2: 17483개
+Partition 3: 19697개
+=== Iter 142 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.443579, RE = 0.388557, P_L = 0.151407
+Partition 1: RV = 0.875622, RE = 0.816057, P_L = 0.0388784
+Partition 2: RV = 1.26058, RE = 1.31992, P_L = -0.0793616
+Partition 3: RV = 1.42022, RE = 1.47547, P_L = -0.110923
+Penalty 계산 완료
+Partition 0: P_L = 0.14686
+Partition 1: P_L = 0.0394899
+Partition 2: P_L = -0.0735082
+Partition 3: P_L = -0.112842
+Boundary 노드 추출 완료: 14121개
+로컬 경계 노드 변환 완료: 14121개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14121개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25393
+각 파티션의 라벨 분포:
+Partition 0: 6198개
+Partition 1: 12165개
+Partition 2: 17413개
+Partition 3: 19700개
+=== Iter 143 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.446896, RE = 0.388208, P_L = 0.14686
+Partition 1: RV = 0.877136, RE = 0.825088, P_L = 0.0394899
+Partition 2: RV = 1.25553, RE = 1.31826, P_L = -0.0735082
+Partition 3: RV = 1.42043, RE = 1.46844, P_L = -0.112842
+Penalty 계산 완료
+Partition 0: P_L = 0.146537
+Partition 1: P_L = 0.0380425
+Partition 2: P_L = -0.0727137
+Partition 3: P_L = -0.111866
+Boundary 노드 추출 완료: 14005개
+로컬 경계 노드 변환 완료: 14005개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14005개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25434
+각 파티션의 라벨 분포:
+Partition 0: 6269개
+Partition 1: 12262개
+Partition 2: 17158개
+Partition 3: 19787개
+=== Iter 144 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.452015, RE = 0.393239, P_L = 0.146537
+Partition 1: RV = 0.88413, RE = 0.83305, P_L = 0.0380425
+Partition 2: RV = 1.23715, RE = 1.2958, P_L = -0.0727137
+Partition 3: RV = 1.42671, RE = 1.47791, P_L = -0.111866
+Penalty 계산 완료
+Partition 0: P_L = 0.145273
+Partition 1: P_L = 0.0361603
+Partition 2: P_L = -0.0675457
+Partition 3: P_L = -0.113887
+Boundary 노드 추출 완료: 14038개
+로컬 경계 노드 변환 완료: 14038개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14038개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27530
+각 파티션의 라벨 분포:
+Partition 0: 6101개
+Partition 1: 12503개
+Partition 2: 17249개
+Partition 3: 19623개
+=== Iter 145 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.439902, RE = 0.386957, P_L = 0.145273
+Partition 1: RV = 0.901507, RE = 0.844784, P_L = 0.0361603
+Partition 2: RV = 1.24371, RE = 1.29689, P_L = -0.0675457
+Partition 3: RV = 1.41488, RE = 1.47137, P_L = -0.113887
+Penalty 계산 완료
+Partition 0: P_L = 0.147455
+Partition 1: P_L = 0.0325841
+Partition 2: P_L = -0.0683916
+Partition 3: P_L = -0.111648
+Boundary 노드 추출 완료: 14917개
+로컬 경계 노드 변환 완료: 14917개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14917개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27073
+각 파티션의 라벨 분포:
+Partition 0: 6121개
+Partition 1: 12722개
+Partition 2: 17186개
+Partition 3: 19447개
+=== Iter 146 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.441344, RE = 0.385589, P_L = 0.147455
+Partition 1: RV = 0.917298, RE = 0.863648, P_L = 0.0325841
+Partition 2: RV = 1.23917, RE = 1.3028, P_L = -0.0683916
+Partition 3: RV = 1.40219, RE = 1.44797, P_L = -0.111648
+Penalty 계산 완료
+Partition 0: P_L = 0.147489
+Partition 1: P_L = 0.0282052
+Partition 2: P_L = -0.0687219
+Partition 3: P_L = -0.106972
+Boundary 노드 추출 완료: 14712개
+로컬 경계 노드 변환 완료: 14712개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14712개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27224
+각 파티션의 라벨 분포:
+Partition 0: 6348개
+Partition 1: 12905개
+Partition 2: 17037개
+Partition 3: 19186개
+=== Iter 147 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.457711, RE = 0.397115, P_L = 0.147489
+Partition 1: RV = 0.930492, RE = 0.881291, P_L = 0.0282052
+Partition 2: RV = 1.22842, RE = 1.28823, P_L = -0.0687219
+Partition 3: RV = 1.38337, RE = 1.43337, P_L = -0.106972
+Penalty 계산 완료
+Partition 0: P_L = 0.14414
+Partition 1: P_L = 0.0243337
+Partition 2: P_L = -0.0655619
+Partition 3: P_L = -0.102912
+Boundary 노드 추출 완료: 14895개
+로컬 경계 노드 변환 완료: 14895개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14895개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26114
+각 파티션의 라벨 분포:
+Partition 0: 5991개
+Partition 1: 12834개
+Partition 2: 17309개
+Partition 3: 19342개
+=== Iter 148 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.431971, RE = 0.37544, P_L = 0.14414
+Partition 1: RV = 0.925373, RE = 0.877016, P_L = 0.0243337
+Partition 2: RV = 1.24804, RE = 1.31349, P_L = -0.0655619
+Partition 3: RV = 1.39462, RE = 1.43406, P_L = -0.102912
+Penalty 계산 완료
+Partition 0: P_L = 0.14991
+Partition 1: P_L = 0.0254166
+Partition 2: P_L = -0.0711585
+Partition 3: P_L = -0.104168
+Boundary 노드 추출 완료: 14446개
+로컬 경계 노드 변환 완료: 14446개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14446개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26913
+각 파티션의 라벨 분포:
+Partition 0: 5913개
+Partition 1: 12986개
+Partition 2: 17423개
+Partition 3: 19154개
+=== Iter 149 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.426347, RE = 0.36955, P_L = 0.14991
+Partition 1: RV = 0.936333, RE = 0.88972, P_L = 0.0254166
+Partition 2: RV = 1.25625, RE = 1.31985, P_L = -0.0711585
+Partition 3: RV = 1.38107, RE = 1.42088, P_L = -0.104168
+Penalty 계산 완료
+Partition 0: P_L = 0.151348
+Partition 1: P_L = 0.0224289
+Partition 2: P_L = -0.0729482
+Partition 3: P_L = -0.100829
+Boundary 노드 추출 완료: 14689개
+로컬 경계 노드 변환 완료: 14689개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14689개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26741
+각 파티션의 라벨 분포:
+Partition 0: 5868개
+Partition 1: 13257개
+Partition 2: 17589개
+Partition 3: 18762개
+=== Iter 150 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.423102, RE = 0.369097, P_L = 0.151348
+Partition 1: RV = 0.955873, RE = 0.904279, P_L = 0.0224289
+Partition 2: RV = 1.26822, RE = 1.32285, P_L = -0.0729482
+Partition 3: RV = 1.3528, RE = 1.40377, P_L = -0.100829
+Penalty 계산 완료
+Partition 0: P_L = 0.151777
+Partition 1: P_L = 0.0182476
+Partition 2: P_L = -0.074696
+Partition 3: P_L = -0.0953291
+Boundary 노드 추출 완료: 14701개
+로컬 경계 노드 변환 완료: 14701개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14701개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26967
+각 파티션의 라벨 분포:
+Partition 0: 5876개
+Partition 1: 13225개
+Partition 2: 17719개
+Partition 3: 18656개
+=== Iter 151 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.423679, RE = 0.369108, P_L = 0.151777
+Partition 1: RV = 0.953566, RE = 0.902472, P_L = 0.0182476
+Partition 2: RV = 1.2776, RE = 1.33869, P_L = -0.074696
+Partition 3: RV = 1.34516, RE = 1.38973, P_L = -0.0953291
+Penalty 계산 완료
+Partition 0: P_L = 0.151715
+Partition 1: P_L = 0.0187568
+Partition 2: P_L = -0.0779461
+Partition 3: P_L = -0.0925259
+Boundary 노드 추출 완료: 14651개
+로컬 경계 노드 변환 완료: 14651개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14651개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25945
+각 파티션의 라벨 분포:
+Partition 0: 5897개
+Partition 1: 13289개
+Partition 2: 17526개
+Partition 3: 18764개
+=== Iter 152 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.425193, RE = 0.370293, P_L = 0.151715
+Partition 1: RV = 0.95818, RE = 0.911095, P_L = 0.0187568
+Partition 2: RV = 1.26368, RE = 1.32405, P_L = -0.0779461
+Partition 3: RV = 1.35295, RE = 1.39456, P_L = -0.0925259
+Penalty 계산 완료
+Partition 0: P_L = 0.151364
+Partition 1: P_L = 0.0170266
+Partition 2: P_L = -0.0743459
+Partition 3: P_L = -0.0940449
+Boundary 노드 추출 완료: 14089개
+로컬 경계 노드 변환 완료: 14089개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14089개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27124
+각 파티션의 라벨 분포:
+Partition 0: 6162개
+Partition 1: 13076개
+Partition 2: 17317개
+Partition 3: 18921개
+=== Iter 153 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.4443, RE = 0.388135, P_L = 0.151364
+Partition 1: RV = 0.942822, RE = 0.895427, P_L = 0.0170266
+Partition 2: RV = 1.24861, RE = 1.30864, P_L = -0.0743459
+Partition 3: RV = 1.36427, RE = 1.4078, P_L = -0.0940449
+Penalty 계산 완료
+Partition 0: P_L = 0.1468
+Partition 1: P_L = 0.0209394
+Partition 2: P_L = -0.0705687
+Partition 3: P_L = -0.0971704
+Boundary 노드 추출 완료: 14642개
+로컬 경계 노드 변환 완료: 14642개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14642개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26636
+각 파티션의 라벨 분포:
+Partition 0: 6270개
+Partition 1: 13214개
+Partition 2: 17094개
+Partition 3: 18898개
+=== Iter 154 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.452087, RE = 0.39469, P_L = 0.1468
+Partition 1: RV = 0.952772, RE = 0.911837, P_L = 0.0209394
+Partition 2: RV = 1.23253, RE = 1.2887, P_L = -0.0705687
+Partition 3: RV = 1.36261, RE = 1.40477, P_L = -0.0971704
+Penalty 계산 완료
+Partition 0: P_L = 0.145015
+Partition 1: P_L = 0.017539
+Partition 2: P_L = -0.0659985
+Partition 3: P_L = -0.0965558
+Boundary 노드 추출 완료: 14680개
+로컬 경계 노드 변환 완료: 14680개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14680개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26867
+각 파티션의 라벨 분포:
+Partition 0: 6155개
+Partition 1: 13796개
+Partition 2: 17085개
+Partition 3: 18440개
+=== Iter 155 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.443796, RE = 0.390164, P_L = 0.145015
+Partition 1: RV = 0.994736, RE = 0.941707, P_L = 0.017539
+Partition 2: RV = 1.23188, RE = 1.29621, P_L = -0.0659985
+Partition 3: RV = 1.32958, RE = 1.37192, P_L = -0.0965558
+Penalty 계산 완료
+Partition 0: P_L = 0.146565
+Partition 1: P_L = 0.008745
+Partition 2: P_L = -0.0669821
+Partition 3: P_L = -0.0883274
+Boundary 노드 추출 완료: 14925개
+로컬 경계 노드 변환 완료: 14925개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14925개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27612
+각 파티션의 라벨 분포:
+Partition 0: 6281개
+Partition 1: 13634개
+Partition 2: 17124개
+Partition 3: 18437개
+=== Iter 156 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.452881, RE = 0.398785, P_L = 0.146565
+Partition 1: RV = 0.983056, RE = 0.935513, P_L = 0.008745
+Partition 2: RV = 1.2347, RE = 1.29658, P_L = -0.0669821
+Partition 3: RV = 1.32937, RE = 1.36912, P_L = -0.0883274
+Penalty 계산 완료
+Partition 0: P_L = 0.144355
+Partition 1: P_L = 0.0108935
+Partition 2: P_L = -0.06734
+Partition 3: P_L = -0.0879086
+Boundary 노드 추출 완료: 14985개
+로컬 경계 노드 변환 완료: 14985개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14985개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26362
+각 파티션의 라벨 분포:
+Partition 0: 6107개
+Partition 1: 13544개
+Partition 2: 17133개
+Partition 3: 18692개
+=== Iter 157 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.440335, RE = 0.386994, P_L = 0.144355
+Partition 1: RV = 0.976566, RE = 0.930428, P_L = 0.0108935
+Partition 2: RV = 1.23535, RE = 1.2948, P_L = -0.06734
+Partition 3: RV = 1.34775, RE = 1.38778, P_L = -0.0879086
+Penalty 계산 완료
+Partition 0: P_L = 0.147353
+Partition 1: P_L = 0.012291
+Partition 2: P_L = -0.0671253
+Partition 3: P_L = -0.0925188
+Boundary 노드 추출 완료: 14643개
+로컬 경계 노드 변환 완료: 14643개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14643개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25948
+각 파티션의 라벨 분포:
+Partition 0: 6385개
+Partition 1: 13514개
+Partition 2: 16950개
+Partition 3: 18627개
+=== Iter 158 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.460379, RE = 0.40673, P_L = 0.147353
+Partition 1: RV = 0.974403, RE = 0.939017, P_L = 0.012291
+Partition 2: RV = 1.22215, RE = 1.27536, P_L = -0.0671253
+Partition 3: RV = 1.34307, RE = 1.3789, P_L = -0.0925188
+Penalty 계산 완료
+Partition 0: P_L = 0.142365
+Partition 1: P_L = 0.0113194
+Partition 2: P_L = -0.0629356
+Partition 3: P_L = -0.0907486
+Boundary 노드 추출 완료: 14570개
+로컬 경계 노드 변환 완료: 14570개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14570개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26388
+각 파티션의 라벨 분포:
+Partition 0: 6655개
+Partition 1: 13496개
+Partition 2: 16688개
+Partition 3: 18637개
+=== Iter 159 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.479847, RE = 0.428369, P_L = 0.142365
+Partition 1: RV = 0.973105, RE = 0.927998, P_L = 0.0113194
+Partition 2: RV = 1.20326, RE = 1.26186, P_L = -0.0629356
+Partition 3: RV = 1.34379, RE = 1.38178, P_L = -0.0907486
+Penalty 계산 완료
+Partition 0: P_L = 0.137234
+Partition 1: P_L = 0.0130286
+Partition 2: P_L = -0.0590052
+Partition 3: P_L = -0.0912569
+Boundary 노드 추출 완료: 14834개
+로컬 경계 노드 변환 완료: 14834개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14834개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26638
+각 파티션의 라벨 분포:
+Partition 0: 6651개
+Partition 1: 13793개
+Partition 2: 16793개
+Partition 3: 18239개
+=== Iter 160 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.479559, RE = 0.427248, P_L = 0.137234
+Partition 1: RV = 0.99452, RE = 0.949865, P_L = 0.0130286
+Partition 2: RV = 1.21083, RE = 1.27009, P_L = -0.0590052
+Partition 3: RV = 1.31509, RE = 1.3528, P_L = -0.0912569
+Penalty 계산 완료
+Partition 0: P_L = 0.137435
+Partition 1: P_L = 0.00762313
+Partition 2: P_L = -0.0610052
+Partition 3: P_L = -0.0840534
+Boundary 노드 추출 완료: 14778개
+로컬 경계 노드 변환 완료: 14778개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14778개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26472
+각 파티션의 라벨 분포:
+Partition 0: 6638개
+Partition 1: 13876개
+Partition 2: 16665개
+Partition 3: 18297개
+=== Iter 161 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.478621, RE = 0.424808, P_L = 0.137435
+Partition 1: RV = 1.0005, RE = 0.957153, P_L = 0.00762313
+Partition 2: RV = 1.2016, RE = 1.25556, P_L = -0.0610052
+Partition 3: RV = 1.31927, RE = 1.36247, P_L = -0.0840534
+Penalty 계산 완료
+Partition 0: P_L = 0.137891
+Partition 1: P_L = 0.00595285
+Partition 2: P_L = -0.0579673
+Partition 3: P_L = -0.0858763
+Boundary 노드 추출 완료: 14994개
+로컬 경계 노드 변환 완료: 14994개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14994개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27506
+각 파티션의 라벨 분포:
+Partition 0: 6724개
+Partition 1: 13756개
+Partition 2: 16753개
+Partition 3: 18243개
+=== Iter 162 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.484822, RE = 0.435251, P_L = 0.137891
+Partition 1: RV = 0.991852, RE = 0.939125, P_L = 0.00595285
+Partition 2: RV = 1.20795, RE = 1.26678, P_L = -0.0579673
+Partition 3: RV = 1.31538, RE = 1.35884, P_L = -0.0858763
+Penalty 계산 완료
+Partition 0: P_L = 0.135752
+Partition 1: P_L = 0.00943794
+Partition 2: P_L = -0.0602447
+Partition 3: P_L = -0.0849457
+Boundary 노드 추출 완료: 15353개
+로컬 경계 노드 변환 완료: 15353개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15353개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27721
+각 파티션의 라벨 분포:
+Partition 0: 6583개
+Partition 1: 14139개
+Partition 2: 16754개
+Partition 3: 18000개
+=== Iter 163 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.474656, RE = 0.426246, P_L = 0.135752
+Partition 1: RV = 1.01947, RE = 0.971721, P_L = 0.00943794
+Partition 2: RV = 1.20802, RE = 1.25937, P_L = -0.0602447
+Partition 3: RV = 1.29786, RE = 1.34266, P_L = -0.0849457
+Penalty 계산 완료
+Partition 0: P_L = 0.138084
+Partition 1: P_L = 0.00178889
+Partition 2: P_L = -0.0591633
+Partition 3: P_L = -0.0807099
+Boundary 노드 추출 완료: 15364개
+로컬 경계 노드 변환 완료: 15364개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15364개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25921
+각 파티션의 라벨 분포:
+Partition 0: 6595개
+Partition 1: 13333개
+Partition 2: 17204개
+Partition 3: 18344개
+=== Iter 164 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.475521, RE = 0.425782, P_L = 0.138084
+Partition 1: RV = 0.961353, RE = 0.91891, P_L = 0.00178889
+Partition 2: RV = 1.24046, RE = 1.2923, P_L = -0.0591633
+Partition 3: RV = 1.32266, RE = 1.36301, P_L = -0.0807099
+Penalty 계산 완료
+Partition 0: P_L = 0.138058
+Partition 1: P_L = 0.0155822
+Partition 2: P_L = -0.067347
+Partition 3: P_L = -0.0862932
+Boundary 노드 추출 완료: 14300개
+로컬 경계 노드 변환 완료: 14300개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14300개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25101
+각 파티션의 라벨 분포:
+Partition 0: 6611개
+Partition 1: 13491개
+Partition 2: 17009개
+Partition 3: 18365개
+=== Iter 165 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.476675, RE = 0.424422, P_L = 0.138058
+Partition 1: RV = 0.972745, RE = 0.931977, P_L = 0.0155822
+Partition 2: RV = 1.2264, RE = 1.27882, P_L = -0.067347
+Partition 3: RV = 1.32418, RE = 1.36479, P_L = -0.0862932
+Penalty 계산 완료
+Partition 0: P_L = 0.138136
+Partition 1: P_L = 0.0125132
+Partition 2: P_L = -0.0639282
+Partition 3: P_L = -0.0867213
+Boundary 노드 추출 완료: 13878개
+로컬 경계 노드 변환 완료: 13878개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 13878개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26042
+각 파티션의 라벨 분포:
+Partition 0: 6745개
+Partition 1: 13538개
+Partition 2: 17056개
+Partition 3: 18137개
+=== Iter 166 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.486336, RE = 0.435039, P_L = 0.138136
+Partition 1: RV = 0.976134, RE = 0.936615, P_L = 0.0125132
+Partition 2: RV = 1.22979, RE = 1.27658, P_L = -0.0639282
+Partition 3: RV = 1.30774, RE = 1.35176, P_L = -0.0867213
+Penalty 계산 완료
+Partition 0: P_L = 0.135592
+Partition 1: P_L = 0.0114953
+Partition 2: P_L = -0.0639941
+Partition 3: P_L = -0.0830937
+Boundary 노드 추출 완료: 14429개
+로컬 경계 노드 변환 완료: 14429개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14429개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27096
+각 파티션의 라벨 분포:
+Partition 0: 6983개
+Partition 1: 13417개
+Partition 2: 17012개
+Partition 3: 18064개
+=== Iter 167 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.503497, RE = 0.457363, P_L = 0.135592
+Partition 1: RV = 0.967409, RE = 0.920607, P_L = 0.0114953
+Partition 2: RV = 1.22662, RE = 1.27685, P_L = -0.0639941
+Partition 3: RV = 1.30247, RE = 1.34518, P_L = -0.0830937
+Penalty 계산 완료
+Partition 0: P_L = 0.130582
+Partition 1: P_L = 0.014698
+Partition 2: P_L = -0.0636844
+Partition 3: P_L = -0.081596
+Boundary 노드 추출 완료: 14844개
+로컬 경계 노드 변환 완료: 14844개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14844개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26600
+각 파티션의 라벨 분포:
+Partition 0: 7011개
+Partition 1: 13532개
+Partition 2: 17137개
+Partition 3: 17796개
+=== Iter 168 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.505516, RE = 0.453903, P_L = 0.130582
+Partition 1: RV = 0.975701, RE = 0.933306, P_L = 0.014698
+Partition 2: RV = 1.23563, RE = 1.29294, P_L = -0.0636844
+Partition 3: RV = 1.28315, RE = 1.31985, P_L = -0.081596
+Penalty 계산 완료
+Partition 0: P_L = 0.130887
+Partition 1: P_L = 0.0120428
+Partition 2: P_L = -0.0669763
+Partition 3: P_L = -0.0759533
+Boundary 노드 추출 완료: 14685개
+로컬 경계 노드 변환 완료: 14685개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14685개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27884
+각 파티션의 라벨 분포:
+Partition 0: 7017개
+Partition 1: 13613개
+Partition 2: 16987개
+Partition 3: 17859개
+=== Iter 169 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.505949, RE = 0.455317, P_L = 0.130887
+Partition 1: RV = 0.981542, RE = 0.940084, P_L = 0.0120428
+Partition 2: RV = 1.22482, RE = 1.27605, P_L = -0.0669763
+Partition 3: RV = 1.28769, RE = 1.32855, P_L = -0.0759533
+Penalty 계산 완료
+Partition 0: P_L = 0.130625
+Partition 1: P_L = 0.010438
+Partition 2: P_L = -0.0634009
+Partition 3: P_L = -0.077662
+Boundary 노드 추출 완료: 15150개
+로컬 경계 노드 변환 완료: 15150개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15150개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25996
+각 파티션의 라벨 분포:
+Partition 0: 7178개
+Partition 1: 13734개
+Partition 2: 16728개
+Partition 3: 17836개
+=== Iter 170 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.517557, RE = 0.460787, P_L = 0.130625
+Partition 1: RV = 0.990266, RE = 0.955156, P_L = 0.010438
+Partition 2: RV = 1.20614, RE = 1.25685, P_L = -0.0634009
+Partition 3: RV = 1.28603, RE = 1.32721, P_L = -0.077662
+Penalty 계산 완료
+Partition 0: P_L = 0.128644
+Partition 1: P_L = 0.00740163
+Partition 2: P_L = -0.0587104
+Partition 3: P_L = -0.0773351
+Boundary 노드 추출 완료: 14217개
+로컬 경계 노드 변환 완료: 14217개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14217개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27361
+각 파티션의 라벨 분포:
+Partition 0: 7010개
+Partition 1: 13808개
+Partition 2: 16768개
+Partition 3: 17890개
+=== Iter 171 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.505444, RE = 0.455754, P_L = 0.128644
+Partition 1: RV = 0.995602, RE = 0.951683, P_L = 0.00740163
+Partition 2: RV = 1.20903, RE = 1.25603, P_L = -0.0587104
+Partition 3: RV = 1.28993, RE = 1.33653, P_L = -0.0773351
+Penalty 계산 완료
+Partition 0: P_L = 0.130618
+Partition 1: P_L = 0.0072677
+Partition 2: P_L = -0.0588584
+Partition 3: P_L = -0.079027
+Boundary 노드 추출 완료: 14839개
+로컬 경계 노드 변환 완료: 14839개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14839개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26862
+각 파티션의 라벨 분포:
+Partition 0: 7077개
+Partition 1: 14022개
+Partition 2: 16582개
+Partition 3: 17795개
+=== Iter 172 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.510275, RE = 0.463181, P_L = 0.130618
+Partition 1: RV = 1.01103, RE = 0.965836, P_L = 0.0072677
+Partition 2: RV = 1.19562, RE = 1.24689, P_L = -0.0588584
+Partition 3: RV = 1.28308, RE = 1.32409, P_L = -0.079027
+Penalty 계산 완료
+Partition 0: P_L = 0.12902
+Partition 1: P_L = 0.00356481
+Partition 2: P_L = -0.0560771
+Partition 3: P_L = -0.0765073
+Boundary 노드 추출 완료: 14951개
+로컬 경계 노드 변환 완료: 14951개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14951개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26197
+각 파티션의 라벨 분포:
+Partition 0: 7059개
+Partition 1: 13562개
+Partition 2: 16801개
+Partition 3: 18054개
+=== Iter 173 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.508977, RE = 0.461267, P_L = 0.12902
+Partition 1: RV = 0.977864, RE = 0.933981, P_L = 0.00356481
+Partition 2: RV = 1.21141, RE = 1.26552, P_L = -0.0560771
+Partition 3: RV = 1.30175, RE = 1.33923, P_L = -0.0765073
+Penalty 계산 완료
+Partition 0: P_L = 0.129435
+Partition 1: P_L = 0.0116772
+Partition 2: P_L = -0.0604272
+Partition 3: P_L = -0.0806846
+Boundary 노드 추출 완료: 14309개
+로컬 경계 노드 변환 완료: 14309개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14309개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27285
+각 파티션의 라벨 분포:
+Partition 0: 7320개
+Partition 1: 13827개
+Partition 2: 16298개
+Partition 3: 18031개
+=== Iter 174 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.527796, RE = 0.481608, P_L = 0.129435
+Partition 1: RV = 0.996972, RE = 0.957591, P_L = 0.0116772
+Partition 2: RV = 1.17514, RE = 1.22084, P_L = -0.0604272
+Partition 3: RV = 1.30009, RE = 1.33996, P_L = -0.0806846
+Penalty 계산 완료
+Partition 0: P_L = 0.1245
+Partition 1: P_L = 0.00625603
+Partition 2: P_L = -0.0501663
+Partition 3: P_L = -0.0805901
+Boundary 노드 추출 완료: 15066개
+로컬 경계 노드 변환 완료: 15066개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15066개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27377
+각 파티션의 라벨 분포:
+Partition 0: 7409개
+Partition 1: 13906개
+Partition 2: 16202개
+Partition 3: 17959개
+=== Iter 175 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.534213, RE = 0.486608, P_L = 0.1245
+Partition 1: RV = 1.00267, RE = 0.961839, P_L = 0.00625603
+Partition 2: RV = 1.16822, RE = 1.21887, P_L = -0.0501663
+Partition 3: RV = 1.2949, RE = 1.33268, P_L = -0.0805901
+Penalty 계산 완료
+Partition 0: P_L = 0.123117
+Partition 1: P_L = 0.00505366
+Partition 2: P_L = -0.0491516
+Partition 3: P_L = -0.0790188
+Boundary 노드 추출 완료: 15096개
+로컬 경계 노드 변환 완료: 15096개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15096개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26537
+각 파티션의 라벨 분포:
+Partition 0: 7347개
+Partition 1: 13393개
+Partition 2: 16564개
+Partition 3: 18172개
+=== Iter 176 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.529743, RE = 0.485783, P_L = 0.123117
+Partition 1: RV = 0.965679, RE = 0.920906, P_L = 0.00505366
+Partition 2: RV = 1.19432, RE = 1.24826, P_L = -0.0491516
+Partition 3: RV = 1.31026, RE = 1.34505, P_L = -0.0790188
+Penalty 계산 완료
+Partition 0: P_L = 0.123706
+Partition 1: P_L = 0.0148353
+Partition 2: P_L = -0.0561158
+Partition 3: P_L = -0.0824254
+Boundary 노드 추출 완료: 14501개
+로컬 경계 노드 변환 완료: 14501개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14501개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25804
+각 파티션의 라벨 분포:
+Partition 0: 7427개
+Partition 1: 13503개
+Partition 2: 16518개
+Partition 3: 18028개
+=== Iter 177 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.535511, RE = 0.488993, P_L = 0.123706
+Partition 1: RV = 0.97361, RE = 0.92581, P_L = 0.0148353
+Partition 2: RV = 1.191, RE = 1.24927, P_L = -0.0561158
+Partition 3: RV = 1.29988, RE = 1.33593, P_L = -0.0824254
+Penalty 계산 완료
+Partition 0: P_L = 0.122669
+Partition 1: P_L = 0.0133246
+Partition 2: P_L = -0.0559508
+Partition 3: P_L = -0.0800429
+Boundary 노드 추출 완료: 14222개
+로컬 경계 노드 변환 완료: 14222개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14222개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26635
+각 파티션의 라벨 분포:
+Partition 0: 7531개
+Partition 1: 13330개
+Partition 2: 16279개
+Partition 3: 18336개
+=== Iter 178 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.54301, RE = 0.492944, P_L = 0.122669
+Partition 1: RV = 0.961136, RE = 0.920336, P_L = 0.0133246
+Partition 2: RV = 1.17377, RE = 1.22761, P_L = -0.0559508
+Partition 3: RV = 1.32209, RE = 1.35912, P_L = -0.0800429
+Penalty 계산 완료
+Partition 0: P_L = 0.121299
+Partition 1: P_L = 0.0154624
+Partition 2: P_L = -0.0510247
+Partition 3: P_L = -0.0857367
+Boundary 노드 추출 완료: 14560개
+로컬 경계 노드 변환 완료: 14560개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14560개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25476
+각 파티션의 라벨 분포:
+Partition 0: 7296개
+Partition 1: 13259개
+Partition 2: 16213개
+Partition 3: 18708개
+=== Iter 179 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.526065, RE = 0.481158, P_L = 0.121299
+Partition 1: RV = 0.956017, RE = 0.908723, P_L = 0.0154624
+Partition 2: RV = 1.16901, RE = 1.22583, P_L = -0.0510247
+Partition 3: RV = 1.34891, RE = 1.38429, P_L = -0.0857367
+Penalty 계산 완료
+Partition 0: P_L = 0.124751
+Partition 1: P_L = 0.0175961
+Partition 2: P_L = -0.0501828
+Partition 3: P_L = -0.0921642
+Boundary 노드 추출 완료: 14054개
+로컬 경계 노드 변환 완료: 14054개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14054개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25036
+각 파티션의 라벨 분포:
+Partition 0: 7453개
+Partition 1: 13565개
+Partition 2: 16009개
+Partition 3: 18449개
+=== Iter 180 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.537386, RE = 0.489447, P_L = 0.124751
+Partition 1: RV = 0.978081, RE = 0.932464, P_L = 0.0175961
+Partition 2: RV = 1.1543, RE = 1.20754, P_L = -0.0501828
+Partition 3: RV = 1.33023, RE = 1.37055, P_L = -0.0921642
+Penalty 계산 완료
+Partition 0: P_L = 0.122388
+Partition 1: P_L = 0.0118885
+Partition 2: P_L = -0.046054
+Partition 3: P_L = -0.0882229
+Boundary 노드 추출 완료: 14125개
+로컬 경계 노드 변환 완료: 14125개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14125개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26666
+각 파티션의 라벨 분포:
+Partition 0: 7224개
+Partition 1: 13640개
+Partition 2: 16180개
+Partition 3: 18432개
+=== Iter 181 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.520874, RE = 0.478395, P_L = 0.122388
+Partition 1: RV = 0.983488, RE = 0.936899, P_L = 0.0118885
+Partition 2: RV = 1.16663, RE = 1.21811, P_L = -0.046054
+Partition 3: RV = 1.32901, RE = 1.36659, P_L = -0.0882229
+Penalty 계산 완료
+Partition 0: P_L = 0.125685
+Partition 1: P_L = 0.0106031
+Partition 2: P_L = -0.0488131
+Partition 3: P_L = -0.0874755
+Boundary 노드 추출 완료: 14855개
+로컬 경계 노드 변환 완료: 14855개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14855개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25396
+각 파티션의 라벨 분포:
+Partition 0: 7359개
+Partition 1: 13133개
+Partition 2: 16305개
+Partition 3: 18679개
+=== Iter 182 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.530608, RE = 0.483561, P_L = 0.125685
+Partition 1: RV = 0.946932, RE = 0.907888, P_L = 0.0106031
+Partition 2: RV = 1.17564, RE = 1.22631, P_L = -0.0488131
+Partition 3: RV = 1.34682, RE = 1.38225, P_L = -0.0874755
+Penalty 계산 완료
+Partition 0: P_L = 0.123911
+Partition 1: P_L = 0.0187137
+Partition 2: P_L = -0.0509783
+Partition 3: P_L = -0.0916466
+Boundary 노드 추출 완료: 14066개
+로컬 경계 노드 변환 완료: 14066개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14066개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25532
+각 파티션의 라벨 분포:
+Partition 0: 7356개
+Partition 1: 13425개
+Partition 2: 16282개
+Partition 3: 18413개
+=== Iter 183 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.530392, RE = 0.486321, P_L = 0.123911
+Partition 1: RV = 0.967986, RE = 0.921587, P_L = 0.0187137
+Partition 2: RV = 1.17399, RE = 1.22655, P_L = -0.0509783
+Partition 3: RV = 1.32764, RE = 1.36555, P_L = -0.0916466
+Penalty 계산 완료
+Partition 0: P_L = 0.123559
+Partition 1: P_L = 0.0144857
+Partition 2: P_L = -0.0508394
+Partition 3: P_L = -0.0872054
+Boundary 노드 추출 완료: 14125개
+로컬 경계 노드 변환 완료: 14125개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14125개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 24447
+각 파티션의 라벨 분포:
+Partition 0: 7362개
+Partition 1: 13330개
+Partition 2: 16409개
+Partition 3: 18375개
+=== Iter 184 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.530824, RE = 0.484345, P_L = 0.123559
+Partition 1: RV = 0.961136, RE = 0.917219, P_L = 0.0144857
+Partition 2: RV = 1.18314, RE = 1.23661, P_L = -0.0508394
+Partition 3: RV = 1.3249, RE = 1.36183, P_L = -0.0872054
+Penalty 계산 완료
+Partition 0: P_L = 0.123804
+Partition 1: P_L = 0.0158676
+Partition 2: P_L = -0.0532742
+Partition 3: P_L = -0.0863977
+Boundary 노드 추출 완료: 13641개
+로컬 경계 노드 변환 완료: 13641개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 13641개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25930
+각 파티션의 라벨 분포:
+Partition 0: 7313개
+Partition 1: 13763개
+Partition 2: 16361개
+Partition 3: 18039개
+=== Iter 185 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.527291, RE = 0.481766, P_L = 0.123804
+Partition 1: RV = 0.992357, RE = 0.945573, P_L = 0.0158676
+Partition 2: RV = 1.17968, RE = 1.22977, P_L = -0.0532742
+Partition 3: RV = 1.30067, RE = 1.34289, P_L = -0.0863977
+Penalty 계산 완료
+Partition 0: P_L = 0.124559
+Partition 1: P_L = 0.00846887
+Partition 2: P_L = -0.0519418
+Partition 3: P_L = -0.081086
+Boundary 노드 추출 완료: 14335개
+로컬 경계 노드 변환 완료: 14335개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14335개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25586
+각 파티션의 라벨 분포:
+Partition 0: 7298개
+Partition 1: 13302개
+Partition 2: 16571개
+Partition 3: 18305개
+=== Iter 186 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.52621, RE = 0.479397, P_L = 0.124559
+Partition 1: RV = 0.959117, RE = 0.919854, P_L = 0.00846887
+Partition 2: RV = 1.19482, RE = 1.24368, P_L = -0.0519418
+Partition 3: RV = 1.31985, RE = 1.35707, P_L = -0.081086
+Penalty 계산 완료
+Partition 0: P_L = 0.124989
+Partition 1: P_L = 0.0157071
+Partition 2: P_L = -0.0555333
+Partition 3: P_L = -0.0851627
+Boundary 노드 추출 완료: 13947개
+로컬 경계 노드 변환 완료: 13947개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 13947개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25974
+각 파티션의 라벨 분포:
+Partition 0: 7552개
+Partition 1: 13129개
+Partition 2: 16274개
+Partition 3: 18521개
+=== Iter 187 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.544524, RE = 0.500564, P_L = 0.124989
+Partition 1: RV = 0.946644, RE = 0.904826, P_L = 0.0157071
+Partition 2: RV = 1.17341, RE = 1.22172, P_L = -0.0555333
+Partition 3: RV = 1.33542, RE = 1.37289, P_L = -0.0851627
+Penalty 계산 완료
+Partition 0: P_L = 0.120009
+Partition 1: P_L = 0.0191797
+Partition 2: P_L = -0.0500999
+Partition 3: P_L = -0.0890885
+Boundary 노드 추출 완료: 14420개
+로컬 경계 노드 변환 완료: 14420개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14420개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 24387
+각 파티션의 라벨 분포:
+Partition 0: 7375개
+Partition 1: 13321개
+Partition 2: 16410개
+Partition 3: 18370개
+=== Iter 188 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.531761, RE = 0.486087, P_L = 0.120009
+Partition 1: RV = 0.960487, RE = 0.919869, P_L = 0.0191797
+Partition 2: RV = 1.18321, RE = 1.23236, P_L = -0.0500999
+Partition 3: RV = 1.32454, RE = 1.36168, P_L = -0.0890885
+Penalty 계산 완료
+Partition 0: P_L = 0.123439
+Partition 1: P_L = 0.0155512
+Partition 2: P_L = -0.0526683
+Partition 3: P_L = -0.0863218
+Boundary 노드 추출 완료: 13665개
+로컬 경계 노드 변환 완료: 13665개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 13665개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25417
+각 파티션의 라벨 분포:
+Partition 0: 7499개
+Partition 1: 13499개
+Partition 2: 16258개
+Partition 3: 18220개
+=== Iter 189 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.540702, RE = 0.492771, P_L = 0.123439
+Partition 1: RV = 0.973322, RE = 0.932963, P_L = 0.0155512
+Partition 2: RV = 1.17225, RE = 1.22341, P_L = -0.0526683
+Partition 3: RV = 1.31372, RE = 1.35086, P_L = -0.0863218
+Penalty 계산 완료
+Partition 0: P_L = 0.121551
+Partition 1: P_L = 0.0123333
+Partition 2: P_L = -0.0502426
+Partition 3: P_L = -0.0836416
+Boundary 노드 추출 완료: 14084개
+로컬 경계 노드 변환 완료: 14084개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14084개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26157
+각 파티션의 라벨 분포:
+Partition 0: 7549개
+Partition 1: 13410개
+Partition 2: 16107개
+Partition 3: 18410개
+=== Iter 190 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.544307, RE = 0.497839, P_L = 0.121551
+Partition 1: RV = 0.966905, RE = 0.92431, P_L = 0.0123333
+Partition 2: RV = 1.16137, RE = 1.2104, P_L = -0.0502426
+Partition 3: RV = 1.32742, RE = 1.36745, P_L = -0.0836416
+Penalty 계산 완료
+Partition 0: P_L = 0.120441
+Partition 1: P_L = 0.0142486
+Partition 2: P_L = -0.0472195
+Partition 3: P_L = -0.0874704
+Boundary 노드 추출 완료: 14281개
+로컬 경계 노드 변환 완료: 14281개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14281개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25591
+각 파티션의 라벨 분포:
+Partition 0: 7722개
+Partition 1: 13555개
+Partition 2: 15699개
+Partition 3: 18500개
+=== Iter 191 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.556781, RE = 0.511255, P_L = 0.120441
+Partition 1: RV = 0.97736, RE = 0.930203, P_L = 0.0142486
+Partition 2: RV = 1.13195, RE = 1.17993, P_L = -0.0472195
+Partition 3: RV = 1.33391, RE = 1.37861, P_L = -0.0874704
+Penalty 계산 완료
+Partition 0: P_L = 0.11721
+Partition 1: P_L = 0.012295
+Partition 2: P_L = -0.0397378
+Partition 3: P_L = -0.0897672
+Boundary 노드 추출 완료: 14214개
+로컬 경계 노드 변환 완료: 14214개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14214개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26581
+각 파티션의 라벨 분포:
+Partition 0: 7648개
+Partition 1: 13520개
+Partition 2: 15880개
+Partition 3: 18428개
+=== Iter 192 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.551446, RE = 0.504912, P_L = 0.11721
+Partition 1: RV = 0.974836, RE = 0.933719, P_L = 0.012295
+Partition 2: RV = 1.145, RE = 1.19203, P_L = -0.0397378
+Partition 3: RV = 1.32872, RE = 1.36934, P_L = -0.0897672
+Penalty 계산 완료
+Partition 0: P_L = 0.118664
+Partition 1: P_L = 0.0120572
+Partition 2: P_L = -0.042845
+Partition 3: P_L = -0.0878767
+Boundary 노드 추출 완료: 14450개
+로컬 경계 노드 변환 완료: 14450개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14450개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26721
+각 파티션의 라벨 분포:
+Partition 0: 7632개
+Partition 1: 13525개
+Partition 2: 16057개
+Partition 3: 18262개
+=== Iter 193 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.550292, RE = 0.505866, P_L = 0.118664
+Partition 1: RV = 0.975196, RE = 0.931957, P_L = 0.0120572
+Partition 2: RV = 1.15776, RE = 1.21159, P_L = -0.042845
+Partition 3: RV = 1.31675, RE = 1.35059, P_L = -0.0878767
+Penalty 계산 완료
+Partition 0: P_L = 0.11864
+Partition 1: P_L = 0.0122475
+Partition 2: P_L = -0.0469674
+Partition 3: P_L = -0.0839197
+Boundary 노드 추출 완료: 14608개
+로컬 경계 노드 변환 완료: 14608개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14608개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26488
+각 파티션의 라벨 분포:
+Partition 0: 7849개
+Partition 1: 13538개
+Partition 2: 15743개
+Partition 3: 18346개
+=== Iter 194 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.565938, RE = 0.519662, P_L = 0.11864
+Partition 1: RV = 0.976134, RE = 0.932052, P_L = 0.0122475
+Partition 2: RV = 1.13512, RE = 1.18719, P_L = -0.0469674
+Partition 3: RV = 1.32281, RE = 1.36109, P_L = -0.0839197
+Penalty 계산 완료
+Partition 0: P_L = 0.115025
+Partition 1: P_L = 0.0121679
+Partition 2: P_L = -0.0411056
+Partition 3: P_L = -0.0860877
+Boundary 노드 추출 완료: 14667개
+로컬 경계 노드 변환 완료: 14667개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14667개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27863
+각 파티션의 라벨 분포:
+Partition 0: 7881개
+Partition 1: 13679개
+Partition 2: 15853개
+Partition 3: 18063개
+=== Iter 195 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.568246, RE = 0.522494, P_L = 0.115025
+Partition 1: RV = 0.9863, RE = 0.944894, P_L = 0.0121679
+Partition 2: RV = 1.14305, RE = 1.19163, P_L = -0.0411056
+Partition 3: RV = 1.3024, RE = 1.34098, P_L = -0.0860877
+Penalty 계산 완료
+Partition 0: P_L = 0.114374
+Partition 1: P_L = 0.00924927
+Partition 2: P_L = -0.0425967
+Partition 3: P_L = -0.0810267
+Boundary 노드 추출 완료: 15109개
+로컬 경계 노드 변환 완료: 15109개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15109개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26297
+각 파티션의 라벨 분포:
+Partition 0: 7892개
+Partition 1: 13392개
+Partition 2: 15596개
+Partition 3: 18596개
+=== Iter 196 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.569039, RE = 0.523113, P_L = 0.114374
+Partition 1: RV = 0.965607, RE = 0.926327, P_L = 0.00924927
+Partition 2: RV = 1.12452, RE = 1.1704, P_L = -0.0425967
+Partition 3: RV = 1.34083, RE = 1.38016, P_L = -0.0810267
+Penalty 계산 완료
+Partition 0: P_L = 0.114176
+Partition 1: P_L = 0.0141031
+Partition 2: P_L = -0.0375594
+Partition 3: P_L = -0.0907201
+Boundary 노드 추출 완료: 14389개
+로컬 경계 노드 변환 완료: 14389개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14389개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26128
+각 파티션의 라벨 분포:
+Partition 0: 8008개
+Partition 1: 13646개
+Partition 2: 15547개
+Partition 3: 18275개
+=== Iter 197 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.577403, RE = 0.529748, P_L = 0.114176
+Partition 1: RV = 0.983921, RE = 0.943731, P_L = 0.0141031
+Partition 2: RV = 1.12099, RE = 1.16785, P_L = -0.0375594
+Partition 3: RV = 1.31769, RE = 1.35867, P_L = -0.0907201
+Penalty 계산 완료
+Partition 0: P_L = 0.112371
+Partition 1: P_L = 0.0096884
+Partition 2: P_L = -0.036857
+Partition 3: P_L = -0.0852022
+Boundary 노드 추출 완료: 14460개
+로컬 경계 노드 변환 완료: 14460개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14460개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27875
+각 파티션의 라벨 분포:
+Partition 0: 7882개
+Partition 1: 13506개
+Partition 2: 15720개
+Partition 3: 18368개
+=== Iter 198 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.568318, RE = 0.525152, P_L = 0.112371
+Partition 1: RV = 0.973827, RE = 0.928071, P_L = 0.0096884
+Partition 2: RV = 1.13346, RE = 1.18335, P_L = -0.036857
+Partition 3: RV = 1.32439, RE = 1.36342, P_L = -0.0852022
+Penalty 계산 완료
+Partition 0: P_L = 0.113975
+Partition 1: P_L = 0.0129612
+Partition 2: P_L = -0.0403636
+Partition 3: P_L = -0.0865728
+Boundary 노드 추출 완료: 15392개
+로컬 경계 노드 변환 완료: 15392개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15392개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26591
+각 파티션의 라벨 분포:
+Partition 0: 7794개
+Partition 1: 13586개
+Partition 2: 15554개
+Partition 3: 18542개
+=== Iter 199 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.561973, RE = 0.517702, P_L = 0.113975
+Partition 1: RV = 0.979595, RE = 0.931893, P_L = 0.0129612
+Partition 2: RV = 1.12149, RE = 1.1706, P_L = -0.0403636
+Partition 3: RV = 1.33694, RE = 1.3798, P_L = -0.0865728
+Penalty 계산 완료
+Partition 0: P_L = 0.115722
+Partition 1: P_L = 0.0117983
+Partition 2: P_L = -0.0372683
+Partition 3: P_L = -0.0902521
+Boundary 노드 추출 완료: 14755개
+로컬 경계 노드 변환 완료: 14755개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14755개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25080
+각 파티션의 라벨 분포:
+Partition 0: 7954개
+Partition 1: 13482개
+Partition 2: 15704개
+Partition 3: 18336개
+=== Iter 200 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.573509, RE = 0.53008, P_L = 0.115722
+Partition 1: RV = 0.972096, RE = 0.929618, P_L = 0.0117983
+Partition 2: RV = 1.13231, RE = 1.18058, P_L = -0.0372683
+Partition 3: RV = 1.32209, RE = 1.35972, P_L = -0.0902521
+Penalty 계산 완료
+Partition 0: P_L = 0.11271
+Partition 1: P_L = 0.0129295
+Partition 2: P_L = -0.0398427
+Partition 3: P_L = -0.0857964
+Boundary 노드 추출 완료: 14038개
+로컬 경계 노드 변환 완료: 14038개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14038개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26758
+각 파티션의 라벨 분포:
+Partition 0: 8018개
+Partition 1: 13384개
+Partition 2: 15682개
+Partition 3: 18392개
+=== Iter 201 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.578124, RE = 0.534976, P_L = 0.11271
+Partition 1: RV = 0.96503, RE = 0.916075, P_L = 0.0129295
+Partition 2: RV = 1.13072, RE = 1.18179, P_L = -0.0398427
+Partition 3: RV = 1.32612, RE = 1.36716, P_L = -0.0857964
+Penalty 계산 완료
+Partition 0: P_L = 0.11155
+Partition 1: P_L = 0.0156425
+Partition 2: P_L = -0.039878
+Partition 3: P_L = -0.087315
+Boundary 노드 추출 완료: 14721개
+로컬 경계 노드 변환 완료: 14721개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14721개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25967
+각 파티션의 라벨 분포:
+Partition 0: 8165개
+Partition 1: 13437개
+Partition 2: 15642개
+Partition 3: 18232개
+=== Iter 202 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.588723, RE = 0.548097, P_L = 0.11155
+Partition 1: RV = 0.968851, RE = 0.92235, P_L = 0.0156425
+Partition 2: RV = 1.12784, RE = 1.17544, P_L = -0.039878
+Partition 3: RV = 1.31459, RE = 1.35411, P_L = -0.087315
+Penalty 계산 완료
+Partition 0: P_L = 0.108529
+Partition 1: P_L = 0.0143221
+Partition 2: P_L = -0.0386492
+Partition 3: P_L = -0.0842014
+Boundary 노드 추출 완료: 14546개
+로컬 경계 노드 변환 완료: 14546개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14546개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26142
+각 파티션의 라벨 분포:
+Partition 0: 8153개
+Partition 1: 13521개
+Partition 2: 15545개
+Partition 3: 18257개
+=== Iter 203 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.587858, RE = 0.547777, P_L = 0.108529
+Partition 1: RV = 0.974908, RE = 0.932351, P_L = 0.0143221
+Partition 2: RV = 1.12085, RE = 1.16225, P_L = -0.0386492
+Partition 3: RV = 1.31639, RE = 1.35762, P_L = -0.0842014
+Penalty 계산 완료
+Partition 0: P_L = 0.108649
+Partition 1: P_L = 0.0122333
+Partition 2: P_L = -0.0360098
+Partition 3: P_L = -0.0848725
+Boundary 노드 추출 완료: 14741개
+로컬 경계 노드 변환 완료: 14741개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14741개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26958
+각 파티션의 라벨 분포:
+Partition 0: 8106개
+Partition 1: 13551개
+Partition 2: 15618개
+Partition 3: 18201개
+=== Iter 204 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.584469, RE = 0.542327, P_L = 0.108649
+Partition 1: RV = 0.977071, RE = 0.935932, P_L = 0.0122333
+Partition 2: RV = 1.12611, RE = 1.1689, P_L = -0.0360098
+Partition 3: RV = 1.31235, RE = 1.35284, P_L = -0.0848725
+Penalty 계산 완료
+Partition 0: P_L = 0.109795
+Partition 1: P_L = 0.0115038
+Partition 2: P_L = -0.0375307
+Partition 3: P_L = -0.0837683
+Boundary 노드 추출 완료: 14879개
+로컬 경계 노드 변환 완료: 14879개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14879개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26235
+각 파티션의 라벨 분포:
+Partition 0: 8039개
+Partition 1: 13276개
+Partition 2: 16163개
+Partition 3: 17998개
+=== Iter 205 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.579638, RE = 0.535872, P_L = 0.109795
+Partition 1: RV = 0.957243, RE = 0.91393, P_L = 0.0115038
+Partition 2: RV = 1.1654, RE = 1.21227, P_L = -0.0375307
+Partition 3: RV = 1.29771, RE = 1.33793, P_L = -0.0837683
+Penalty 계산 완료
+Partition 0: P_L = 0.111269
+Partition 1: P_L = 0.0168039
+Partition 2: P_L = -0.0479675
+Partition 3: P_L = -0.0801055
+Boundary 노드 추출 완료: 14526개
+로컬 경계 노드 변환 완료: 14526개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14526개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26574
+각 파티션의 라벨 분포:
+Partition 0: 8332개
+Partition 1: 13506개
+Partition 2: 15911개
+Partition 3: 17727개
+=== Iter 206 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.600764, RE = 0.562346, P_L = 0.111269
+Partition 1: RV = 0.973827, RE = 0.926231, P_L = 0.0168039
+Partition 2: RV = 1.14723, RE = 1.19759, P_L = -0.0479675
+Partition 3: RV = 1.27817, RE = 1.31383, P_L = -0.0801055
+Penalty 계산 완료
+Partition 0: P_L = 0.105221
+Partition 1: P_L = 0.0132483
+Partition 2: P_L = -0.0439024
+Partition 3: P_L = -0.0745669
+Boundary 노드 추출 완료: 14530개
+로컬 경계 노드 변환 완료: 14530개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14530개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27373
+각 파티션의 라벨 분포:
+Partition 0: 8569개
+Partition 1: 13568개
+Partition 2: 15698개
+Partition 3: 17641개
+=== Iter 207 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.617853, RE = 0.57896, P_L = 0.105221
+Partition 1: RV = 0.978297, RE = 0.93075, P_L = 0.0132483
+Partition 2: RV = 1.13188, RE = 1.17581, P_L = -0.0439024
+Partition 3: RV = 1.27197, RE = 1.31448, P_L = -0.0745669
+Penalty 계산 완료
+Partition 0: P_L = 0.101053
+Partition 1: P_L = 0.0121693
+Partition 2: P_L = -0.0392004
+Partition 3: P_L = -0.0740217
+Boundary 노드 추출 완료: 14947개
+로컬 경계 노드 변환 완료: 14947개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14947개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27651
+각 파티션의 라벨 분포:
+Partition 0: 8606개
+Partition 1: 13648개
+Partition 2: 15753개
+Partition 3: 17469개
+=== Iter 208 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.620521, RE = 0.581169, P_L = 0.101053
+Partition 1: RV = 0.984065, RE = 0.935946, P_L = 0.0121693
+Partition 2: RV = 1.13584, RE = 1.1822, P_L = -0.0392004
+Partition 3: RV = 1.25957, RE = 1.30068, P_L = -0.0740217
+Penalty 계산 완료
+Partition 0: P_L = 0.100463
+Partition 1: P_L = 0.0108225
+Partition 2: P_L = -0.0405496
+Partition 3: P_L = -0.0707354
+Boundary 노드 추출 완료: 14962개
+로컬 경계 노드 변환 완료: 14962개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14962개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26089
+각 파티션의 라벨 분포:
+Partition 0: 8415개
+Partition 1: 13454개
+Partition 2: 16047개
+Partition 3: 17560개
+=== Iter 209 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.606749, RE = 0.568023, P_L = 0.100463
+Partition 1: RV = 0.970077, RE = 0.927392, P_L = 0.0108225
+Partition 2: RV = 1.15704, RE = 1.19697, P_L = -0.0405496
+Partition 3: RV = 1.26613, RE = 1.30761, P_L = -0.0707354
+Penalty 계산 완료
+Partition 0: P_L = 0.103777
+Partition 1: P_L = 0.0135039
+Partition 2: P_L = -0.0448952
+Partition 3: P_L = -0.0723861
+Boundary 노드 추출 완료: 14446개
+로컬 경계 노드 변환 완료: 14446개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14446개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26465
+각 파티션의 라벨 분포:
+Partition 0: 8589개
+Partition 1: 13189개
+Partition 2: 15887개
+Partition 3: 17811개
+=== Iter 210 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.619295, RE = 0.582258, P_L = 0.103777
+Partition 1: RV = 0.95097, RE = 0.900762, P_L = 0.0135039
+Partition 2: RV = 1.1455, RE = 1.19626, P_L = -0.0448952
+Partition 3: RV = 1.28423, RE = 1.32072, P_L = -0.0723861
+Penalty 계산 완료
+Partition 0: P_L = 0.100421
+Partition 1: P_L = 0.0193677
+Partition 2: P_L = -0.0435634
+Partition 3: P_L = -0.0762256
+Boundary 노드 추출 완료: 14495개
+로컬 경계 노드 변환 완료: 14495개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14495개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26626
+각 파티션의 라벨 분포:
+Partition 0: 8541개
+Partition 1: 13008개
+Partition 2: 15723개
+Partition 3: 18204개
+=== Iter 211 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.615834, RE = 0.575323, P_L = 0.100421
+Partition 1: RV = 0.937919, RE = 0.899709, P_L = 0.0193677
+Partition 2: RV = 1.13368, RE = 1.17577, P_L = -0.0435634
+Partition 3: RV = 1.31257, RE = 1.3492, P_L = -0.0762256
+Penalty 계산 완료
+Partition 0: P_L = 0.101738
+Partition 1: P_L = 0.0208932
+Partition 2: P_L = -0.0393381
+Partition 3: P_L = -0.0832931
+Boundary 노드 추출 완료: 14597개
+로컬 경계 노드 변환 완료: 14597개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14597개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25590
+각 파티션의 라벨 분포:
+Partition 0: 8599개
+Partition 1: 12788개
+Partition 2: 15654개
+Partition 3: 18435개
+=== Iter 212 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.620016, RE = 0.578531, P_L = 0.101738
+Partition 1: RV = 0.922056, RE = 0.88232, P_L = 0.0208932
+Partition 2: RV = 1.1287, RE = 1.16859, P_L = -0.0393381
+Partition 3: RV = 1.32922, RE = 1.37056, P_L = -0.0832931
+Penalty 계산 완료
+Partition 0: P_L = 0.100852
+Partition 1: P_L = 0.0250953
+Partition 2: P_L = -0.0378058
+Partition 3: P_L = -0.0881417
+Boundary 노드 추출 완료: 14028개
+로컬 경계 노드 변환 완료: 14028개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14028개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26178
+각 파티션의 라벨 분포:
+Partition 0: 8676개
+Partition 1: 12761개
+Partition 2: 15454개
+Partition 3: 18585개
+=== Iter 213 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.625568, RE = 0.586444, P_L = 0.100852
+Partition 1: RV = 0.92011, RE = 0.874882, P_L = 0.0250953
+Partition 2: RV = 1.11428, RE = 1.158, P_L = -0.0378058
+Partition 3: RV = 1.34004, RE = 1.38068, P_L = -0.0881417
+Penalty 계산 완료
+Partition 0: P_L = 0.0991277
+Partition 1: P_L = 0.0263534
+Partition 2: P_L = -0.0347379
+Partition 3: P_L = -0.0907433
+Boundary 노드 추출 완료: 14329개
+로컬 경계 노드 변환 완료: 14329개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14329개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26990
+각 파티션의 라벨 분포:
+Partition 0: 8825개
+Partition 1: 12699개
+Partition 2: 15305개
+Partition 3: 18647개
+=== Iter 214 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.636311, RE = 0.601707, P_L = 0.0991277
+Partition 1: RV = 0.915639, RE = 0.870228, P_L = 0.0263534
+Partition 2: RV = 1.10354, RE = 1.14537, P_L = -0.0347379
+Partition 3: RV = 1.34451, RE = 1.3827, P_L = -0.0907433
+Penalty 계산 완료
+Partition 0: P_L = 0.0957728
+Partition 1: P_L = 0.0274556
+Partition 2: P_L = -0.0317479
+Partition 3: P_L = -0.0914805
+Boundary 노드 추출 완료: 14618개
+로컬 경계 노드 변환 완료: 14618개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14618개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26193
+각 파티션의 라벨 분포:
+Partition 0: 8816개
+Partition 1: 12617개
+Partition 2: 15321개
+Partition 3: 18722개
+=== Iter 215 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.635662, RE = 0.599292, P_L = 0.0957728
+Partition 1: RV = 0.909727, RE = 0.867267, P_L = 0.0274556
+Partition 2: RV = 1.10469, RE = 1.15057, P_L = -0.0317479
+Partition 3: RV = 1.34992, RE = 1.38288, P_L = -0.0914805
+Penalty 계산 완료
+Partition 0: P_L = 0.0961657
+Partition 1: P_L = 0.0285003
+Partition 2: P_L = -0.032582
+Partition 3: P_L = -0.092084
+Boundary 노드 추출 완료: 14571개
+로컬 경계 노드 변환 완료: 14571개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14571개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25996
+각 파티션의 라벨 분포:
+Partition 0: 8792개
+Partition 1: 13147개
+Partition 2: 15317개
+Partition 3: 18220개
+=== Iter 216 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.633932, RE = 0.597605, P_L = 0.0961657
+Partition 1: RV = 0.947941, RE = 0.903808, P_L = 0.0285003
+Partition 2: RV = 1.10441, RE = 1.14486, P_L = -0.032582
+Partition 3: RV = 1.31372, RE = 1.35373, P_L = -0.092084
+Penalty 계산 완료
+Partition 0: P_L = 0.0966321
+Partition 1: P_L = 0.0192291
+Partition 2: P_L = -0.0317971
+Partition 3: P_L = -0.0840641
+Boundary 노드 추출 완료: 14468개
+로컬 경계 노드 변환 완료: 14468개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14468개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 24722
+각 파티션의 라벨 분포:
+Partition 0: 8909개
+Partition 1: 12998개
+Partition 2: 15621개
+Partition 3: 17948개
+=== Iter 217 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.642368, RE = 0.603109, P_L = 0.0966321
+Partition 1: RV = 0.937198, RE = 0.898875, P_L = 0.0192291
+Partition 2: RV = 1.12632, RE = 1.16076, P_L = -0.0317971
+Partition 3: RV = 1.29411, RE = 1.33725, P_L = -0.0840641
+Penalty 계산 완료
+Partition 0: P_L = 0.094977
+Partition 1: P_L = 0.0211367
+Partition 2: P_L = -0.0364662
+Partition 3: P_L = -0.0796475
+Boundary 노드 추출 완료: 13823개
+로컬 경계 노드 변환 완료: 13823개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 13823개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27255
+각 파티션의 라벨 분포:
+Partition 0: 8806개
+Partition 1: 13173개
+Partition 2: 15627개
+Partition 3: 17870개
+=== Iter 218 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.634941, RE = 0.602948, P_L = 0.094977
+Partition 1: RV = 0.949816, RE = 0.906718, P_L = 0.0211367
+Partition 2: RV = 1.12676, RE = 1.16166, P_L = -0.0364662
+Partition 3: RV = 1.28849, RE = 1.32867, P_L = -0.0796475
+Penalty 계산 완료
+Partition 0: P_L = 0.0957524
+Partition 1: P_L = 0.0185914
+Partition 2: P_L = -0.0365853
+Partition 3: P_L = -0.0777584
+Boundary 노드 추출 완료: 15034개
+로컬 경계 노드 변환 완료: 15034개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15034개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26932
+각 파티션의 라벨 분포:
+Partition 0: 8892개
+Partition 1: 13062개
+Partition 2: 15848개
+Partition 3: 17674개
+=== Iter 219 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.641142, RE = 0.605756, P_L = 0.0957524
+Partition 1: RV = 0.941813, RE = 0.898428, P_L = 0.0185914
+Partition 2: RV = 1.14269, RE = 1.18307, P_L = -0.0365853
+Partition 3: RV = 1.27435, RE = 1.31275, P_L = -0.0777584
+Penalty 계산 완료
+Partition 0: P_L = 0.0947216
+Partition 1: P_L = 0.0206857
+Partition 2: P_L = -0.0413866
+Partition 3: P_L = -0.0740207
+Boundary 노드 추출 완료: 14702개
+로컬 경계 노드 변환 완료: 14702개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14702개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27194
+각 파티션의 라벨 분포:
+Partition 0: 8973개
+Partition 1: 13118개
+Partition 2: 15713개
+Partition 3: 17672개
+=== Iter 220 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.646982, RE = 0.612151, P_L = 0.0947216
+Partition 1: RV = 0.94585, RE = 0.900777, P_L = 0.0206857
+Partition 2: RV = 1.13296, RE = 1.17112, P_L = -0.0413866
+Partition 3: RV = 1.27421, RE = 1.31596, P_L = -0.0740207
+Penalty 계산 완료
+Partition 0: P_L = 0.0931973
+Partition 1: P_L = 0.0199338
+Partition 2: P_L = -0.0386544
+Partition 3: P_L = -0.0744766
+Boundary 노드 추출 완료: 15106개
+로컬 경계 노드 변환 완료: 15106개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15106개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 28146
+각 파티션의 라벨 분포:
+Partition 0: 9191개
+Partition 1: 13037개
+Partition 2: 15166개
+Partition 3: 18082개
+=== Iter 221 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.662701, RE = 0.629685, P_L = 0.0931973
+Partition 1: RV = 0.94001, RE = 0.895622, P_L = 0.0199338
+Partition 2: RV = 1.09352, RE = 1.13343, P_L = -0.0386544
+Partition 3: RV = 1.30377, RE = 1.34126, P_L = -0.0744766
+Penalty 계산 완료
+Partition 0: P_L = 0.0889784
+Partition 1: P_L = 0.0212541
+Partition 2: P_L = -0.0290054
+Partition 3: P_L = -0.0812271
+Boundary 노드 추출 완료: 15228개
+로컬 경계 노드 변환 완료: 15228개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15228개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26964
+각 파티션의 라벨 분포:
+Partition 0: 8992개
+Partition 1: 13023개
+Partition 2: 15258개
+Partition 3: 18203개
+=== Iter 222 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.648352, RE = 0.617117, P_L = 0.0889784
+Partition 1: RV = 0.939001, RE = 0.896893, P_L = 0.0212541
+Partition 2: RV = 1.10015, RE = 1.13358, P_L = -0.0290054
+Partition 3: RV = 1.3125, RE = 1.35241, P_L = -0.0812271
+Penalty 계산 완료
+Partition 0: P_L = 0.0922855
+Partition 1: P_L = 0.0211458
+Partition 2: P_L = -0.0297185
+Partition 3: P_L = -0.0837128
+Boundary 노드 추출 완료: 14974개
+로컬 경계 노드 변환 완료: 14974개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14974개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26470
+각 파티션의 라벨 분포:
+Partition 0: 8881개
+Partition 1: 13564개
+Partition 2: 15195개
+Partition 3: 17836개
+=== Iter 223 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.640349, RE = 0.60696, P_L = 0.0922855
+Partition 1: RV = 0.978009, RE = 0.930552, P_L = 0.0211458
+Partition 2: RV = 1.09561, RE = 1.13912, P_L = -0.0297185
+Partition 3: RV = 1.28603, RE = 1.32337, P_L = -0.0837128
+Penalty 계산 완료
+Partition 0: P_L = 0.0946035
+Partition 1: P_L = 0.0121648
+Partition 2: P_L = -0.0300145
+Partition 3: P_L = -0.0767538
+Boundary 노드 추출 완료: 14729개
+로컬 경계 노드 변환 완료: 14729개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14729개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26955
+각 파티션의 라벨 분포:
+Partition 0: 9152개
+Partition 1: 12777개
+Partition 2: 15146개
+Partition 3: 18401개
+=== Iter 224 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.659889, RE = 0.625314, P_L = 0.0946035
+Partition 1: RV = 0.921263, RE = 0.87739, P_L = 0.0121648
+Partition 2: RV = 1.09208, RE = 1.12972, P_L = -0.0300145
+Partition 3: RV = 1.32677, RE = 1.36757, P_L = -0.0767538
+Penalty 계산 완료
+Partition 0: P_L = 0.0899071
+Partition 1: P_L = 0.0258757
+Partition 2: P_L = -0.0283319
+Partition 3: P_L = -0.0874508
+Boundary 노드 추출 완료: 14723개
+로컬 경계 노드 변환 완료: 14723개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14723개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25257
+각 파티션의 라벨 분포:
+Partition 0: 9084개
+Partition 1: 13375개
+Partition 2: 14973개
+Partition 3: 18044개
+=== Iter 225 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.654986, RE = 0.62099, P_L = 0.0899071
+Partition 1: RV = 0.964381, RE = 0.922855, P_L = 0.0258757
+Partition 2: RV = 1.0796, RE = 1.11074, P_L = -0.0283319
+Partition 3: RV = 1.30103, RE = 1.34541, P_L = -0.0874508
+Penalty 계산 완료
+Partition 0: P_L = 0.0910479
+Partition 1: P_L = 0.0147611
+Partition 2: P_L = -0.0242923
+Partition 3: P_L = -0.0815167
+Boundary 노드 추출 완료: 14062개
+로컬 경계 노드 변환 완료: 14062개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14062개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 28028
+각 파티션의 라벨 분포:
+Partition 0: 8984개
+Partition 1: 13467개
+Partition 2: 14953개
+Partition 3: 18072개
+=== Iter 226 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.647776, RE = 0.616193, P_L = 0.0910479
+Partition 1: RV = 0.971014, RE = 0.921662, P_L = 0.0147611
+Partition 2: RV = 1.07816, RE = 1.11536, P_L = -0.0242923
+Partition 3: RV = 1.30305, RE = 1.34678, P_L = -0.0815167
+Penalty 계산 완료
+Partition 0: P_L = 0.0925007
+Partition 1: P_L = 0.0141918
+Partition 2: P_L = -0.0247756
+Partition 3: P_L = -0.0819168
+Boundary 노드 추출 완료: 15134개
+로컬 경계 노드 변환 완료: 15134개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15134개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26716
+각 파티션의 라벨 분포:
+Partition 0: 9076개
+Partition 1: 12938개
+Partition 2: 15255개
+Partition 3: 18207개
+=== Iter 227 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.654409, RE = 0.6208, P_L = 0.0925007
+Partition 1: RV = 0.932872, RE = 0.890262, P_L = 0.0141918
+Partition 2: RV = 1.09994, RE = 1.13209, P_L = -0.0247756
+Partition 3: RV = 1.31278, RE = 1.35685, P_L = -0.0819168
+Penalty 계산 완료
+Partition 0: P_L = 0.0911423
+Partition 1: P_L = 0.0227972
+Partition 2: P_L = -0.029523
+Partition 3: P_L = -0.0844165
+Boundary 노드 추출 완료: 14728개
+로컬 경계 노드 변환 완료: 14728개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14728개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26913
+각 파티션의 라벨 분포:
+Partition 0: 8974개
+Partition 1: 13119개
+Partition 2: 15290개
+Partition 3: 18093개
+=== Iter 228 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.647055, RE = 0.616442, P_L = 0.0911423
+Partition 1: RV = 0.945923, RE = 0.900478, P_L = 0.0227972
+Partition 2: RV = 1.10246, RE = 1.14257, P_L = -0.029523
+Partition 3: RV = 1.30456, RE = 1.34051, P_L = -0.0844165
+Penalty 계산 완료
+Partition 0: P_L = 0.0925196
+Partition 1: P_L = 0.0198779
+Partition 2: P_L = -0.0312276
+Partition 3: P_L = -0.0811699
+Boundary 노드 추출 완료: 14753개
+로컬 경계 노드 변환 완료: 14753개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14753개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26873
+각 파티션의 라벨 분포:
+Partition 0: 9035개
+Partition 1: 13147개
+Partition 2: 15218개
+Partition 3: 18076개
+=== Iter 229 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.651453, RE = 0.616526, P_L = 0.0925196
+Partition 1: RV = 0.947941, RE = 0.909416, P_L = 0.0198779
+Partition 2: RV = 1.09727, RE = 1.12735, P_L = -0.0312276
+Partition 3: RV = 1.30334, RE = 1.34671, P_L = -0.0811699
+Penalty 계산 완료
+Partition 0: P_L = 0.0920597
+Partition 1: P_L = 0.0184448
+Partition 2: P_L = -0.0285569
+Partition 3: P_L = -0.0819477
+Boundary 노드 추출 완료: 15045개
+로컬 경계 노드 변환 완료: 15045개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15045개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25615
+각 파티션의 라벨 분포:
+Partition 0: 9237개
+Partition 1: 12992개
+Partition 2: 15105개
+Partition 3: 18142개
+=== Iter 230 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.666018, RE = 0.630488, P_L = 0.0920597
+Partition 1: RV = 0.936765, RE = 0.893226, P_L = 0.0184448
+Partition 2: RV = 1.08912, RE = 1.13048, P_L = -0.0285569
+Partition 3: RV = 1.3081, RE = 1.34581, P_L = -0.0819477
+Penalty 계산 완료
+Partition 0: P_L = 0.0885208
+Partition 1: P_L = 0.0219668
+Partition 2: P_L = -0.0281295
+Partition 3: P_L = -0.0823581
+Boundary 노드 추출 완료: 14349개
+로컬 경계 노드 변환 완료: 14349개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14349개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26631
+각 파티션의 라벨 분포:
+Partition 0: 9210개
+Partition 1: 12645개
+Partition 2: 15160개
+Partition 3: 18461개
+=== Iter 231 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.664071, RE = 0.632603, P_L = 0.0885208
+Partition 1: RV = 0.911746, RE = 0.865669, P_L = 0.0219668
+Partition 2: RV = 1.09309, RE = 1.13076, P_L = -0.0281295
+Partition 3: RV = 1.3311, RE = 1.37097, P_L = -0.0823581
+Penalty 계산 완료
+Partition 0: P_L = 0.0884109
+Partition 1: P_L = 0.0285481
+Partition 2: P_L = -0.0285737
+Partition 3: P_L = -0.0883853
+Boundary 노드 추출 완료: 14629개
+로컬 경계 노드 변환 완료: 14629개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14629개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 24809
+각 파티션의 라벨 분포:
+Partition 0: 9552개
+Partition 1: 12454개
+Partition 2: 14770개
+Partition 3: 18700개
+=== Iter 232 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.68873, RE = 0.649839, P_L = 0.0884109
+Partition 1: RV = 0.897974, RE = 0.861573, P_L = 0.0285481
+Partition 2: RV = 1.06497, RE = 1.10203, P_L = -0.0285737
+Partition 3: RV = 1.34833, RE = 1.38656, P_L = -0.0883853
+Penalty 계산 완료
+Partition 0: P_L = 0.0833043
+Partition 1: P_L = 0.030642
+Partition 2: P_L = -0.0214702
+Partition 3: P_L = -0.0924762
+Boundary 노드 추출 완료: 13769개
+로컬 경계 노드 변환 완료: 13769개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 13769개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25686
+각 파티션의 라벨 분포:
+Partition 0: 9322개
+Partition 1: 12579개
+Partition 2: 14886개
+Partition 3: 18689개
+=== Iter 233 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.672147, RE = 0.641564, P_L = 0.0833043
+Partition 1: RV = 0.906987, RE = 0.860433, P_L = 0.030642
+Partition 2: RV = 1.07333, RE = 1.11382, P_L = -0.0214702
+Partition 3: RV = 1.34754, RE = 1.38418, P_L = -0.0924762
+Penalty 계산 완료
+Partition 0: P_L = 0.0862457
+Partition 1: P_L = 0.0297721
+Partition 2: P_L = -0.024002
+Partition 3: P_L = -0.0920158
+Boundary 노드 추출 완료: 14384개
+로컬 경계 노드 변환 완료: 14384개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14384개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25048
+각 파티션의 라벨 분포:
+Partition 0: 9294개
+Partition 1: 12551개
+Partition 2: 14875개
+Partition 3: 18756개
+=== Iter 234 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.670128, RE = 0.634702, P_L = 0.0862457
+Partition 1: RV = 0.904968, RE = 0.865858, P_L = 0.0297721
+Partition 2: RV = 1.07254, RE = 1.10891, P_L = -0.024002
+Partition 3: RV = 1.35237, RE = 1.39053, P_L = -0.0920158
+Penalty 계산 완료
+Partition 0: P_L = 0.0874354
+Partition 1: P_L = 0.0292419
+Partition 2: P_L = -0.0232341
+Partition 3: P_L = -0.0934432
+Boundary 노드 추출 완료: 13930개
+로컬 경계 노드 변환 완료: 13930개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 13930개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26645
+각 파티션의 라벨 분포:
+Partition 0: 9499개
+Partition 1: 12845개
+Partition 2: 14691개
+Partition 3: 18441개
+=== Iter 235 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.684909, RE = 0.650075, P_L = 0.0874354
+Partition 1: RV = 0.926166, RE = 0.88583, P_L = 0.0292419
+Partition 2: RV = 1.05927, RE = 1.09886, P_L = -0.0232341
+Partition 3: RV = 1.32966, RE = 1.36524, P_L = -0.0934432
+Penalty 계산 완료
+Partition 0: P_L = 0.0836694
+Partition 1: P_L = 0.0241286
+Partition 2: P_L = -0.0203821
+Partition 3: P_L = -0.0874158
+Boundary 노드 추출 완료: 14840개
+로컬 경계 노드 변환 완료: 14840개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14840개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26624
+각 파티션의 라벨 분포:
+Partition 0: 9499개
+Partition 1: 12806개
+Partition 2: 14827개
+Partition 3: 18344개
+=== Iter 236 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.684909, RE = 0.650734, P_L = 0.0836694
+Partition 1: RV = 0.923354, RE = 0.88081, P_L = 0.0241286
+Partition 2: RV = 1.06907, RE = 1.11221, P_L = -0.0203821
+Partition 3: RV = 1.32266, RE = 1.35624, P_L = -0.0874158
+Penalty 계산 완료
+Partition 0: P_L = 0.0835825
+Partition 1: P_L = 0.025149
+Partition 2: P_L = -0.0233398
+Partition 3: P_L = -0.0853917
+Boundary 노드 추출 완료: 14631개
+로컬 경계 노드 변환 완료: 14631개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14631개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25158
+각 파티션의 라벨 분포:
+Partition 0: 9556개
+Partition 1: 12566개
+Partition 2: 14646개
+Partition 3: 18708개
+=== Iter 237 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.689019, RE = 0.651865, P_L = 0.0835825
+Partition 1: RV = 0.906049, RE = 0.863997, P_L = 0.025149
+Partition 2: RV = 1.05602, RE = 1.1013, P_L = -0.0233398
+Partition 3: RV = 1.34891, RE = 1.38284, P_L = -0.0853917
+Penalty 계산 완료
+Partition 0: P_L = 0.0829722
+Partition 1: P_L = 0.0294038
+Partition 2: P_L = -0.0203751
+Partition 3: P_L = -0.0920009
+Boundary 노드 추출 완료: 13932개
+로컬 경계 노드 변환 완료: 13932개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 13932개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25892
+각 파티션의 라벨 분포:
+Partition 0: 9390개
+Partition 1: 13013개
+Partition 2: 14732개
+Partition 3: 18341개
+=== Iter 238 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.67705, RE = 0.643918, P_L = 0.0829722
+Partition 1: RV = 0.93828, RE = 0.894719, P_L = 0.0294038
+Partition 2: RV = 1.06223, RE = 1.09946, P_L = -0.0203751
+Partition 3: RV = 1.32245, RE = 1.3619, P_L = -0.0920009
+Penalty 계산 완료
+Partition 0: P_L = 0.0854048
+Partition 1: P_L = 0.0215663
+Partition 2: P_L = -0.0208013
+Partition 3: P_L = -0.0861698
+Boundary 노드 추출 완료: 14326개
+로컬 경계 노드 변환 완료: 14326개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14326개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26795
+각 파티션의 라벨 분포:
+Partition 0: 9569개
+Partition 1: 13164개
+Partition 2: 14560개
+Partition 3: 18183개
+=== Iter 239 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.689956, RE = 0.655931, P_L = 0.0854048
+Partition 1: RV = 0.949167, RE = 0.899291, P_L = 0.0215663
+Partition 2: RV = 1.04982, RE = 1.08955, P_L = -0.0208013
+Partition 3: RV = 1.31105, RE = 1.35522, P_L = -0.0861698
+Penalty 계산 완료
+Partition 0: P_L = 0.0823623
+Partition 1: P_L = 0.0198194
+Partition 2: P_L = -0.0181207
+Partition 3: P_L = -0.084061
+Boundary 노드 추출 완료: 14895개
+로컬 경계 노드 변환 완료: 14895개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14895개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25221
+각 파티션의 라벨 분포:
+Partition 0: 9464개
+Partition 1: 13247개
+Partition 2: 14625개
+Partition 3: 18140개
+=== Iter 240 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.682385, RE = 0.646144, P_L = 0.0823623
+Partition 1: RV = 0.955152, RE = 0.908503, P_L = 0.0198194
+Partition 2: RV = 1.05451, RE = 1.09693, P_L = -0.0181207
+Partition 3: RV = 1.30795, RE = 1.34842, P_L = -0.084061
+Penalty 계산 완료
+Partition 0: P_L = 0.0845542
+Partition 1: P_L = 0.0178416
+Partition 2: P_L = -0.0196566
+Partition 3: P_L = -0.0827391
+Boundary 노드 추출 완료: 14212개
+로컬 경계 노드 변환 완료: 14212개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14212개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25909
+각 파티션의 라벨 분포:
+Partition 0: 9540개
+Partition 1: 13222개
+Partition 2: 14613개
+Partition 3: 18101개
+=== Iter 241 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.687865, RE = 0.652997, P_L = 0.0845542
+Partition 1: RV = 0.953349, RE = 0.907514, P_L = 0.0178416
+Partition 2: RV = 1.05364, RE = 1.09858, P_L = -0.0196566
+Partition 3: RV = 1.30514, RE = 1.3409, P_L = -0.0827391
+Penalty 계산 완료
+Partition 0: P_L = 0.082966
+Partition 1: P_L = 0.0181464
+Partition 2: P_L = -0.0197682
+Partition 3: P_L = -0.0813442
+Boundary 노드 추출 완료: 14427개
+로컬 경계 노드 변환 완료: 14427개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14427개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25571
+각 파티션의 라벨 분포:
+Partition 0: 9608개
+Partition 1: 12884개
+Partition 2: 14729개
+Partition 3: 18255개
+=== Iter 242 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.692768, RE = 0.659938, P_L = 0.082966
+Partition 1: RV = 0.928978, RE = 0.885171, P_L = 0.0181464
+Partition 2: RV = 1.06201, RE = 1.1032, P_L = -0.0197682
+Partition 3: RV = 1.31624, RE = 1.35169, P_L = -0.0813442
+Penalty 계산 완료
+Partition 0: P_L = 0.0814385
+Partition 1: P_L = 0.0239343
+Partition 2: P_L = -0.0213124
+Partition 3: P_L = -0.0840603
+Boundary 노드 추출 완료: 14160개
+로컬 경계 노드 변환 완료: 14160개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14160개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26579
+각 파티션의 라벨 분포:
+Partition 0: 9496개
+Partition 1: 12912개
+Partition 2: 14613개
+Partition 3: 18455개
+=== Iter 243 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.684692, RE = 0.651639, P_L = 0.0814385
+Partition 1: RV = 0.930997, RE = 0.884471, P_L = 0.0239343
+Partition 2: RV = 1.05364, RE = 1.09895, P_L = -0.0213124
+Partition 3: RV = 1.33067, RE = 1.36494, P_L = -0.0840603
+Penalty 계산 완료
+Partition 0: P_L = 0.083471
+Partition 1: P_L = 0.0237877
+Partition 2: P_L = -0.0197772
+Partition 3: P_L = -0.0874816
+Boundary 노드 추출 완료: 14641개
+로컬 경계 노드 변환 완료: 14641개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14641개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25860
+각 파티션의 라벨 분포:
+Partition 0: 9442개
+Partition 1: 13138개
+Partition 2: 14786개
+Partition 3: 18110개
+=== Iter 244 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.680799, RE = 0.64823, P_L = 0.083471
+Partition 1: RV = 0.947293, RE = 0.899938, P_L = 0.0237877
+Partition 2: RV = 1.06612, RE = 1.10574, P_L = -0.0197772
+Partition 3: RV = 1.30579, RE = 1.3461, P_L = -0.0874816
+Penalty 계산 완료
+Partition 0: P_L = 0.0844131
+Partition 1: P_L = 0.0198837
+Partition 2: P_L = -0.0221408
+Partition 3: P_L = -0.082156
+Boundary 노드 추출 완료: 14327개
+로컬 경계 노드 변환 완료: 14327개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14327개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26012
+각 파티션의 라벨 분포:
+Partition 0: 9545개
+Partition 1: 13051개
+Partition 2: 14739개
+Partition 3: 18141개
+=== Iter 245 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.688226, RE = 0.654663, P_L = 0.0844131
+Partition 1: RV = 0.94102, RE = 0.892927, P_L = 0.0198837
+Partition 2: RV = 1.06273, RE = 1.1095, P_L = -0.0221408
+Partition 3: RV = 1.30803, RE = 1.34291, P_L = -0.082156
+Penalty 계산 완료
+Partition 0: P_L = 0.0826938
+Partition 1: P_L = 0.0215517
+Partition 2: P_L = -0.0223019
+Partition 3: P_L = -0.0819435
+Boundary 노드 추출 완료: 14477개
+로컬 경계 노드 변환 완료: 14477개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14477개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26612
+각 파티션의 라벨 분포:
+Partition 0: 9528개
+Partition 1: 13136개
+Partition 2: 14694개
+Partition 3: 18118개
+=== Iter 246 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.687, RE = 0.655279, P_L = 0.0826938
+Partition 1: RV = 0.947148, RE = 0.899695, P_L = 0.0215517
+Partition 2: RV = 1.05949, RE = 1.10306, P_L = -0.0223019
+Partition 3: RV = 1.30637, RE = 1.34197, P_L = -0.0819435
+Penalty 계산 완료
+Partition 0: P_L = 0.0827235
+Partition 1: P_L = 0.0199052
+Partition 2: P_L = -0.0210162
+Partition 3: P_L = -0.0816126
+Boundary 노드 추출 완료: 14550개
+로컬 경계 노드 변환 완료: 14550개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14550개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25500
+각 파티션의 라벨 분포:
+Partition 0: 9537개
+Partition 1: 13121개
+Partition 2: 14733개
+Partition 3: 18085개
+=== Iter 247 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.687649, RE = 0.653931, P_L = 0.0827235
+Partition 1: RV = 0.946067, RE = 0.902521, P_L = 0.0199052
+Partition 2: RV = 1.0623, RE = 1.10355, P_L = -0.0210162
+Partition 3: RV = 1.30399, RE = 1.34, P_L = -0.0816126
+Penalty 계산 완료
+Partition 0: P_L = 0.0828507
+Partition 1: P_L = 0.0196344
+Partition 2: P_L = -0.0214016
+Partition 3: P_L = -0.0810834
+Boundary 노드 추출 완료: 14371개
+로컬 경계 노드 변환 완료: 14371개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14371개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 24964
+각 파티션의 라벨 분포:
+Partition 0: 9419개
+Partition 1: 13192개
+Partition 2: 14718개
+Partition 3: 18147개
+=== Iter 248 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.679141, RE = 0.646199, P_L = 0.0828507
+Partition 1: RV = 0.951186, RE = 0.906299, P_L = 0.0196344
+Partition 2: RV = 1.06122, RE = 1.09694, P_L = -0.0214016
+Partition 3: RV = 1.30846, RE = 1.35056, P_L = -0.0810834
+Penalty 계산 완료
+Partition 0: P_L = 0.0848754
+Partition 1: P_L = 0.0185541
+Partition 2: P_L = -0.0203581
+Partition 3: P_L = -0.0830713
+Boundary 노드 추출 완료: 13982개
+로컬 경계 노드 변환 완료: 13982개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 13982개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26648
+각 파티션의 라벨 분포:
+Partition 0: 9345개
+Partition 1: 13226개
+Partition 2: 14797개
+Partition 3: 18108개
+=== Iter 249 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.673805, RE = 0.641764, P_L = 0.0848754
+Partition 1: RV = 0.953638, RE = 0.906232, P_L = 0.0185541
+Partition 2: RV = 1.06691, RE = 1.10669, P_L = -0.0203581
+Partition 3: RV = 1.30565, RE = 1.34531, P_L = -0.0830713
+Penalty 계산 완료
+Partition 0: P_L = 0.0860716
+Partition 1: P_L = 0.0182823
+Partition 2: P_L = -0.0223433
+Partition 3: P_L = -0.0820106
+Boundary 노드 추출 완료: 14606개
+로컬 경계 노드 변환 완료: 14606개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14606개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26919
+각 파티션의 라벨 분포:
+Partition 0: 9493개
+Partition 1: 13068개
+Partition 2: 14578개
+Partition 3: 18337개
+=== Iter 250 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.684476, RE = 0.654226, P_L = 0.0860716
+Partition 1: RV = 0.942245, RE = 0.897765, P_L = 0.0182823
+Partition 2: RV = 1.05112, RE = 1.09102, P_L = -0.0223433
+Partition 3: RV = 1.32216, RE = 1.35699, P_L = -0.0820106
+Penalty 계산 완료
+Partition 0: P_L = 0.0831116
+Partition 1: P_L = 0.0206595
+Partition 2: P_L = -0.0183597
+Partition 3: P_L = -0.0854114
+Boundary 노드 추출 완료: 14737개
+로컬 경계 노드 변환 완료: 14737개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14737개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27271
+각 파티션의 라벨 분포:
+Partition 0: 9492개
+Partition 1: 13285개
+Partition 2: 14327개
+Partition 3: 18372개
+=== Iter 251 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.684404, RE = 0.652879, P_L = 0.0831116
+Partition 1: RV = 0.957892, RE = 0.915625, P_L = 0.0206595
+Partition 2: RV = 1.03302, RE = 1.06507, P_L = -0.0183597
+Partition 3: RV = 1.32468, RE = 1.36643, P_L = -0.0854114
+Penalty 계산 완료
+Partition 0: P_L = 0.0833238
+Partition 1: P_L = 0.0164595
+Partition 2: P_L = -0.0127535
+Partition 3: P_L = -0.0870297
+Boundary 노드 추출 완료: 14839개
+로컬 경계 노드 변환 완료: 14839개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14839개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27061
+각 파티션의 라벨 분포:
+Partition 0: 9587개
+Partition 1: 13170개
+Partition 2: 14198개
+Partition 3: 18521개
+=== Iter 252 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.691254, RE = 0.663196, P_L = 0.0833238
+Partition 1: RV = 0.9496, RE = 0.903422, P_L = 0.0164595
+Partition 2: RV = 1.02372, RE = 1.05864, P_L = -0.0127535
+Partition 3: RV = 1.33542, RE = 1.37475, P_L = -0.0870297
+Penalty 계산 완료
+Partition 0: P_L = 0.0811029
+Partition 1: P_L = 0.0190455
+Partition 2: P_L = -0.0108037
+Partition 3: P_L = -0.0893447
+Boundary 노드 추출 완료: 14982개
+로컬 경계 노드 변환 완료: 14982개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14982개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26820
+각 파티션의 라벨 분포:
+Partition 0: 9617개
+Partition 1: 13047개
+Partition 2: 14511개
+Partition 3: 18301개
+=== Iter 253 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.693417, RE = 0.660418, P_L = 0.0811029
+Partition 1: RV = 0.940731, RE = 0.897381, P_L = 0.0190455
+Partition 2: RV = 1.04629, RE = 1.07864, P_L = -0.0108037
+Partition 3: RV = 1.31956, RE = 1.36356, P_L = -0.0893447
+Penalty 계산 완료
+Partition 0: P_L = 0.0813233
+Partition 1: P_L = 0.0209621
+Partition 2: P_L = -0.0161578
+Partition 3: P_L = -0.0861276
+Boundary 노드 추출 완료: 14906개
+로컬 경계 노드 변환 완료: 14906개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14906개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27616
+각 파티션의 라벨 분포:
+Partition 0: 9855개
+Partition 1: 12802개
+Partition 2: 14149개
+Partition 3: 18670개
+=== Iter 254 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.710578, RE = 0.675, P_L = 0.0813233
+Partition 1: RV = 0.923066, RE = 0.883526, P_L = 0.0209621
+Partition 2: RV = 1.02019, RE = 1.05682, P_L = -0.0161578
+Partition 3: RV = 1.34617, RE = 1.38465, P_L = -0.0861276
+Penalty 계산 완료
+Partition 0: P_L = 0.0773625
+Partition 1: P_L = 0.0247981
+Partition 2: P_L = -0.0102028
+Partition 3: P_L = -0.0919577
+Boundary 노드 추출 완료: 14850개
+로컬 경계 노드 변환 완료: 14850개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14850개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26518
+각 파티션의 라벨 분포:
+Partition 0: 9725개
+Partition 1: 12722개
+Partition 2: 14336개
+Partition 3: 18693개
+=== Iter 255 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.701204, RE = 0.669692, P_L = 0.0773625
+Partition 1: RV = 0.917298, RE = 0.866867, P_L = 0.0247981
+Partition 2: RV = 1.03367, RE = 1.07163, P_L = -0.0102028
+Partition 3: RV = 1.34783, RE = 1.39181, P_L = -0.0919577
+Penalty 계산 완료
+Partition 0: P_L = 0.0791638
+Partition 1: P_L = 0.0278209
+Partition 2: P_L = -0.0137964
+Partition 3: P_L = -0.0931883
+Boundary 노드 추출 완료: 14485개
+로컬 경계 노드 변환 완료: 14485개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14485개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25172
+각 파티션의 라벨 분포:
+Partition 0: 9774개
+Partition 1: 12700개
+Partition 2: 14344개
+Partition 3: 18658개
+=== Iter 256 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.704737, RE = 0.673418, P_L = 0.0791638
+Partition 1: RV = 0.915711, RE = 0.871445, P_L = 0.0278209
+Partition 2: RV = 1.03425, RE = 1.07471, P_L = -0.0137964
+Partition 3: RV = 1.3453, RE = 1.38043, P_L = -0.0931883
+Penalty 계산 완료
+Partition 0: P_L = 0.0782022
+Partition 1: P_L = 0.0272719
+Partition 2: P_L = -0.0142286
+Partition 3: P_L = -0.0912456
+Boundary 노드 추출 완료: 13964개
+로컬 경계 노드 변환 완료: 13964개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 13964개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 28069
+각 파티션의 라벨 분포:
+Partition 0: 9731개
+Partition 1: 12559개
+Partition 2: 14330개
+Partition 3: 18856개
+=== Iter 257 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.701637, RE = 0.672785, P_L = 0.0782022
+Partition 1: RV = 0.905545, RE = 0.861082, P_L = 0.0272719
+Partition 2: RV = 1.03324, RE = 1.07042, P_L = -0.0142286
+Partition 3: RV = 1.35958, RE = 1.39572, P_L = -0.0912456
+Penalty 계산 완료
+Partition 0: P_L = 0.0786135
+Partition 1: P_L = 0.029813
+Partition 2: P_L = -0.0134933
+Partition 3: P_L = -0.0949332
+Boundary 노드 추출 완료: 15039개
+로컬 경계 노드 변환 완료: 15039개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 15039개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26216
+각 파티션의 라벨 분포:
+Partition 0: 9840개
+Partition 1: 12548개
+Partition 2: 14455개
+Partition 3: 18633개
+=== Iter 258 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.709496, RE = 0.681672, P_L = 0.0786135
+Partition 1: RV = 0.904752, RE = 0.862457, P_L = 0.029813
+Partition 2: RV = 1.04225, RE = 1.07623, P_L = -0.0134933
+Partition 3: RV = 1.3435, RE = 1.37964, P_L = -0.0949332
+Penalty 계산 완료
+Partition 0: P_L = 0.0765137
+Partition 1: P_L = 0.0297217
+Partition 2: P_L = -0.0153112
+Partition 3: P_L = -0.0909242
+Boundary 노드 추출 완료: 14466개
+로컬 경계 노드 변환 완료: 14466개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14466개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25412
+각 파티션의 라벨 분포:
+Partition 0: 9715개
+Partition 1: 12936개
+Partition 2: 14473개
+Partition 3: 18352개
+=== Iter 259 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.700483, RE = 0.670008, P_L = 0.0765137
+Partition 1: RV = 0.932728, RE = 0.886196, P_L = 0.0297217
+Partition 2: RV = 1.04355, RE = 1.07447, P_L = -0.0153112
+Partition 3: RV = 1.32324, RE = 1.36933, P_L = -0.0909242
+Penalty 계산 완료
+Partition 0: P_L = 0.0792069
+Partition 1: P_L = 0.0234258
+Partition 2: P_L = -0.015278
+Partition 3: P_L = -0.0873546
+Boundary 노드 추출 완료: 14206개
+로컬 경계 노드 변환 완료: 14206개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14206개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26366
+각 파티션의 라벨 분포:
+Partition 0: 9801개
+Partition 1: 13237개
+Partition 2: 14182개
+Partition 3: 18256개
+=== Iter 260 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.706684, RE = 0.677346, P_L = 0.0792069
+Partition 1: RV = 0.954431, RE = 0.906135, P_L = 0.0234258
+Partition 2: RV = 1.02257, RE = 1.05822, P_L = -0.015278
+Partition 3: RV = 1.31632, RE = 1.3583, P_L = -0.0873546
+Penalty 계산 완료
+Partition 0: P_L = 0.0774703
+Partition 1: P_L = 0.0182095
+Partition 2: P_L = -0.0106744
+Partition 3: P_L = -0.0850054
+Boundary 노드 추출 완료: 14428개
+로컬 경계 노드 변환 완료: 14428개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14428개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26571
+각 파티션의 라벨 분포:
+Partition 0: 9895개
+Partition 1: 13448개
+Partition 2: 14077개
+Partition 3: 18056개
+=== Iter 261 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.713462, RE = 0.680671, P_L = 0.0774703
+Partition 1: RV = 0.969645, RE = 0.926087, P_L = 0.0182095
+Partition 2: RV = 1.015, RE = 1.05214, P_L = -0.0106744
+Partition 3: RV = 1.3019, RE = 1.3411, P_L = -0.0850054
+Penalty 계산 완료
+Partition 0: P_L = 0.0762662
+Partition 1: P_L = 0.0137413
+Partition 2: P_L = -0.008996
+Partition 3: P_L = -0.0810115
+Boundary 노드 추출 완료: 14625개
+로컬 경계 노드 변환 완료: 14625개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14625개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25736
+각 파티션의 라벨 분포:
+Partition 0: 10043개
+Partition 1: 13270개
+Partition 2: 13979개
+Partition 3: 18184개
+=== Iter 262 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.724133, RE = 0.694366, P_L = 0.0762662
+Partition 1: RV = 0.95681, RE = 0.909226, P_L = 0.0137413
+Partition 2: RV = 1.00793, RE = 1.04499, P_L = -0.008996
+Partition 3: RV = 1.31113, RE = 1.35142, P_L = -0.0810115
+Penalty 계산 완료
+Partition 0: P_L = 0.073172
+Partition 1: P_L = 0.0175199
+Partition 2: P_L = -0.00721858
+Partition 3: P_L = -0.0834734
+Boundary 노드 추출 완료: 14198개
+로컬 경계 노드 변환 완료: 14198개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14198개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25870
+각 파티션의 라벨 분포:
+Partition 0: 9871개
+Partition 1: 13269개
+Partition 2: 14090개
+Partition 3: 18246개
+=== Iter 263 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.711731, RE = 0.682138, P_L = 0.073172
+Partition 1: RV = 0.956738, RE = 0.91194, P_L = 0.0175199
+Partition 2: RV = 1.01593, RE = 1.05353, P_L = -0.00721858
+Partition 3: RV = 1.3156, RE = 1.35239, P_L = -0.0834734
+Penalty 계산 완료
+Partition 0: P_L = 0.0762149
+Partition 1: P_L = 0.0170943
+Partition 2: P_L = -0.0092536
+Partition 3: P_L = -0.0840556
+Boundary 노드 추출 완료: 14422개
+로컬 경계 노드 변환 완료: 14422개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14422개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25655
+각 파티션의 라벨 분포:
+Partition 0: 9832개
+Partition 1: 12964개
+Partition 2: 14322개
+Partition 3: 18358개
+=== Iter 264 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.708919, RE = 0.67908, P_L = 0.0762149
+Partition 1: RV = 0.934747, RE = 0.887774, P_L = 0.0170943
+Partition 2: RV = 1.03266, RE = 1.06739, P_L = -0.0092536
+Partition 3: RV = 1.32367, RE = 1.36575, P_L = -0.0840556
+Penalty 계산 완료
+Partition 0: P_L = 0.0769912
+Partition 1: P_L = 0.022958
+Partition 2: P_L = -0.0130784
+Partition 3: P_L = -0.0868708
+Boundary 노드 추출 완료: 14472개
+로컬 경계 노드 변환 완료: 14472개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14472개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26172
+각 파티션의 라벨 분포:
+Partition 0: 9727개
+Partition 1: 12751개
+Partition 2: 14660개
+Partition 3: 18338개
+=== Iter 265 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.701348, RE = 0.669656, P_L = 0.0769912
+Partition 1: RV = 0.919389, RE = 0.875651, P_L = 0.022958
+Partition 2: RV = 1.05703, RE = 1.09467, P_L = -0.0130784
+Partition 3: RV = 1.32223, RE = 1.36002, P_L = -0.0868708
+Penalty 계산 완료
+Partition 0: P_L = 0.0791379
+Partition 1: P_L = 0.0263287
+Partition 2: P_L = -0.0195733
+Partition 3: P_L = -0.0858933
+Boundary 노드 추출 완료: 14363개
+로컬 경계 노드 변환 완료: 14363개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14363개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26785
+각 파티션의 라벨 분포:
+Partition 0: 9728개
+Partition 1: 12604개
+Partition 2: 14876개
+Partition 3: 18268개
+=== Iter 266 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.70142, RE = 0.671138, P_L = 0.0791379
+Partition 1: RV = 0.908789, RE = 0.858348, P_L = 0.0263287
+Partition 2: RV = 1.07261, RE = 1.1121, P_L = -0.0195733
+Partition 3: RV = 1.31718, RE = 1.35841, P_L = -0.0858933
+Penalty 계산 완료
+Partition 0: P_L = 0.078958
+Partition 1: P_L = 0.029987
+Partition 2: P_L = -0.0237767
+Partition 3: P_L = -0.0851682
+Boundary 노드 추출 완료: 14309개
+로컬 경계 노드 변환 완료: 14309개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14309개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26546
+각 파티션의 라벨 분포:
+Partition 0: 9976개
+Partition 1: 13027개
+Partition 2: 14419개
+Partition 3: 18054개
+=== Iter 267 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.719302, RE = 0.687742, P_L = 0.078958
+Partition 1: RV = 0.939289, RE = 0.886408, P_L = 0.029987
+Partition 2: RV = 1.03966, RE = 1.08284, P_L = -0.0237767
+Partition 3: RV = 1.30175, RE = 1.34301, P_L = -0.0851682
+Penalty 계산 완료
+Partition 0: P_L = 0.0746951
+Partition 1: P_L = 0.0227523
+Partition 2: P_L = -0.0160995
+Partition 3: P_L = -0.0813479
+Boundary 노드 추출 완료: 14590개
+로컬 경계 노드 변환 완료: 14590개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14590개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 27417
+각 파티션의 라벨 분포:
+Partition 0: 10143개
+Partition 1: 12877개
+Partition 2: 14301개
+Partition 3: 18155개
+=== Iter 268 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.731343, RE = 0.699179, P_L = 0.0746951
+Partition 1: RV = 0.928474, RE = 0.880916, P_L = 0.0227523
+Partition 2: RV = 1.03115, RE = 1.06933, P_L = -0.0160995
+Partition 3: RV = 1.30903, RE = 1.35058, P_L = -0.0813479
+Penalty 계산 완료
+Partition 0: P_L = 0.071765
+Partition 1: P_L = 0.0246843
+Partition 2: P_L = -0.0132483
+Partition 3: P_L = -0.083201
+Boundary 노드 추출 완료: 14992개
+로컬 경계 노드 변환 완료: 14992개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14992개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26853
+각 파티션의 라벨 분포:
+Partition 0: 10019개
+Partition 1: 13035개
+Partition 2: 14384개
+Partition 3: 18038개
+=== Iter 269 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.722402, RE = 0.691698, P_L = 0.071765
+Partition 1: RV = 0.939866, RE = 0.890195, P_L = 0.0246843
+Partition 2: RV = 1.03713, RE = 1.08259, P_L = -0.0132483
+Partition 3: RV = 1.3006, RE = 1.33551, P_L = -0.083201
+Penalty 계산 완료
+Partition 0: P_L = 0.0737579
+Partition 1: P_L = 0.0220842
+Partition 2: P_L = -0.0157364
+Partition 3: P_L = -0.0801057
+Boundary 노드 추출 완료: 14744개
+로컬 경계 노드 변환 완료: 14744개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14744개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26295
+각 파티션의 라벨 분포:
+Partition 0: 10050개
+Partition 1: 13348개
+Partition 2: 14432개
+Partition 3: 17646개
+=== Iter 270 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.724638, RE = 0.694637, P_L = 0.0737579
+Partition 1: RV = 0.962434, RE = 0.91308, P_L = 0.0220842
+Partition 2: RV = 1.04059, RE = 1.08262, P_L = -0.0157364
+Partition 3: RV = 1.27233, RE = 1.30966, P_L = -0.0801057
+Penalty 계산 완료
+Partition 0: P_L = 0.0731215
+Partition 1: P_L = 0.016434
+Partition 2: P_L = -0.0161452
+Partition 3: P_L = -0.0734103
+Boundary 노드 추출 완료: 14491개
+로컬 경계 노드 변환 완료: 14491개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14491개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25388
+각 파티션의 라벨 분포:
+Partition 0: 10009개
+Partition 1: 13085개
+Partition 2: 14691개
+Partition 3: 17691개
+=== Iter 271 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.721681, RE = 0.689956, P_L = 0.0731215
+Partition 1: RV = 0.943471, RE = 0.896252, P_L = 0.016434
+Partition 2: RV = 1.05927, RE = 1.10194, P_L = -0.0161452
+Partition 3: RV = 1.27558, RE = 1.31186, P_L = -0.0734103
+Penalty 계산 완료
+Partition 0: P_L = 0.0741214
+Partition 1: P_L = 0.020892
+Partition 2: P_L = -0.0209255
+Partition 3: P_L = -0.074088
+Boundary 노드 추출 완료: 14244개
+로컬 경계 노드 변환 완료: 14244개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14244개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26559
+각 파티션의 라벨 분포:
+Partition 0: 10052개
+Partition 1: 13037개
+Partition 2: 14794개
+Partition 3: 17593개
+=== Iter 272 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.724782, RE = 0.695986, P_L = 0.0741214
+Partition 1: RV = 0.94001, RE = 0.888703, P_L = 0.020892
+Partition 2: RV = 1.0667, RE = 1.1073, P_L = -0.0209255
+Partition 3: RV = 1.26851, RE = 1.30801, P_L = -0.074088
+Penalty 계산 완료
+Partition 0: P_L = 0.0729463
+Partition 1: P_L = 0.0223771
+Partition 2: P_L = -0.022514
+Partition 3: P_L = -0.0728094
+Boundary 노드 추출 완료: 14449개
+로컬 경계 노드 변환 완료: 14449개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14449개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26470
+각 파티션의 라벨 분포:
+Partition 0: 10218개
+Partition 1: 12794개
+Partition 2: 14637개
+Partition 3: 17827개
+=== Iter 273 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.736751, RE = 0.705152, P_L = 0.0729463
+Partition 1: RV = 0.922489, RE = 0.879436, P_L = 0.0223771
+Partition 2: RV = 1.05538, RE = 1.08671, P_L = -0.022514
+Partition 3: RV = 1.28538, RE = 1.3287, P_L = -0.0728094
+Penalty 계산 완료
+Partition 0: P_L = 0.0703618
+Partition 1: P_L = 0.0255765
+Partition 2: P_L = -0.0183556
+Partition 3: P_L = -0.0775826
+Boundary 노드 추출 완료: 14563개
+로컬 경계 노드 변환 완료: 14563개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14563개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26854
+각 파티션의 라벨 분포:
+Partition 0: 10354개
+Partition 1: 12775개
+Partition 2: 14768개
+Partition 3: 17579개
+=== Iter 274 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.746557, RE = 0.720564, P_L = 0.0703618
+Partition 1: RV = 0.921119, RE = 0.870504, P_L = 0.0255765
+Partition 2: RV = 1.06482, RE = 1.10168, P_L = -0.0183556
+Partition 3: RV = 1.2675, RE = 1.30726, P_L = -0.0775826
+Penalty 계산 완료
+Partition 0: P_L = 0.0671114
+Partition 1: P_L = 0.0270238
+Partition 2: P_L = -0.0215234
+Partition 3: P_L = -0.0726119
+Boundary 노드 추출 완료: 14701개
+로컬 경계 노드 변환 완료: 14701개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14701개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25413
+각 파티션의 라벨 분포:
+Partition 0: 10562개
+Partition 1: 12417개
+Partition 2: 14453개
+Partition 3: 18044개
+=== Iter 275 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.761555, RE = 0.731853, P_L = 0.0671114
+Partition 1: RV = 0.895306, RE = 0.851514, P_L = 0.0270238
+Partition 2: RV = 1.04211, RE = 1.07621, P_L = -0.0215234
+Partition 3: RV = 1.30103, RE = 1.34042, P_L = -0.0726119
+Penalty 계산 완료
+Partition 0: P_L = 0.0638716
+Partition 1: P_L = 0.0324549
+Partition 2: P_L = -0.0154184
+Partition 3: P_L = -0.0809081
+Boundary 노드 추출 완료: 14014개
+로컬 경계 노드 변환 완료: 14014개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14014개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26309
+각 파티션의 라벨 분포:
+Partition 0: 10552개
+Partition 1: 12490개
+Partition 2: 14292개
+Partition 3: 18142개
+=== Iter 276 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.760834, RE = 0.735203, P_L = 0.0638716
+Partition 1: RV = 0.90057, RE = 0.855401, P_L = 0.0324549
+Partition 2: RV = 1.0305, RE = 1.0618, P_L = -0.0154184
+Partition 3: RV = 1.3081, RE = 1.34759, P_L = -0.0809081
+Penalty 계산 완료
+Partition 0: P_L = 0.0634416
+Partition 1: P_L = 0.03129
+Partition 2: P_L = -0.0120826
+Partition 3: P_L = -0.082649
+Boundary 노드 추출 완료: 14408개
+로컬 경계 노드 변환 완료: 14408개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14408개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25793
+각 파티션의 라벨 분포:
+Partition 0: 10513개
+Partition 1: 12196개
+Partition 2: 14436개
+Partition 3: 18331개
+=== Iter 277 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.758021, RE = 0.727976, P_L = 0.0634416
+Partition 1: RV = 0.879371, RE = 0.843278, P_L = 0.03129
+Partition 2: RV = 1.04088, RE = 1.07393, P_L = -0.0120826
+Partition 3: RV = 1.32172, RE = 1.35481, P_L = -0.082649
+Penalty 계산 완료
+Partition 0: P_L = 0.0647254
+Partition 1: P_L = 0.0352395
+Partition 2: P_L = -0.0148745
+Partition 3: P_L = -0.0850904
+Boundary 노드 추출 완료: 14225개
+로컬 경계 노드 변환 완료: 14225개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14225개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25601
+각 파티션의 라벨 분포:
+Partition 0: 10818개
+Partition 1: 12095개
+Partition 2: 14128개
+Partition 3: 18435개
+=== Iter 278 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.780013, RE = 0.750129, P_L = 0.0647254
+Partition 1: RV = 0.872089, RE = 0.832863, P_L = 0.0352395
+Partition 2: RV = 1.01867, RE = 1.05085, P_L = -0.0148745
+Partition 3: RV = 1.32922, RE = 1.36615, P_L = -0.0850904
+Penalty 계산 완료
+Partition 0: P_L = 0.0592315
+Partition 1: P_L = 0.0375363
+Partition 2: P_L = -0.0092288
+Partition 3: P_L = -0.087539
+Boundary 노드 추출 완료: 14074개
+로컬 경계 노드 변환 완료: 14074개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14074개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25697
+각 파티션의 라벨 분포:
+Partition 0: 10681개
+Partition 1: 12314개
+Partition 2: 14326개
+Partition 3: 18155개
+=== Iter 279 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.770135, RE = 0.741934, P_L = 0.0592315
+Partition 1: RV = 0.887879, RE = 0.850993, P_L = 0.0375363
+Partition 2: RV = 1.03295, RE = 1.06824, P_L = -0.0092288
+Partition 3: RV = 1.30903, RE = 1.33883, P_L = -0.087539
+Penalty 계산 완료
+Partition 0: P_L = 0.0614318
+Partition 1: P_L = 0.0332172
+Partition 2: P_L = -0.0132
+Partition 3: P_L = -0.081449
+Boundary 노드 추출 완료: 14130개
+로컬 경계 노드 변환 완료: 14130개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14130개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25196
+각 파티션의 라벨 분포:
+Partition 0: 10709개
+Partition 1: 12264개
+Partition 2: 14379개
+Partition 3: 18124개
+=== Iter 280 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.772154, RE = 0.740064, P_L = 0.0614318
+Partition 1: RV = 0.884274, RE = 0.844051, P_L = 0.0332172
+Partition 2: RV = 1.03677, RE = 1.07518, P_L = -0.0132
+Partition 3: RV = 1.3068, RE = 1.34071, P_L = -0.081449
+Penalty 계산 완료
+Partition 0: P_L = 0.0615389
+Partition 1: P_L = 0.0346689
+Partition 2: P_L = -0.0146711
+Partition 3: P_L = -0.0815366
+Boundary 노드 추출 완료: 13974개
+로컬 경계 노드 변환 완료: 13974개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 13974개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25883
+각 파티션의 라벨 분포:
+Partition 0: 10853개
+Partition 1: 12206개
+Partition 2: 14241개
+Partition 3: 18176개
+=== Iter 281 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.782537, RE = 0.753413, P_L = 0.0615389
+Partition 1: RV = 0.880092, RE = 0.838731, P_L = 0.0346689
+Partition 2: RV = 1.02682, RE = 1.0597, P_L = -0.0146711
+Partition 3: RV = 1.31055, RE = 1.34815, P_L = -0.0815366
+Penalty 계산 완료
+Partition 0: P_L = 0.0585249
+Partition 1: P_L = 0.0358835
+Partition 2: P_L = -0.0114014
+Partition 3: P_L = -0.083007
+Boundary 노드 추출 완료: 14332개
+로컬 경계 노드 변환 완료: 14332개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14332개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 26004
+각 파티션의 라벨 분포:
+Partition 0: 11067개
+Partition 1: 12368개
+Partition 2: 14093개
+Partition 3: 17948개
+=== Iter 282 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.797967, RE = 0.769693, P_L = 0.0585249
+Partition 1: RV = 0.891773, RE = 0.852664, P_L = 0.0358835
+Partition 2: RV = 1.01615, RE = 1.04825, P_L = -0.0114014
+Partition 3: RV = 1.29411, RE = 1.32939, P_L = -0.083007
+Penalty 계산 완료
+Partition 0: P_L = 0.0545461
+Partition 1: P_L = 0.0326418
+Partition 2: P_L = -0.00862231
+Partition 3: P_L = -0.0785656
+Boundary 노드 추출 완료: 14398개
+로컬 경계 노드 변환 완료: 14398개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 14398개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 24101
+각 파티션의 라벨 분포:
+Partition 0: 10992개
+Partition 1: 12060개
+Partition 2: 14118개
+Partition 3: 18306개
+=== Iter 283 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.792559, RE = 0.763596, P_L = 0.0545461
+Partition 1: RV = 0.869565, RE = 0.839162, P_L = 0.0326418
+Partition 2: RV = 1.01795, RE = 1.04389, P_L = -0.00862231
+Partition 3: RV = 1.31992, RE = 1.35335, P_L = -0.0785656
+Penalty 계산 완료
+Partition 0: P_L = 0.0559275
+Partition 1: P_L = 0.0368782
+Partition 2: P_L = -0.00813106
+Partition 3: P_L = -0.0846746
+Boundary 노드 추출 완료: 13410개
+로컬 경계 노드 변환 완료: 13410개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 13410개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 24593
+각 파티션의 라벨 분포:
+Partition 0: 11286개
+Partition 1: 12100개
+Partition 2: 13672개
+Partition 3: 18418개
+=== Iter 284 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.813757, RE = 0.784752, P_L = 0.0559275
+Partition 1: RV = 0.872449, RE = 0.84782, P_L = 0.0368782
+Partition 2: RV = 0.985796, RE = 1.01257, P_L = -0.00813106
+Partition 3: RV = 1.328, RE = 1.35486, P_L = -0.0846746
+Penalty 계산 완료
+Partition 0: P_L = 0.0505633
+Partition 1: P_L = 0.0352864
+Partition 2: P_L = -0.000143831
+Partition 3: P_L = -0.0857058
+Boundary 노드 추출 완료: 13501개
+로컬 경계 노드 변환 완료: 13501개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 13501개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 24404
+각 파티션의 라벨 분포:
+Partition 0: 11338개
+Partition 1: 12220개
+Partition 2: 13640개
+Partition 3: 18278개
+=== Iter 285 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.817507, RE = 0.787935, P_L = 0.0505633
+Partition 1: RV = 0.881102, RE = 0.850138, P_L = 0.0352864
+Partition 2: RV = 0.983488, RE = 1.01637, P_L = -0.000143831
+Partition 3: RV = 1.3179, RE = 1.34556, P_L = -0.0857058
+Penalty 계산 완료
+Partition 0: P_L = 0.0497416
+Partition 1: P_L = 0.0340368
+Partition 2: P_L = -0.000451105
+Partition 3: P_L = -0.0833273
+Boundary 노드 추출 완료: 13438개
+로컬 경계 노드 변환 완료: 13438개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 13438개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25152
+각 파티션의 라벨 분포:
+Partition 0: 11302개
+Partition 1: 12000개
+Partition 2: 13803개
+Partition 3: 18371개
+=== Iter 286 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.814911, RE = 0.789493, P_L = 0.0497416
+Partition 1: RV = 0.865239, RE = 0.83748, P_L = 0.0340368
+Partition 2: RV = 0.995241, RE = 1.0238, P_L = -0.000451105
+Partition 3: RV = 1.32461, RE = 1.34922, P_L = -0.0833273
+Penalty 계산 완료
+Partition 0: P_L = 0.0497703
+Partition 1: P_L = 0.0375104
+Partition 2: P_L = -0.00274107
+Partition 3: P_L = -0.0845396
+Boundary 노드 추출 완료: 13847개
+로컬 경계 노드 변환 완료: 13847개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 13847개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 24991
+각 파티션의 라벨 분포:
+Partition 0: 11284개
+Partition 1: 12442개
+Partition 2: 13707개
+Partition 3: 18043개
+=== Iter 287 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.813613, RE = 0.786709, P_L = 0.0497703
+Partition 1: RV = 0.897109, RE = 0.866746, P_L = 0.0375104
+Partition 2: RV = 0.988319, RE = 1.01603, P_L = -0.00274107
+Partition 3: RV = 1.30096, RE = 1.33052, P_L = -0.0845396
+Penalty 계산 완료
+Partition 0: P_L = 0.0503596
+Partition 1: P_L = 0.0299694
+Partition 2: P_L = -0.000955119
+Partition 3: P_L = -0.0793739
+Boundary 노드 추출 완료: 13808개
+로컬 경계 노드 변환 완료: 13808개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 13808개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 24659
+각 파티션의 라벨 분포:
+Partition 0: 11437개
+Partition 1: 12285개
+Partition 2: 13690개
+Partition 3: 18064개
+=== Iter 288 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.824645, RE = 0.793152, P_L = 0.0503596
+Partition 1: RV = 0.885788, RE = 0.858736, P_L = 0.0299694
+Partition 2: RV = 0.987094, RE = 1.01545, P_L = -0.000955119
+Partition 3: RV = 1.30247, RE = 1.33266, P_L = -0.0793739
+Penalty 계산 완료
+Partition 0: P_L = 0.0482618
+Partition 1: P_L = 0.0323522
+Partition 2: P_L = -0.000755888
+Partition 3: P_L = -0.0798581
+Boundary 노드 추출 완료: 13575개
+로컬 경계 노드 변환 완료: 13575개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 13575개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 25566
+각 파티션의 라벨 분포:
+Partition 0: 11581개
+Partition 1: 12237개
+Partition 2: 13920개
+Partition 3: 17738개
+=== Iter 289 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.835028, RE = 0.806779, P_L = 0.0482618
+Partition 1: RV = 0.882327, RE = 0.853553, P_L = 0.0323522
+Partition 2: RV = 1.00368, RE = 1.02854, P_L = -0.000755888
+Partition 3: RV = 1.27897, RE = 1.31113, P_L = -0.0798581
+Penalty 계산 완료
+Partition 0: P_L = 0.0452551
+Partition 1: P_L = 0.0335048
+Partition 2: P_L = -0.00445079
+Partition 3: P_L = -0.0743091
+Boundary 노드 추출 완료: 13741개
+로컬 경계 노드 변환 완료: 13741개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 13741개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 23871
+각 파티션의 라벨 분포:
+Partition 0: 11822개
+Partition 1: 11791개
+Partition 2: 13779개
+Partition 3: 18084개
+=== Iter 290 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.852405, RE = 0.821276, P_L = 0.0452551
+Partition 1: RV = 0.850169, RE = 0.830388, P_L = 0.0335048
+Partition 2: RV = 0.993511, RE = 1.0191, P_L = -0.00445079
+Partition 3: RV = 1.30392, RE = 1.32923, P_L = -0.0743091
+Penalty 계산 완료
+Partition 0: P_L = 0.0412072
+Partition 1: P_L = 0.0401955
+Partition 2: P_L = -0.00191988
+Partition 3: P_L = -0.0794828
+Boundary 노드 추출 완료: 12948개
+로컬 경계 노드 변환 완료: 12948개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 12948개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 23809
+각 파티션의 라벨 분포:
+Partition 0: 11798개
+Partition 1: 11514개
+Partition 2: 13987개
+Partition 3: 18177개
+=== Iter 291 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.850674, RE = 0.822595, P_L = 0.0412072
+Partition 1: RV = 0.830197, RE = 0.809709, P_L = 0.0401955
+Partition 2: RV = 1.00851, RE = 1.03192, P_L = -0.00191988
+Partition 3: RV = 1.31062, RE = 1.33578, P_L = -0.0794828
+Penalty 계산 완료
+Partition 0: P_L = 0.0412014
+Partition 1: P_L = 0.0452744
+Partition 2: P_L = -0.0053535
+Partition 3: P_L = -0.0811223
+Boundary 노드 추출 완료: 13046개
+로컬 경계 노드 변환 완료: 13046개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 13046개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 23687
+각 파티션의 라벨 분포:
+Partition 0: 11816개
+Partition 1: 11519개
+Partition 2: 14091개
+Partition 3: 18050개
+=== Iter 292 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.851972, RE = 0.821437, P_L = 0.0412014
+Partition 1: RV = 0.830557, RE = 0.813231, P_L = 0.0452744
+Partition 2: RV = 1.01601, RE = 1.03001, P_L = -0.0053535
+Partition 3: RV = 1.30146, RE = 1.33532, P_L = -0.0811223
+Penalty 계산 완료
+Partition 0: P_L = 0.0412786
+Partition 1: P_L = 0.0447844
+Partition 2: P_L = -0.00596116
+Partition 3: P_L = -0.0801019
+Boundary 노드 추출 완료: 12918개
+로컬 경계 노드 변환 완료: 12918개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 12918개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 22651
+각 파티션의 라벨 분포:
+Partition 0: 11847개
+Partition 1: 11556개
+Partition 2: 14089개
+Partition 3: 17984개
+=== Iter 293 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.854207, RE = 0.821877, P_L = 0.0412786
+Partition 1: RV = 0.833225, RE = 0.81962, P_L = 0.0447844
+Partition 2: RV = 1.01586, RE = 1.03726, P_L = -0.00596116
+Partition 3: RV = 1.2967, RE = 1.32124, P_L = -0.0801019
+Penalty 계산 완료
+Partition 0: P_L = 0.0409051
+Partition 1: P_L = 0.0435693
+Partition 2: P_L = -0.00691569
+Partition 3: P_L = -0.0775588
+Boundary 노드 추출 완료: 12500개
+로컬 경계 노드 변환 완료: 12500개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 12500개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 23456
+각 파티션의 라벨 분포:
+Partition 0: 11824개
+Partition 1: 11402개
+Partition 2: 14101개
+Partition 3: 18149개
+=== Iter 294 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.852549, RE = 0.822782, P_L = 0.0409051
+Partition 1: RV = 0.822121, RE = 0.811151, P_L = 0.0435693
+Partition 2: RV = 1.01673, RE = 1.02784, P_L = -0.00691569
+Partition 3: RV = 1.3086, RE = 1.33822, P_L = -0.0775588
+Penalty 계산 완료
+Partition 0: P_L = 0.0409583
+Partition 1: P_L = 0.045979
+Partition 2: P_L = -0.00571115
+Partition 3: P_L = -0.0812261
+Boundary 노드 추출 완료: 12659개
+로컬 경계 노드 변환 완료: 12659개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 12659개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 23622
+각 파티션의 라벨 분포:
+Partition 0: 12053개
+Partition 1: 11122개
+Partition 2: 14148개
+Partition 3: 18153개
+=== Iter 295 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.86906, RE = 0.836259, P_L = 0.0409583
+Partition 1: RV = 0.801932, RE = 0.789249, P_L = 0.045979
+Partition 2: RV = 1.02012, RE = 1.03571, P_L = -0.00571115
+Partition 3: RV = 1.30889, RE = 1.33878, P_L = -0.0812261
+Penalty 계산 완료
+Partition 0: P_L = 0.0372588
+Partition 1: P_L = 0.0512661
+Partition 2: P_L = -0.00718024
+Partition 3: P_L = -0.0813447
+Boundary 노드 추출 완료: 12629개
+로컬 경계 노드 변환 완료: 12629개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 12629개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 22961
+각 파티션의 라벨 분포:
+Partition 0: 12113개
+Partition 1: 10840개
+Partition 2: 14392개
+Partition 3: 18131개
+=== Iter 296 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.873387, RE = 0.835685, P_L = 0.0372588
+Partition 1: RV = 0.781599, RE = 0.776003, P_L = 0.0512661
+Partition 2: RV = 1.03771, RE = 1.05028, P_L = -0.00718024
+Partition 3: RV = 1.3073, RE = 1.33803, P_L = -0.0813447
+Penalty 계산 완료
+Partition 0: P_L = 0.0368243
+Partition 1: P_L = 0.0553677
+Partition 2: P_L = -0.0111511
+Partition 3: P_L = -0.0810409
+Boundary 노드 추출 완료: 12117개
+로컬 경계 노드 변환 완료: 12117개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 12117개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 22046
+각 파티션의 라벨 분포:
+Partition 0: 12110개
+Partition 1: 10894개
+Partition 2: 14125개
+Partition 3: 18347개
+=== Iter 297 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.87317, RE = 0.83704, P_L = 0.0368243
+Partition 1: RV = 0.785493, RE = 0.779898, P_L = 0.0553677
+Partition 2: RV = 1.01846, RE = 1.03838, P_L = -0.0111511
+Partition 3: RV = 1.32288, RE = 1.34468, P_L = -0.0810409
+Penalty 계산 완료
+Partition 0: P_L = 0.0365804
+Partition 1: P_L = 0.0543814
+Partition 2: P_L = -0.00730118
+Partition 3: P_L = -0.0836606
+Boundary 노드 추출 완료: 11675개
+로컬 경계 노드 변환 완료: 11675개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 11675개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 23129
+각 파티션의 라벨 분포:
+Partition 0: 12099개
+Partition 1: 11159개
+Partition 2: 13997개
+Partition 3: 18221개
+=== Iter 298 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.872377, RE = 0.83926, P_L = 0.0365804
+Partition 1: RV = 0.8046, RE = 0.796721, P_L = 0.0543814
+Partition 2: RV = 1.00923, RE = 1.02369, P_L = -0.00730118
+Partition 3: RV = 1.31379, RE = 1.34033, P_L = -0.0836606
+Penalty 계산 완료
+Partition 0: P_L = 0.0364208
+Partition 1: P_L = 0.0499242
+Partition 2: P_L = -0.0042782
+Partition 3: P_L = -0.0820668
+Boundary 노드 추출 완료: 12216개
+로컬 경계 노드 변환 완료: 12216개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 12216개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 22752
+각 파티션의 라벨 분포:
+Partition 0: 12019개
+Partition 1: 11096개
+Partition 2: 14219개
+Partition 3: 18142개
+=== Iter 299 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.866609, RE = 0.834536, P_L = 0.0364208
+Partition 1: RV = 0.800058, RE = 0.793539, P_L = 0.0499242
+Partition 2: RV = 1.02524, RE = 1.03628, P_L = -0.0042782
+Partition 3: RV = 1.3081, RE = 1.33564, P_L = -0.0820668
+Penalty 계산 완료
+Partition 0: P_L = 0.0377211
+Partition 1: P_L = 0.0508744
+Partition 2: P_L = -0.00781505
+Partition 3: P_L = -0.0807805
+Boundary 노드 추출 완료: 12178개
+로컬 경계 노드 변환 완료: 12178개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 12178개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 22542
+각 파티션의 라벨 분포:
+Partition 0: 12053개
+Partition 1: 11164개
+Partition 2: 14272개
+Partition 3: 17987개
+=== Iter 300 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.86906, RE = 0.830729, P_L = 0.0377211
+Partition 1: RV = 0.804961, RE = 0.799233, P_L = 0.0508744
+Partition 2: RV = 1.02906, RE = 1.04468, P_L = -0.00781505
+Partition 3: RV = 1.29692, RE = 1.32535, P_L = -0.0807805
+Penalty 계산 완료
+Partition 0: P_L = 0.0380132
+Partition 1: P_L = 0.0495485
+Partition 2: P_L = -0.00941614
+Partition 3: P_L = -0.0781456
+Boundary 노드 추출 완료: 12216개
+로컬 경계 노드 변환 완료: 12216개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 12216개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 22740
+각 파티션의 라벨 분포:
+Partition 0: 11999개
+Partition 1: 11087개
+Partition 2: 14351개
+Partition 3: 18039개
+=== Iter 301 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.865167, RE = 0.828254, P_L = 0.0380132
+Partition 1: RV = 0.799409, RE = 0.794469, P_L = 0.0495485
+Partition 2: RV = 1.03475, RE = 1.04899, P_L = -0.00941614
+Partition 3: RV = 1.30067, RE = 1.32829, P_L = -0.0781456
+Penalty 계산 완료
+Partition 0: P_L = 0.0387656
+Partition 1: P_L = 0.0508246
+Partition 2: P_L = -0.0106389
+Partition 3: P_L = -0.0789513
+Boundary 노드 추출 완료: 12202개
+로컬 경계 노드 변환 완료: 12202개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 12202개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 22483
+각 파티션의 라벨 분포:
+Partition 0: 12190개
+Partition 1: 11343개
+Partition 2: 14107개
+Partition 3: 17836개
+=== Iter 302 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.878939, RE = 0.844251, P_L = 0.0387656
+Partition 1: RV = 0.817867, RE = 0.808612, P_L = 0.0508246
+Partition 2: RV = 1.01716, RE = 1.03382, P_L = -0.0106389
+Partition 3: RV = 1.28603, RE = 1.31331, P_L = -0.0789513
+Penalty 계산 완료
+Partition 0: P_L = 0.0350535
+Partition 1: P_L = 0.0468107
+Partition 2: P_L = -0.00659004
+Partition 3: P_L = -0.0752742
+Boundary 노드 추출 완료: 11871개
+로컬 경계 노드 변환 완료: 11871개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 11871개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 22141
+각 파티션의 라벨 분포:
+Partition 0: 12165개
+Partition 1: 11337개
+Partition 2: 14159개
+Partition 3: 17815개
+=== Iter 303 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.877136, RE = 0.838396, P_L = 0.0350535
+Partition 1: RV = 0.817435, RE = 0.813276, P_L = 0.0468107
+Partition 2: RV = 1.02091, RE = 1.03748, P_L = -0.00659004
+Partition 3: RV = 1.28452, RE = 1.31085, P_L = -0.0752742
+Penalty 계산 완료
+Partition 0: P_L = 0.0360481
+Partition 1: P_L = 0.0462137
+Partition 2: P_L = -0.00750771
+Partition 3: P_L = -0.0747541
+Boundary 노드 추출 완료: 11697개
+로컬 경계 노드 변환 완료: 11697개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 11697개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 22489
+각 파티션의 라벨 분포:
+Partition 0: 11999개
+Partition 1: 11233개
+Partition 2: 14472개
+Partition 3: 17772개
+=== Iter 304 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.865167, RE = 0.828351, P_L = 0.0360481
+Partition 1: RV = 0.809936, RE = 0.805437, P_L = 0.0462137
+Partition 2: RV = 1.04348, RE = 1.06072, P_L = -0.00750771
+Partition 3: RV = 1.28142, RE = 1.30549, P_L = -0.0747541
+Penalty 계산 완료
+Partition 0: P_L = 0.0387545
+Partition 1: P_L = 0.0481327
+Partition 2: P_L = -0.0132331
+Partition 3: P_L = -0.0736541
+Boundary 노드 추출 완료: 11996개
+로컬 경계 노드 변환 완료: 11996개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 11996개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 22217
+각 파티션의 라벨 분포:
+Partition 0: 11884개
+Partition 1: 11204개
+Partition 2: 14236개
+Partition 3: 18152개
+=== Iter 305 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.856875, RE = 0.822602, P_L = 0.0387545
+Partition 1: RV = 0.807845, RE = 0.800119, P_L = 0.0481327
+Partition 2: RV = 1.02646, RE = 1.04238, P_L = -0.0132331
+Partition 3: RV = 1.30882, RE = 1.3349, P_L = -0.0736541
+Penalty 계산 완료
+Partition 0: P_L = 0.0404686
+Partition 1: P_L = 0.0490955
+Partition 2: P_L = -0.00879283
+Partition 3: P_L = -0.0807712
+Boundary 노드 추출 완료: 11837개
+로컬 경계 노드 변환 완료: 11837개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 11837개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 22587
+각 파티션의 라벨 분포:
+Partition 0: 11920개
+Partition 1: 11480개
+Partition 2: 14250개
+Partition 3: 17826개
+=== Iter 306 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.859471, RE = 0.822628, P_L = 0.0404686
+Partition 1: RV = 0.827745, RE = 0.825079, P_L = 0.0490955
+Partition 2: RV = 1.02747, RE = 1.04183, P_L = -0.00879283
+Partition 3: RV = 1.28531, RE = 1.31046, P_L = -0.0807712
+Penalty 계산 완료
+Partition 0: P_L = 0.0401894
+Partition 1: P_L = 0.0434297
+Partition 2: P_L = -0.00883859
+Partition 3: P_L = -0.0747805
+Boundary 노드 추출 완료: 12098개
+로컬 경계 노드 변환 완료: 12098개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 12098개
+변경된 라벨 적용 완료
+Phase 2 완료 - 최종 Edge-cut: 22995
+각 파티션의 라벨 분포:
+Partition 0: 12005개
+Partition 1: 11263개
+Partition 2: 14319개
+Partition 3: 17889개
+=== Iter 307 ===
+RV, RE 계산 완료
+Partition 0: RV = 0.8656, RE = 0.826915, P_L = 0.0401894
+Partition 1: RV = 0.812099, RE = 0.812579, P_L = 0.0434297
+Partition 2: RV = 1.03245, RE = 1.04605, P_L = -0.00883859
+Partition 3: RV = 1.28986, RE = 1.31446, P_L = -0.0747805
+Penalty 계산 완료
+Partition 0: P_L = 0.0388747
+Partition 1: P_L = 0.0469098
+Partition 2: P_L = -0.00996619
+Partition 3: P_L = -0.0758183
+Boundary 노드 추출 완료: 12164개
+로컬 경계 노드 변환 완료: 12164개
+GPU LP 실행 완료
+
+경계 노드 교환 완료: 총 12164개
+변경된 라벨 적용 완료
+수렴!
+
+┌─────────────────────────────────────────────────────────────┐
+│                    메트릭 비교 결과                         │
+├─────────────────────────────────────────────────────────────┤
+│ Edge-cut:                                                   │
+│   Phase 1 (초기):     223314                              │
+│   Phase 2 (최종):      23200                              │
+│   개선율:            89.61%                             │
+│                                                             │
+│ Vertex Balance:                                             │
+│   Phase 1 (초기):   1.0000                             │
+│   Phase 2 (최종):   1.2899                             │
+│   개선율:           -28.99%                             │
+│                                                             │
+│ Edge Balance:                                               │
+│   Phase 1 (초기):   1.0914                             │
+│   Phase 2 (최종):   1.3145                             │
+│   개선율:           -20.44%                             │
+│                                                             │
+│ 실행 시간:                                                  │
+│   Phase 1 (로딩):      0 ms                          │
+│   Phase 1 (분산):   2161 ms                          │
+│   Phase 2 (7단계):   907 ms                          │
+│   총 소요시간:      3068 ms                          │
+└─────────────────────────────────────────────────────────────┘
+
+=== 알고리즘 성능 요약 ===
+✓ Edge-cut 89.6% 개선 (223314 → 23200)
+⚠ Vertex Balance 29.0% 악화 (1.0 → 1.3)
+⚠ Edge Balance 20.4% 악화 (1.1 → 1.3)
+총 소요시간: 3068 ms
+
+=== 7단계 알고리즘 완료 ===
