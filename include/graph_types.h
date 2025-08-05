@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 
 struct BFSResult {
     std::vector<std::unordered_set<int>> levels;

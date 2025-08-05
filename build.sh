@@ -2,7 +2,7 @@
 set -e
 
 # phase2 디렉토리로 이동
-dir="$(dirname "$0")/phase2"
+dir="$(dirname "$0")"
 cd "$dir"
 
 # 빌드 디렉토리 생성 및 이동

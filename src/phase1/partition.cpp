@@ -11,7 +11,7 @@
 
 #include "graph_types.h"
 #include "utils.hpp"
-#include "partition.hpp"
+#include "phase1/partition.hpp"
 
 using namespace std;
 
