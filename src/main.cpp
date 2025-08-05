@@ -26,8 +26,8 @@ int main(int argc, char** argv) {
     const int theta = atoi(argv[3]);
 
     
-    std::unordered_map<int, Graph> local_graph;
-    std::unordered_map<int, GhostNodes> ghost_nodes;
+    Graph local_graph;
+    GhostNodes ghost_nodes;
 
     // --------------------
     // Phase 1 실행
