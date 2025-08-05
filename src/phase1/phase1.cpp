@@ -74,8 +74,8 @@ Phase1Metrics run_phase1(
     const char* graph_file,
     int num_parts,
     int theta,
-    Graph &local_graph,
-    GhostNodes &ghost_nodes
+    std::unordered_map<int, Graph> &local_graph,
+    std::unordered_map<int,GhostNodes> &ghost_nodes
 )
 {
     Phase1Metrics metrics{};
@@ -112,11 +112,11 @@ Phase1Metrics run_phase1(
 
     sync_vector(mpi_rank, 0, seeds);
 
-    partition_expansion(mpi_rank, mpi_size, num_parts, theta, seeds, global_degree, graph, partitions);
+    partition_expansion(mpi_rank, mpi_size, num_parts, theta, seeds, global_degree, graph, partitions, local_graph, ghost_nodes);
     
     double distribute_end = MPI_Wtime();
 
-    convert_to_csr(mpi_rank, graph, partitions, local_graph, ghost_nodes);
+    //convert_to_csr(mpi_rank, graph, partitions, local_graph, ghost_nodes);
 
     int local_edge_cut = 0;
     for (int u = 0; u < (int)local_graph.global_ids.size(); u++) {

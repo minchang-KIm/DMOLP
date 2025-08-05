@@ -9,6 +9,6 @@ Phase1Metrics run_phase1(
     const char* graph_file,
     int num_parts,
     int theta,
-    Graph &local_graph,
-    GhostNodes &ghost_nodes
+    std::unordered_map<int, Graph> &local_graph,
+    std::unordered_map<int, GhostNodes> &ghost_nodes
 );
