@@ -18,9 +18,7 @@ using namespace std;
 vector<int> get_assigned_partitions(int procId, int nprocs, int numParts) {
     vector<int> assigned;
     for (int p = 0; p < numParts; p++) {
-        if (p % nprocs == procId) {
-            assigned.push_back(p);
-        }
+        if (p % nprocs == procId) assigned.push_back(p);
     }
     return assigned;
 }

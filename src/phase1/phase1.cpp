@@ -11,63 +11,75 @@
 #include "utils.hpp"
 #include "graph_types.h"
 
-void convert_to_csr(
-    int mpi_rank,
-    const std::unordered_map<int, std::vector<int>> &graph,
-    const std::vector<std::vector<int>> &partitions,
-    Graph &local_graph,
-    GhostNodes &ghost_nodes
-) {
-    const std::vector<int> &owned_nodes = partitions[mpi_rank];
-    std::unordered_map<int, int> global_to_local;
+void merge_csr(int mpi_rank, const std::unordered_map<int, Graph> &tmp_graph, const std::unordered_map<int, GhostNodes> &tmp_ghost, Graph &local_graph, GhostNodes &ghost_nodes) {
+    local_graph.clear();
+    ghost_nodes.clear();
 
-    int local_idx = 0;
-    for (int gid : owned_nodes) {
-        global_to_local[gid] = local_idx++;
+    std::vector<int> partition_ids;
+    for (const auto &[partition_id, graph] : tmp_graph) {
+        partition_ids.push_back(partition_id);
+    }
+    std::sort(partition_ids.begin(), partition_ids.end());
+
+    for (int partition_id : partition_ids) {
+        const auto &graph = tmp_graph.at(partition_id);
+        local_graph.global_ids.insert(local_graph.global_ids.end(), graph.global_ids.begin(), graph.global_ids.end());
+        local_graph.vertex_labels.insert(local_graph.vertex_labels.end(), graph.vertex_labels.begin(), graph.vertex_labels.end());
     }
 
-    local_graph.num_vertices = owned_nodes.size();
-    local_graph.row_ptr.resize(owned_nodes.size() + 1, 0);
-    local_graph.global_ids = owned_nodes;
-    local_graph.vertex_labels.resize(owned_nodes.size(), mpi_rank);  // 초기 라벨은 파티션 번호로
-
-    std::vector<int> &row_ptr = local_graph.row_ptr;
-    std::vector<int> &col_indices = local_graph.col_indices;
-
-    int edge_count = 0;
-    for (size_t i = 0; i < owned_nodes.size(); ++i) {
-        int gid = owned_nodes[i];
-        
-        // 그래프에 해당 노드가 존재하는지 확인
-        if (graph.find(gid) == graph.end()) {
-            // 해당 노드가 그래프에 없는 경우 빈 이웃 리스트로 처리
-            row_ptr[i + 1] = edge_count;
-            continue;
+    for (int partition_id : partition_ids) {
+        if (tmp_ghost.find(partition_id) != tmp_ghost.end()) {
+            const auto &ghost = tmp_ghost.at(partition_id);
+            ghost_nodes.global_ids.insert(ghost_nodes.global_ids.end(), ghost.global_ids.begin(), ghost.global_ids.end());
+            ghost_nodes.ghost_labels.insert(ghost_nodes.ghost_labels.end(), ghost.ghost_labels.begin(), ghost.ghost_labels.end());
         }
+    }
+
+    local_graph.num_vertices = static_cast<int>(local_graph.global_ids.size());
+
+    for (size_t i = 0; i < ghost_nodes.global_ids.size(); i++) {
+        ghost_nodes.global_to_local[ghost_nodes.global_ids[i]] = i;
+    }
+
+    std::unordered_map<int, int> local_global_to_local;
+    for (size_t i = 0; i < local_graph.global_ids.size(); ++i) {
+        local_global_to_local[local_graph.global_ids[i]] = i;
+    }
+    
+    local_graph.row_ptr.resize(local_graph.num_vertices + 1, 0);
+    int total_edges = 0;
+    int current_vertex = 0;
+    
+    for (int partition_id : partition_ids) {
+        const auto& graph = tmp_graph.at(partition_id);
+        const auto& ghost = tmp_ghost.at(partition_id);
         
-        const auto &neighbors = graph.at(gid);
-        for (int ngid : neighbors) {
-            if (global_to_local.count(ngid)) {
-                // 로컬 정점
-                col_indices.push_back(global_to_local[ngid]);
-            } else {
-                // Ghost 노드
-                if (ghost_nodes.global_to_local.count(ngid) == 0) {
-                    int ghost_idx = ghost_nodes.global_ids.size();
-                    ghost_nodes.global_ids.push_back(ngid);
-                    ghost_nodes.ghost_labels.push_back(-1); // 아직 라벨 미정
-                    ghost_nodes.global_to_local[ngid] = ghost_idx;
+        for (int i = 0; i < graph.num_vertices; ++i) {
+            for (int e = graph.row_ptr[i]; e < graph.row_ptr[i + 1]; ++e) {
+                int neighbor_local = graph.col_indices[e];
+                int new_neighbor_idx;
+                
+                if (neighbor_local < graph.num_vertices) {
+                    int neighbor_gid = graph.global_ids[neighbor_local];
+                    new_neighbor_idx = local_global_to_local[neighbor_gid];
+                } else {
+                    int ghost_idx = neighbor_local - graph.num_vertices;
+                    int neighbor_gid = ghost.global_ids[ghost_idx];
+                    new_neighbor_idx = local_graph.num_vertices + ghost_nodes.global_to_local[neighbor_gid];
                 }
-                int ghost_idx = ghost_nodes.global_to_local[ngid];
-                col_indices.push_back(local_graph.num_vertices + ghost_idx); // 로컬 뒤쪽에 배치
+                
+                local_graph.col_indices.push_back(new_neighbor_idx);
+                total_edges++;
             }
-            edge_count++;
+            
+            current_vertex++;
+            local_graph.row_ptr[current_vertex] = total_edges;
         }
-        row_ptr[i + 1] = edge_count;
     }
-
-    local_graph.num_edges = edge_count;
+    
+    local_graph.num_edges = total_edges;
 }
+
 // === Phase1 메인 ===
 Phase1Metrics run_phase1(
     int mpi_rank, int mpi_size,
@@ -118,7 +130,7 @@ Phase1Metrics run_phase1(
     
     double distribute_end = MPI_Wtime();
 
-    //convert_to_csr(mpi_rank, graph, partitions, local_graph, ghost_nodes);
+    merge_csr(mpi_rank, tmp_graph, tmp_ghost, local_graph, ghost_nodes);
 
     int local_edge_cut = 0;
     for (int u = 0; u < (int)local_graph.global_ids.size(); u++) {
