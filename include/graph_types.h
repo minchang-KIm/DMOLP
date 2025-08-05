@@ -4,6 +4,52 @@
 #include <vector>
 #include <unordered_map>
 
+struct BFSResult {
+    std::vector<std::unordered_set<int>> levels;
+    std::unordered_set<int> all_visited;
+
+    void clear() {
+        levels.clear();
+        all_visited.clear();
+    }
+
+    void ensure_level(int level) {
+        if (level >= static_cast<int>(levels.size())) levels.resize(level + 1);
+    }
+};
+
+struct NodeInfo {
+    int vertex;
+    std::vector<int> neighbors;
+};
+
+struct FrontierNode {
+    int vertex;
+    int partition_id;
+    double ratio;
+    int partition_degree;
+    int total_degree;
+
+    FrontierNode() : vertex(-1), partition_id(-1), ratio(0.0), partition_degree(0), total_degree(0) {}
+    FrontierNode(int v, double r, int pd, int td, int pid = -1) : vertex(v), partition_id(pid), ratio(r), partition_degree(pd), total_degree(td) {}
+
+    bool operator<(const FrontierNode &other) const {
+        return ratio < other.ratio;
+    }
+
+    bool operator>(const FrontierNode &other) const {
+        return ratio > other.ratio;
+    }
+};
+
+struct PartitionUpdate {
+    int partition_id;
+    int node;
+
+    PartitionUpdate() : partition_id(-1), node(-1) {}
+    PartitionUpdate(int pid, int num) : partition_id(pid), node(num) {}
+};
+
 // 그래프 구조체 (CSR) 각 스레드마다 로컬 그래프를 표현
 // global_ids: 글로벌 ID 배열
 // vertex_labels: 각 정점의 라벨
