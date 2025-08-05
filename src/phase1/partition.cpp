@@ -15,6 +15,59 @@
 
 using namespace std;
 
+void update_partition_csr(int partition_id, const vector<int> &partition_nodes, const unordered_map<int, vector<int>> &local_adj, Graph &partition_graph, GhostNodes &ghost_nodes) {
+    partition_graph.clear();
+    ghost_nodes.clear();
+
+    if (partition_nodes.empty()) return;
+
+    unordered_map<int, int> global_to_local;
+    int local_idx = 0;
+    for (int idx : partition_nodes) {
+        global_to_local[idx] = local_idx++;
+    }
+
+    size_t partition_nodes_size = partition_nodes.size();
+    partition_graph.num_vertices = static_cast<int>(partition_nodes_size);
+    partition_graph.row_ptr.resize(partition_nodes_size + 1, 0);
+    partition_graph.global_ids = partition_nodes;
+    partition_graph.vertex_labels.resize(partition_nodes_size, partition_id);
+
+    int edge_count = 0;
+    for (size_t i = 0; i < partition_nodes_size; i++) {
+        int gid = partition_nodes[i];
+        auto adj_it = local_adj.find(gid);
+
+        if (adj_it == local_adj.end()) {
+            partition_graph.row_ptr[i + 1] = edge_count;
+            continue;
+        }
+
+        const vector<int> &neighbors = adj_it->second;
+        for (int ngid : neighbors) {
+            if (global_to_local.count(ngid)) {
+                partition_graph.col_indices.push_back(global_to_local[ngid]);
+            } else {
+                if (ghost_nodes.global_to_local.count(ngid) == 0) {
+                    int ghost_idx = static_cast<int>(ghost_nodes.global_ids.size());
+                    ghost_nodes.global_ids.push_back(ngid);
+                    ghost_nodes.ghost_labels.push_back(-1);
+                    ghost_nodes.global_to_local[ngid] = ghost_idx;
+                }
+
+                int ghost_idx = ghost_nodes.global_to_local[ngid];
+                partition_graph.col_indices.push_back(partition_graph.num_vertices + ghost_idx);
+            }
+
+            edge_count++;
+        }
+
+        partition_graph.row_ptr[i + 1] = edge_count;
+    }
+
+    partition_graph.num_edges = edge_count;
+}
+
 int compute_partition_degree(roaring_bitmap_t *neighbors_bitmap, roaring_bitmap_t *partition_bitmap) {
     roaring_bitmap_t *intersection = roaring_bitmap_and(neighbors_bitmap, partition_bitmap);
     int count = static_cast<int>(roaring_bitmap_get_cardinality(intersection));
@@ -241,6 +294,73 @@ vector<PartitionUpdate> handle_isolated_nodes(int procId, int nprocs, int numPar
     return local_updates;
 }
 
+void update_ghost_labels(int procId, int nprocs, vector<GhostNodes> &partition_ghosts, const vector<vector<int>> &partitions) {
+    unordered_map<int, int> node_to_partition;
+    int partitions_size = static_cast<int>(partitions.size());
+    for (int p = 0; p < partitions_size; p++) {
+        for (int node : partitions[p]) {
+            node_to_partition[node] = p;
+        }
+    }
+
+    vector<int> local_mapping;
+    local_mapping.push_back(static_cast<int>(node_to_partition.size()));
+    for (const auto &[node, partition] : node_to_partition) {
+        local_mapping.push_back(node);
+        local_mapping.push_back(partition);
+    }
+
+    int local_size = static_cast<int>(local_mapping.size());
+    vector<int> recv_counts(nprocs);
+    MPI_Allgather(&local_size, 1, MPI_INT, recv_counts.data(), 1, MPI_INT, MPI_COMM_WORLD);
+
+    vector<int> displs(nprocs);
+    int total_size = 0;
+    for (int p = 0; p < nprocs; p++) {
+        displs[p] = total_size;
+        total_size += recv_counts[p];
+    }
+
+    if (total_size > 0) {
+        vector<int> global_mapping(total_size);
+        MPI_Allgatherv(local_mapping.data(), local_size, MPI_INT, global_mapping.data(), recv_counts.data(), displs.data(), MPI_INT, MPI_COMM_WORLD);
+
+        unordered_map<int, int> global_node_to_partition;
+        int idx = 0;
+        for (int p = 0; p < nprocs; p++) {
+            if (recv_counts[p] == 0) continue;
+
+            int num_nodes = global_mapping[idx++];
+            for (int i = 0; i < num_nodes; i++) {
+                int node = global_mapping[idx++];
+                int partition = global_mapping[idx++];
+                global_node_to_partition[node] = partition;
+            }
+        }
+
+        for (auto &ghost : partition_ghosts) {
+            for (size_t i = 0; i < ghost.global_ids.size(); i++) {
+                int ghost_node = ghost.global_ids[i];
+                auto it = global_node_to_partition.find(ghost_node);
+                if (it != global_node_to_partition.end()) ghost.ghost_labels[i] = it->second;
+            }
+        }
+    }
+}
+
+void sync_csr_updates(int procId, int nprocs, const vector<PartitionUpdate> &updates, const unordered_map<int, vector<int>> &local_adj, vector<Graph> &partition_graphs, vector<GhostNodes> &partition_ghosts, const vector<vector<int>> &partitions) {
+    unordered_set<int> updated_partitions;
+    for (const auto &update : updates) {
+        updated_partitions.insert(update.partition_id);
+    }
+
+    for (int id : updated_partitions) {
+        update_partition_csr(id, partitions[id], local_adj, partition_graphs[id], partition_ghosts[id]);
+    }
+
+    update_ghost_labels(procId, nprocs, partition_ghosts, partitions);
+}
+
 void partition_expansion(int procId, int nprocs, int numParts, int theta, const vector<int> &seeds, const unordered_map<int, int> &global_degree, const unordered_map<int, vector<int>> &local_adj, vector<vector<int>> &partitions) {
     unordered_set<int> all_nodes;
     for (const auto &[node, degree] : global_degree) {
@@ -250,6 +370,9 @@ void partition_expansion(int procId, int nprocs, int numParts, int theta, const 
     unordered_set<int> global_partitioned;
     partitions.resize(numParts);
     unordered_map<int, roaring_bitmap_t*> bitmap_adj = convert_adj(local_adj);
+
+    vector<Graph> partition_graphs(numParts);
+    vector<GhostNodes> partition_ghosts(numParts);
 
     if (static_cast<int>(seeds.size()) != numParts) {
         cerr << "[Error] Total number of seeds must be same with number of partition\n";
@@ -263,7 +386,11 @@ void partition_expansion(int procId, int nprocs, int numParts, int theta, const 
     for (int i = 0; i < numParts; i++) {
         partitions[i].push_back(sorted_seeds[i]);
         global_partitioned.insert(sorted_seeds[i]);
+
+        update_partition_csr(i, partitions[i], local_adj, partition_graphs[i], partition_ghosts[i]);
     }
+
+    update_ghost_labels(procId, nprocs, partition_ghosts, partitions);
 
     if (procId == 0) {
         cout << "[proc " << procId << "] Seed distribution\n";
@@ -293,10 +420,23 @@ void partition_expansion(int procId, int nprocs, int numParts, int theta, const 
             if (!updates.empty()) {
                 sync_updates(procId, nprocs, updates, partitions);
                 sync_partitioned_status(procId, nprocs, updates, global_partitioned);
+                sync_csr_updates(procId, nprocs, updates, local_adj, partition_graphs, partition_ghosts, partitions);
                 
                 expansion = true;
 
-                if (procId == 0) cout << "[proc " << procId << "] Partition " << p << " added " << updates.size() << " nodes (new size: " << partitions[p].size() << ")\n";
+                if (procId == 0) {
+                    cout << "[proc " << procId << "] Partition " << p << " added " << updates.size() << " nodes (new size: " << partitions[p].size() << ")\n";
+                    cout << "[proc " << procId << "] CSR - Vertices: " << partition_graphs[p].num_vertices << ", Edges: " << partition_graphs[p].num_edges << ", Ghosts: " << partition_ghosts[p].global_ids.size() << "\n";
+                    
+                    if (!partition_ghosts[p].global_ids.empty()) {
+                        cout << "[proc " << procId << "] Sample Ghost Labels for Partition " << p << ": ";
+                        int sample_count = min(5, static_cast<int>(partition_ghosts[p].global_ids.size()));
+                        for (int g = 0; g < sample_count; g++) {
+                            cout << "Node" << partition_ghosts[p].global_ids[g] << "(label:" << partition_ghosts[p].ghost_labels[g] << ") ";
+                        }
+                        cout << "\n";
+                    }
+                }
             }
 
             MPI_Barrier(MPI_COMM_WORLD);
@@ -321,6 +461,7 @@ void partition_expansion(int procId, int nprocs, int numParts, int theta, const 
                     if (!final_isolated_updates.empty()) {
                         sync_updates(procId, nprocs, final_isolated_updates, partitions);
                         sync_partitioned_status(procId, nprocs, final_isolated_updates, global_partitioned);
+                        sync_csr_updates(procId, nprocs, final_isolated_updates, local_adj, partition_graphs, partition_ghosts, partitions);
                         
                         expansion = true;
 
@@ -337,8 +478,25 @@ void partition_expansion(int procId, int nprocs, int numParts, int theta, const 
 
     if (procId == 0) {
         cout << "[proc " << procId << "] Partition expansion completed after " << iteration << " iterations\n";
+        cout << "[proc " << procId << "] Final CSR Statistics:\n";
         for (int p = 0; p < numParts; p++) {
-            cout << "[proc " << procId << "] Partition " << p << " final size: " << partitions[p].size() << "\n";
+            cout << "[proc " << procId << "] Partition " << p 
+                 << " - Nodes: " << partitions[p].size()
+                 << ", CSR Vertices: " << partition_graphs[p].num_vertices
+                 << ", CSR Edges: " << partition_graphs[p].num_edges
+                 << ", Ghost Nodes: " << partition_ghosts[p].global_ids.size() << "\n";
+            
+            if (!partition_ghosts[p].global_ids.empty()) {
+                unordered_map<int, int> label_count;
+                for (int label : partition_ghosts[p].ghost_labels) {
+                    label_count[label]++;
+                }
+                cout << "[proc " << procId << "] Partition " << p << " Ghost Label Distribution: ";
+                for (const auto &[label, count] : label_count) {
+                    cout << "P" << label << ":" << count << " ";
+                }
+                cout << "\n";
+            }
         }
     }
 }
