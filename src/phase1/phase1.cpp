@@ -37,6 +37,14 @@ void convert_to_csr(
     int edge_count = 0;
     for (size_t i = 0; i < owned_nodes.size(); ++i) {
         int gid = owned_nodes[i];
+        
+        // 그래프에 해당 노드가 존재하는지 확인
+        if (graph.find(gid) == graph.end()) {
+            // 해당 노드가 그래프에 없는 경우 빈 이웃 리스트로 처리
+            row_ptr[i + 1] = edge_count;
+            continue;
+        }
+        
         const auto &neighbors = graph.at(gid);
         for (int ngid : neighbors) {
             if (global_to_local.count(ngid)) {

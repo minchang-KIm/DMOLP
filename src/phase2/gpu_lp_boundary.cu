@@ -66,7 +66,7 @@ __global__ void boundaryLPKernel_warp(
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx >= boundary_count) return;
 
-    int node = boundary_nodes[idx];
+    int node = boundary_nodes[idx]; // 이미 owned 노드만 들어옴
     int my_label = labels_old[node];
 
     // 라벨별 점수를 warp 방식으로 계산
@@ -75,15 +75,16 @@ __global__ void boundaryLPKernel_warp(
         s_scores[l] = 0.0;
     __syncthreads();
 
-    // 간선 순회
+    // 간선 순회 (owned + ghost 노드 모두 포함하여 점수 계산)
     for (int e = row_ptr[node]; e < row_ptr[node + 1]; e++) {
-        int n = col_idx[e];
-        int lbl = labels_old[n];
+        int n = col_idx[e]; // owned 또는 ghost 노드
+        int lbl = labels_old[n]; // ghost 노드의 라벨도 정확히 업데이트됨
         double score = 1.0 * (1.0 + penalty[lbl]);
         atomicAdd(&s_scores[lbl], score);
     }
     __syncthreads();
 
+    // 최고 점수 라벨 선택
     int best_label = my_label;
     double best_score = s_scores[my_label];
     for (int l = 0; l < num_partitions; l++) {
@@ -93,7 +94,7 @@ __global__ void boundaryLPKernel_warp(
             best_label = l;
         }
     }
-    labels_new[node] = best_label;
+    labels_new[node] = best_label; // owned 노드만 라벨 변경
 }
 
 // ==================== 공통 GPU 실행 코드 ====================

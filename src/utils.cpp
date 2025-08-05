@@ -338,6 +338,11 @@ void printComparisonReport(const PartitioningMetrics& m1, const PartitioningMetr
     std::cout << "\n┌─────────────────────────────────────────────────────────────┐\n";
     std::cout << "│                    메트릭 비교 결과                         │\n";
     std::cout << "├─────────────────────────────────────────────────────────────┤\n";
+    std::cout << "│ 그래프 정보:                                                │\n";
+    std::cout << "│   총 노드 수:     " << std::setw(10) << m1.total_vertices << "                              │\n";
+    std::cout << "│   총 간선 수:     " << std::setw(10) << m1.total_edges << "                              │\n";
+    std::cout << "│   파티션 수:      " << std::setw(10) << m1.num_partitions << "                              │\n";
+    std::cout << "│                                                             │\n";
     std::cout << "│ Edge-cut:                                                   │\n";
     std::cout << "│   Phase 1 (초기): " << std::setw(10) << m1.edge_cut << "                              │\n";
     std::cout << "│   Phase 2 (최종): " << std::setw(10) << m2.edge_cut << "                              │\n";

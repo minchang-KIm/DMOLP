@@ -119,6 +119,8 @@ struct PartitioningMetrics {
     long loading_time_ms = 0;
     long distribution_time_ms = 0;
     int num_partitions = 0;
+    int total_vertices = 0;
+    int total_edges = 0;
 
     PartitioningMetrics() = default;
     PartitioningMetrics(const Phase1Metrics& m, int num_parts) {
@@ -128,6 +130,8 @@ struct PartitioningMetrics {
         loading_time_ms = m.loading_time_ms;
         distribution_time_ms = m.distribution_time_ms;
         num_partitions = num_parts;
+        total_vertices = m.total_vertices;
+        total_edges = m.total_edges;
     }
 };
 

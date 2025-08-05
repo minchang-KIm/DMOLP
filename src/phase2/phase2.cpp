@@ -84,13 +84,13 @@ static void calculatePenalty(std::vector<PartitionInfo> &PI, int num_partitions)
     }
 }
 
-// === 경계 노드 global id 추출 ===
-static std::vector<int> extractBoundaryGlobalIDs(
-    const Graph &g,
-    const std::vector<int> &labels)
+// === 경계 노드 local id 추출 (GPU 커널용) ===
+static std::vector<int> extractBoundaryLocalIDs(const Graph &g, const std::vector<int> &labels)
 {
     std::vector<int> boundary;
     boundary.reserve(g.num_vertices / 10);
+    
+    // owned 노드만 검사 (ghost 노드는 g.num_vertices 이상의 인덱스)
     for (int u = 0; u < g.num_vertices; u++) {
         int label_u = labels[u];
         bool is_boundary = false;
@@ -101,7 +101,7 @@ static std::vector<int> extractBoundaryGlobalIDs(
                 break;
             }
         }
-        if (is_boundary) boundary.push_back(g.global_ids[u]); // local index → global id
+        if (is_boundary) boundary.push_back(u); // owned 노드의 local index만 추가
     }
     return boundary;
 }
@@ -110,15 +110,33 @@ static std::vector<int> extractBoundaryGlobalIDs(
 static int computeEdgeCut(const Graph &g, const std::vector<int> &labels)
 {
     int local_cut = 0;
+    int total_edges = 0;
     for (int u = 0; u < g.num_vertices; u++) {
         for (int e = g.row_ptr[u]; e < g.row_ptr[u + 1]; e++) {
             int v = g.col_indices[e];
+            total_edges++;
             if (labels[u] != labels[v])
                 local_cut++;
         }
     }
+    
     int global_cut = 0;
+    int global_total_edges = 0;
     MPI_Allreduce(&local_cut, &global_cut, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(&total_edges, &global_total_edges, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+    
+    // 디버깅을 위한 정보 출력
+    static bool first_call = true;
+    if (first_call) {
+        int mpi_rank;
+        MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
+        if (mpi_rank == 0) {
+            std::cout << "  [DEBUG] computeEdgeCut: total_edges=" << global_total_edges 
+                      << ", cut_edges=" << global_cut << "\n";
+        }
+        first_call = false;
+    }
+    
     return global_cut / 2;
 }
 
@@ -140,7 +158,7 @@ PartitioningMetrics run_phase2(
     std::vector<double> penalty(num_partitions, 0.0);
 
     int prev_edge_cut = computeEdgeCut(local_graph, local_graph.vertex_labels);
-    int stable_count = 0;
+    int convergence_count = 0;
 
     for (int iter = 0; iter < max_iter; iter++) {
         // labels_new를 현재 라벨로 동기화
@@ -148,53 +166,20 @@ PartitioningMetrics run_phase2(
         // Step1: RV, RE 계산
         calculatePartitionRatios(local_graph, local_graph.vertex_labels, num_partitions, PI);
 
-        // Step2: Penalty 계산
+        // Penalty 계산
         calculatePenalty(PI, num_partitions);
         for (int i = 0; i < num_partitions; i++)
             penalty[i] = PI[i].P_L;
-            
-        // Penalty 디버깅
-        if (mpi_rank == 0 && iter < 3) {
-            std::cout << "  [DEBUG] Penalty 값들: ";
-            for (int i = 0; i < num_partitions; i++) {
-                std::cout << "P[" << i << "]=" << std::fixed << std::setprecision(4) << penalty[i] << " ";
-            }
-            std::cout << "\n";
-        }
 
-        // Step3: Boundary 노드 추출(global id)
-        auto boundary_nodes_gid = extractBoundaryGlobalIDs(local_graph, local_graph.vertex_labels);
-
-        // Step3b: global → local index 변환
-        std::vector<int> boundary_nodes_local;
-        boundary_nodes_local.reserve(boundary_nodes_gid.size());
-        for (int gid : boundary_nodes_gid) {
-            // 1) 내 소유 노드? (Graph.global_ids에서 찾기)
-            auto it_owned = std::find(local_graph.global_ids.begin(), local_graph.global_ids.end(), gid);
-            if (it_owned != local_graph.global_ids.end()) {
-                int lid = (int)(it_owned - local_graph.global_ids.begin());
-                boundary_nodes_local.push_back(lid);
-            } else {
-                // 2) ghost node? (GhostNodes.global_to_local 매핑)
-                auto it_ghost = ghost_nodes.global_to_local.find(gid);
-                if (it_ghost != ghost_nodes.global_to_local.end())
-                    boundary_nodes_local.push_back(it_ghost->second);
-            }
+        // Step3: Boundary 노드 추출(local id)
+        auto boundary_nodes_local = extractBoundaryLocalIDs(local_graph, local_graph.vertex_labels);
+        
+        if (boundary_nodes_local.empty()) {
+            if (mpi_rank == 0) std::cout << "경계 노드 없음, 종료\n";
+            break;
         }
 
         // Step4: GPU 커널 실행
-        if (mpi_rank == 0 && iter < 3) {
-            std::cout << "  [DEBUG] GPU 커널 실행 전 boundary_nodes_local 수: " << boundary_nodes_local.size() << "\n";
-            if (boundary_nodes_local.size() > 0) {
-                std::cout << "  [DEBUG] 첫 5개 경계 노드 라벨 (실행 전): ";
-                for (int i = 0; i < std::min(5, (int)boundary_nodes_local.size()); i++) {
-                    int lid = boundary_nodes_local[i];
-                    std::cout << "(" << lid << ":" << local_graph.vertex_labels[lid] << ") ";
-                }
-                std::cout << "\n";
-            }
-        }
-        
         runBoundaryLPOnGPU_Warp(local_graph.row_ptr,
                                 local_graph.col_indices,
                                 local_graph.vertex_labels, // old labels
@@ -203,33 +188,17 @@ PartitioningMetrics run_phase2(
                                 boundary_nodes_local,
                                 num_partitions);
 
-        if (mpi_rank == 0 && iter < 3) {
-            if (boundary_nodes_local.size() > 0) {
-                std::cout << "  [DEBUG] 첫 5개 경계 노드 라벨 (실행 후): ";
-                for (int i = 0; i < std::min(5, (int)boundary_nodes_local.size()); i++) {
-                    int lid = boundary_nodes_local[i];
-                    std::cout << "(" << lid << ":" << labels_new[lid] << ") ";
-                }
-                std::cout << "\n";
-            }
-        }
-
-        // Step4b: GPU 커널 결과를 local_graph.vertex_labels에 적용
-        int label_changes = 0;
-        for (int lid : boundary_nodes_local) {
-            if (local_graph.vertex_labels[lid] != labels_new[lid]) {
-                label_changes++;
-            }
-            local_graph.vertex_labels[lid] = labels_new[lid];
-        }
-        
-        if (mpi_rank == 0 && iter < 3) {
-            std::cout << "  [DEBUG] 라벨 변경된 노드 수: " << label_changes << "/" << boundary_nodes_local.size() << "\n";
-        }
-
         // Step5: 변경된 라벨 정보만 전송 (Delta 구조체 사용)
         std::vector<Delta> delta_changes;
         for (int lid : boundary_nodes_local) {
+            // local index가 유효한 범위인지 확인
+            if (lid < 0 || lid >= (int)local_graph.global_ids.size()) {
+                if (mpi_rank == 0) {
+                    std::cout << "  [ERROR] Invalid local index: " << lid << " (max: " << local_graph.global_ids.size() << ")\n";
+                }
+                continue;
+            }
+            
             Delta delta;
             delta.gid = local_graph.global_ids[lid];
             delta.new_label = labels_new[lid];
@@ -261,11 +230,15 @@ PartitioningMetrics run_phase2(
         MPI_Type_free(&MPI_DELTA);
 
         // Step5b: 수신된 라벨 변경사항 적용
+        int ghost_updates = 0;
         for (const auto &delta : recv_deltas) {
             // ghost 노드인지 확인
             auto it_ghost = ghost_nodes.global_to_local.find(delta.gid);
             if (it_ghost != ghost_nodes.global_to_local.end()) {
                 int lid = it_ghost->second;
+                if (local_graph.vertex_labels[lid] != delta.new_label) {
+                    ghost_updates++;
+                }
                 local_graph.vertex_labels[lid] = delta.new_label;
                 labels_new[lid] = delta.new_label;
             }
@@ -277,42 +250,13 @@ PartitioningMetrics run_phase2(
                            ? std::abs((double)(curr_edge_cut - prev_edge_cut) / prev_edge_cut)
                            : 1.0;
         
-        // Edge-cut 디버깅
-        if (mpi_rank == 0 && iter < 3) {
-            std::cout << "  [DEBUG] Edge-cut 변화: " << prev_edge_cut << " → " << curr_edge_cut << "\n";
-        }
-        
         // 반복 결과 출력
         if (mpi_rank == 0) {
-            std::cout << "=== Iter " << std::setw(3) << iter + 1 << " ===\n";
-            std::cout << "  Edge-cut: " << std::setw(8) << curr_edge_cut 
-                      << " (prev: " << std::setw(8) << prev_edge_cut << ")\n";
-            std::cout << "  Delta: " << std::setw(8) << std::fixed << std::setprecision(5) << delta * 100 << "%";
-            
-            if (delta < epsilon) {
-                stable_count++;
-                std::cout << " [안정화 " << stable_count << "/" << k_limit << "]";
-            } else {
-                stable_count = 0;
-                std::cout << " [변화중]";
-            }
-            std::cout << "\n";
-            
-            // 파티션 밸런스 정보
-            double max_rv = 0.0, max_re = 0.0;
-            for (const auto &p : PI) {
-                max_rv = std::max(max_rv, p.RV);
-                max_re = std::max(max_re, p.RE);
-            }
-            std::cout << "  Balance - Vertex: " << std::setw(6) << std::setprecision(3) << max_rv 
-                      << ", Edge: " << std::setw(6) << std::setprecision(3) << max_re << "\n";
-            
-            // 경계 노드 수
-            std::cout << "  Boundary nodes: " << boundary_nodes_gid.size() << "\n";
-            std::cout << std::endl;
+            std::cout << "Iter " << iter + 1 << ": Edge-cut " << curr_edge_cut 
+                      << " (delta: " << std::fixed << std::setprecision(3) << delta * 100 << "%)\n";
         }
         prev_edge_cut = curr_edge_cut;
-        if (stable_count >= k_limit) {
+        if (convergence_count >= k_limit) {
             if (mpi_rank == 0) std::cout << "수렴 완료!\n";
             break;
         }
@@ -337,5 +281,18 @@ PartitioningMetrics run_phase2(
     m2.loading_time_ms = exec_ms;
     m2.distribution_time_ms = 0;
     m2.num_partitions = num_partitions;
+    
+    // 총 노드 수 계산 (owned 노드만)
+    int local_vertices = local_graph.num_vertices;
+    int global_vertices = 0;
+    MPI_Allreduce(&local_vertices, &global_vertices, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+    m2.total_vertices = global_vertices;
+    
+    // 총 간선 수 계산 (owned 노드의 간선만)
+    int local_edges = local_graph.num_edges;
+    int global_edges = 0;
+    MPI_Allreduce(&local_edges, &global_edges, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+    m2.total_edges = global_edges;
+    
     return m2;
 }

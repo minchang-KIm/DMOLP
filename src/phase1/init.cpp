@@ -12,7 +12,7 @@
 #include "phase1/init.hpp"
 
 using namespace std;
-void load_graph(const char *filename, int procId, int nprocs, unordered_map<int, vector<int>> &adj, unordered_map<int, int> &local_degree, int V, int E) {
+void load_graph(const char *filename, int procId, int nprocs, unordered_map<int, vector<int>> &adj, unordered_map<int, int> &local_degree, int &V, int &E) {
     ifstream infile(filename);
     if (!infile.is_open()) {
         fprintf(stderr, "Process %d: Error opening file: %s\n", procId, filename);
