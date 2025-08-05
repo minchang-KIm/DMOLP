@@ -215,9 +215,10 @@ vector<unordered_map<int, int>> compute_landmark_distances(int procId, int nproc
     return all_distances;
 }
 
-pair<int, int> find_max_distance_hub(int procId, int nprocs, const vector<unordered_map<int, int>> &distances, const vector<int> &hub_nodes) {
+pair<int, int> find_max_distance_hub(int procId, int nprocs, const vector<unordered_map<int, int>> &distances, const vector<int> &hub_nodes, const unordered_map<int, int> &global_degree) {
     int local_max_distance = -1;
     int local_best_hub = -1;
+    int local_best_degree = -1;
 
     size_t hub_count = hub_nodes.size();
     size_t start_idx = (hub_count * procId) / nprocs;
@@ -228,25 +229,38 @@ pair<int, int> find_max_distance_hub(int procId, int nprocs, const vector<unorde
             int hub = hub_nodes[j];
             auto it = dist_map.find(hub);
             if (it != dist_map.end() && it->second != INF && it->second > local_max_distance) {
-                local_max_distance = it->second;
-                local_best_hub = hub;
+                int distance = it->second;
+                int degree = global_degree.count(hub) ? global_degree.at(hub) : 0;
+
+                if (distance > local_max_distance || (distance == local_max_distance && degree > local_best_degree)) {
+                    local_max_distance = distance;
+                    local_best_hub = hub;
+                    local_best_degree = degree;
+                }
             }
         }
     }
 
-    struct {
-        int distance;
-        int hub;
-    } local_result = {local_max_distance, local_best_hub};
+    vector<int> all_distances(nprocs), all_hubs(nprocs), all_degrees(nprocs);
     
-    struct {
-        int distance;
-        int hub;
-    } global_result;
+    MPI_Allgather(&local_max_distance, 1, MPI_INT, all_distances.data(), 1, MPI_INT, MPI_COMM_WORLD);
+    MPI_Allgather(&local_best_hub, 1, MPI_INT, all_hubs.data(), 1, MPI_INT, MPI_COMM_WORLD);
+    MPI_Allgather(&local_best_degree, 1, MPI_INT, all_degrees.data(), 1, MPI_INT, MPI_COMM_WORLD);
 
-    MPI_Allreduce(&local_result, &global_result, 1, MPI_2INT, MPI_MAXLOC, MPI_COMM_WORLD);
+    int global_max_distance = -1;
+    int global_best_hub = -1;
+    int global_best_degree = -1;
 
-    return make_pair(global_result.hub, global_result.distance);
+    for (int i = 0; i < nprocs; i++) {
+        if (all_distances[i] > global_max_distance || 
+            (all_distances[i] == global_max_distance && all_degrees[i] > global_best_degree)) {
+            global_max_distance = all_distances[i];
+            global_best_hub = all_hubs[i];
+            global_best_degree = all_degrees[i];
+        }
+    }
+
+    return make_pair(global_best_hub, global_max_distance);
 }
 
 unordered_map<int, int> compute_distances(int procId, int nprocs, int source_node, const vector<int> &hub_nodes, const unordered_map<int, vector<int>> &adj) {
@@ -258,7 +272,7 @@ unordered_map<int, int> compute_distances(int procId, int nprocs, int source_nod
     return extract_distances(global_bfs, hub_nodes);
 }
 
-int find_farthest_hub(int procId, int nprocs, const vector<int> &selected_seeds, const vector<int> &hub_nodes, const vector<bool> &used_hubs, const unordered_map<int, vector<int>> &adj, unordered_map<int, unordered_map<int, int>> &seed_to_hub) {
+int find_farthest_hub(int procId, int nprocs, const vector<int> &selected_seeds, const vector<int> &hub_nodes, const vector<bool> &used_hubs, const unordered_map<int, vector<int>> &adj, unordered_map<int, unordered_map<int, int>> &seed_to_hub, const unordered_map<int, int> &global_degree) {
     if (procId == 0) cout << "Finding farthest hub from " << selected_seeds.size() << " selected seeds using " << nprocs << " processes..." << endl;
     
     for (int seed : selected_seeds) {
@@ -277,6 +291,7 @@ int find_farthest_hub(int procId, int nprocs, const vector<int> &selected_seeds,
 
     int local_best_hub = -1;
     int local_max_distance = -1;
+    int local_best_degree= -1;
     
     size_t hub_count = hub_nodes.size();
     size_t start_idx = (hub_count * procId) / nprocs;
@@ -296,32 +311,42 @@ int find_farthest_hub(int procId, int nprocs, const vector<int> &selected_seeds,
             }
         }
 
-        if (min_distance != INF && min_distance > local_max_distance) {
-            local_max_distance = min_distance;
-            local_best_hub = hub;
+        if (min_distance != INF) {
+            int degree = global_degree.count(hub) ? global_degree.at(hub) : 0;
+
+            if (min_distance > local_max_distance || (min_distance == local_max_distance && degree > local_best_degree)) {
+                local_max_distance = min_distance;
+                local_best_hub = hub;
+                local_best_degree = degree;
+            }
         }
     }
 
-    struct {
-        int distance;
-        int hub;
-    } local_result = {local_max_distance, local_best_hub};
+    vector<int> all_distances(nprocs), all_hubs(nprocs), all_degrees(nprocs);
     
-    struct {
-        int distance;
-        int hub;
-    } global_result;
+    MPI_Allgather(&local_max_distance, 1, MPI_INT, all_distances.data(), 1, MPI_INT, MPI_COMM_WORLD);
+    MPI_Allgather(&local_best_hub, 1, MPI_INT, all_hubs.data(), 1, MPI_INT, MPI_COMM_WORLD);
+    MPI_Allgather(&local_best_degree, 1, MPI_INT, all_degrees.data(), 1, MPI_INT, MPI_COMM_WORLD);
 
-    MPI_Allreduce(&local_result, &global_result, 1, MPI_2INT, MPI_MAXLOC, MPI_COMM_WORLD);
+    int global_max_distance = -1;
+    int global_best_hub = -1;
+    int global_best_degree = -1;
 
-    if (procId == 0 && global_result.hub != -1) {
-        cout << "Found best hub " << global_result.hub << " with min distance " << global_result.distance << endl;
+    for (int i = 0; i < nprocs; i++) {
+        if (all_distances[i] > global_max_distance || 
+            (all_distances[i] == global_max_distance && all_degrees[i] > global_best_degree)) {
+            global_max_distance = all_distances[i];
+            global_best_hub = all_hubs[i];
+            global_best_degree = all_degrees[i];
+        }
     }
+
+    if (procId == 0 && global_best_hub != -1) cout << "Found best hub " << global_best_hub << " with min distance " << global_max_distance << " and degree " << global_best_degree << endl;
     
-    return global_result.hub;
+    return global_best_hub;
 }
 
-vector<int> find_seeds(int procId, int nprocs, int numParts, const vector<int> &landmarks, const vector<int> &hub_nodes, const unordered_map<int, vector<int>> &adj) {
+vector<int> find_seeds(int procId, int nprocs, int numParts, const vector<int> &landmarks, const vector<int> &hub_nodes, const unordered_map<int, int> &global_degree, const unordered_map<int, vector<int>> &adj) {
     vector<int> result;
 
     if (numParts <= 0 || hub_nodes.empty()) {
@@ -333,7 +358,7 @@ vector<int> find_seeds(int procId, int nprocs, int numParts, const vector<int> &
     
     vector<unordered_map<int, int>> all_distances = compute_landmark_distances(procId, nprocs, landmarks, hub_nodes, adj);
     
-    auto [first_seed, max_dist] = find_max_distance_hub(procId, nprocs, all_distances, hub_nodes);
+    auto [first_seed, max_dist] = find_max_distance_hub(procId, nprocs, all_distances, hub_nodes, global_degree);
 
     if (first_seed == -1) {
         if (procId == 0) cout << "Error: No valid hub node found as first seed" << endl;
@@ -352,7 +377,7 @@ vector<int> find_seeds(int procId, int nprocs, int numParts, const vector<int> &
     for (int k = 1; k < numParts; k++) {
         auto start_time = chrono::high_resolution_clock::now();
 
-        int next_seed = find_farthest_hub(procId, nprocs, selected_seeds, hub_nodes, used_hubs, adj, seed_to_hub);
+        int next_seed = find_farthest_hub(procId, nprocs, selected_seeds, hub_nodes, used_hubs, adj, seed_to_hub, global_degree);
 
         auto end_time = chrono::high_resolution_clock::now();
         auto duration = chrono::duration_cast<chrono::milliseconds>(end_time - start_time);
