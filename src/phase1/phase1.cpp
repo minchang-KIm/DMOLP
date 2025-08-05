@@ -5,7 +5,6 @@
 #include <algorithm>
 
 #include "phase1/phase1.h"
-#include "phase1/bfs.hpp"
 #include "phase1/init.hpp"
 #include "phase1/partition.hpp"
 #include "phase1/seed.hpp"
