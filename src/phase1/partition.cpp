@@ -378,7 +378,7 @@ void sync_local_csr_updates(int procId, int nprocs, const vector<int> &assigned_
     update_local_ghost_labels(procId, nprocs, assigned_partitions, local_partition_graphs, local_partition_ghosts, partitions);
 }
 
-void partition_expansion(int procId, int nprocs, int numParts, int theta, const vector<int> &seeds, const unordered_map<int, int> &global_degree, const unordered_map<int, vector<int>> &local_adj, vector<vector<int>> &partitions) {
+void partition_expansion(int procId, int nprocs, int numParts, int theta, const vector<int> &seeds, const unordered_map<int, int> &global_degree, const unordered_map<int, vector<int>> &local_adj, vector<vector<int>> &partitions, unordered_map<int, Graph> &local_partition_graphs, unordered_map<int, GhostNodes> &local_partition_ghosts) {
     unordered_set<int> all_nodes;
     for (const auto &[node, degree] : global_degree) {
         all_nodes.insert(node);
@@ -388,9 +388,6 @@ void partition_expansion(int procId, int nprocs, int numParts, int theta, const 
     partitions.resize(numParts);
     unordered_map<int, roaring_bitmap_t*> bitmap_adj = convert_adj(local_adj);
     vector<int> assigned_partitions = get_assigned_partitions(procId, nprocs, numParts);
-    
-    unordered_map<int, Graph> local_partition_graphs;
-    unordered_map<int, GhostNodes> local_partition_ghosts;
     
     for (int p : assigned_partitions) {
         local_partition_graphs[p] = Graph();
