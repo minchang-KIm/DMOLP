@@ -19,6 +19,11 @@ struct BFSResult {
     }
 };
 
+struct Delta {
+    int gid;        // global id
+    int new_label;  // new label
+};
+
 struct NodeInfo {
     int vertex;
     std::vector<int> neighbors;

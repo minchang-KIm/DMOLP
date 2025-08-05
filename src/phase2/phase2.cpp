@@ -143,9 +143,8 @@ PartitioningMetrics run_phase2(
     int stable_count = 0;
 
     for (int iter = 0; iter < max_iter; iter++) {
-        if (mpi_rank == 0)
-            std::cout << "=== Iter " << iter + 1 << " ===\n";
-
+        // labels_new를 현재 라벨로 동기화
+        labels_new = local_graph.vertex_labels;
         // Step1: RV, RE 계산
         calculatePartitionRatios(local_graph, local_graph.vertex_labels, num_partitions, PI);
 
@@ -175,6 +174,18 @@ PartitioningMetrics run_phase2(
         }
 
         // Step4: GPU 커널 실행
+        if (mpi_rank == 0 && iter < 3) {
+            std::cout << "  [DEBUG] GPU 커널 실행 전 boundary_nodes_local 수: " << boundary_nodes_local.size() << "\n";
+            if (boundary_nodes_local.size() > 0) {
+                std::cout << "  [DEBUG] 첫 5개 경계 노드 라벨 (실행 전): ";
+                for (int i = 0; i < std::min(5, (int)boundary_nodes_local.size()); i++) {
+                    int lid = boundary_nodes_local[i];
+                    std::cout << "(" << lid << ":" << local_graph.vertex_labels[lid] << ") ";
+                }
+                std::cout << "\n";
+            }
+        }
+        
         runBoundaryLPOnGPU_Warp(local_graph.row_ptr,
                                 local_graph.col_indices,
                                 local_graph.vertex_labels, // old labels
@@ -183,36 +194,71 @@ PartitioningMetrics run_phase2(
                                 boundary_nodes_local,
                                 num_partitions);
 
-        // Step5: 경계노드 교환 (global id)
-        int send_count = boundary_nodes_gid.size();
+        if (mpi_rank == 0 && iter < 3) {
+            if (boundary_nodes_local.size() > 0) {
+                std::cout << "  [DEBUG] 첫 5개 경계 노드 라벨 (실행 후): ";
+                for (int i = 0; i < std::min(5, (int)boundary_nodes_local.size()); i++) {
+                    int lid = boundary_nodes_local[i];
+                    std::cout << "(" << lid << ":" << labels_new[lid] << ") ";
+                }
+                std::cout << "\n";
+            }
+        }
+
+        // Step4b: GPU 커널 결과를 local_graph.vertex_labels에 적용
+        int label_changes = 0;
+        for (int lid : boundary_nodes_local) {
+            if (local_graph.vertex_labels[lid] != labels_new[lid]) {
+                label_changes++;
+            }
+            local_graph.vertex_labels[lid] = labels_new[lid];
+        }
+        
+        if (mpi_rank == 0 && iter < 3) {
+            std::cout << "  [DEBUG] 라벨 변경된 노드 수: " << label_changes << "/" << boundary_nodes_local.size() << "\n";
+        }
+
+        // Step5: 변경된 라벨 정보만 전송 (Delta 구조체 사용)
+        std::vector<Delta> delta_changes;
+        for (int lid : boundary_nodes_local) {
+            Delta delta;
+            delta.gid = local_graph.global_ids[lid];
+            delta.new_label = labels_new[lid];
+            delta_changes.push_back(delta);
+        }
+
+        // Allgather 준비
+        int send_count = delta_changes.size();
         std::vector<int> recv_counts(mpi_size);
         MPI_Allgather(&send_count, 1, MPI_INT, recv_counts.data(), 1, MPI_INT, MPI_COMM_WORLD);
 
-        int total_recv = std::accumulate(recv_counts.begin(), recv_counts.end(), 0);
-        std::vector<int> recv_buf(total_recv);
         std::vector<int> displs(mpi_size);
         displs[0] = 0;
         for (int i = 1; i < mpi_size; i++)
             displs[i] = displs[i - 1] + recv_counts[i - 1];
+        int total_recv = displs[mpi_size - 1] + recv_counts[mpi_size - 1];
 
-        MPI_Allgatherv(boundary_nodes_gid.data(), send_count, MPI_INT,
-                       recv_buf.data(), recv_counts.data(), displs.data(),
-                       MPI_INT, MPI_COMM_WORLD);
+        std::vector<Delta> recv_deltas(total_recv);
 
-        // Step5b: 변경된 라벨 적용
-        for (int gid : recv_buf) {
-            // 내 로컬?
-            auto it_owned = std::find(local_graph.global_ids.begin(), local_graph.global_ids.end(), gid);
-            if (it_owned != local_graph.global_ids.end()) {
-                int lid = (int)(it_owned - local_graph.global_ids.begin());
-                local_graph.vertex_labels[lid] = labels_new[lid];
-            } else {
-                // ghost?
-                auto it_ghost = ghost_nodes.global_to_local.find(gid);
-                if (it_ghost != ghost_nodes.global_to_local.end()) {
-                    int lid = it_ghost->second;
-                    local_graph.vertex_labels[lid] = labels_new[lid];
-                }
+        // Delta용 MPI 타입 정의
+        MPI_Datatype MPI_DELTA;
+        MPI_Type_contiguous(2, MPI_INT, &MPI_DELTA); // gid + new_label
+        MPI_Type_commit(&MPI_DELTA);
+
+        MPI_Allgatherv(delta_changes.data(), send_count, MPI_DELTA,
+                       recv_deltas.data(), recv_counts.data(), displs.data(),
+                       MPI_DELTA, MPI_COMM_WORLD);
+
+        MPI_Type_free(&MPI_DELTA);
+
+        // Step5b: 수신된 라벨 변경사항 적용
+        for (const auto &delta : recv_deltas) {
+            // ghost 노드인지 확인
+            auto it_ghost = ghost_nodes.global_to_local.find(delta.gid);
+            if (it_ghost != ghost_nodes.global_to_local.end()) {
+                int lid = it_ghost->second;
+                local_graph.vertex_labels[lid] = delta.new_label;
+                labels_new[lid] = delta.new_label;
             }
         }
 
@@ -221,14 +267,44 @@ PartitioningMetrics run_phase2(
         double delta = (prev_edge_cut > 0)
                            ? std::abs((double)(curr_edge_cut - prev_edge_cut) / prev_edge_cut)
                            : 1.0;
-        if (delta < epsilon)
-            stable_count++;
-        else
-            stable_count = 0;
-
+        
+        // Edge-cut 디버깅
+        if (mpi_rank == 0 && iter < 3) {
+            std::cout << "  [DEBUG] Edge-cut 변화: " << prev_edge_cut << " → " << curr_edge_cut << "\n";
+        }
+        
+        // 반복 결과 출력
+        if (mpi_rank == 0) {
+            std::cout << "=== Iter " << std::setw(3) << iter + 1 << " ===\n";
+            std::cout << "  Edge-cut: " << std::setw(8) << curr_edge_cut 
+                      << " (prev: " << std::setw(8) << prev_edge_cut << ")\n";
+            std::cout << "  Delta: " << std::setw(8) << std::fixed << std::setprecision(5) << delta * 100 << "%";
+            
+            if (delta < epsilon) {
+                stable_count++;
+                std::cout << " [안정화 " << stable_count << "/" << k_limit << "]";
+            } else {
+                stable_count = 0;
+                std::cout << " [변화중]";
+            }
+            std::cout << "\n";
+            
+            // 파티션 밸런스 정보
+            double max_rv = 0.0, max_re = 0.0;
+            for (const auto &p : PI) {
+                max_rv = std::max(max_rv, p.RV);
+                max_re = std::max(max_re, p.RE);
+            }
+            std::cout << "  Balance - Vertex: " << std::setw(6) << std::setprecision(3) << max_rv 
+                      << ", Edge: " << std::setw(6) << std::setprecision(3) << max_re << "\n";
+            
+            // 경계 노드 수
+            std::cout << "  Boundary nodes: " << boundary_nodes_gid.size() << "\n";
+            std::cout << std::endl;
+        }
         prev_edge_cut = curr_edge_cut;
         if (stable_count >= k_limit) {
-            if (mpi_rank == 0) std::cout << "수렴!\n";
+            if (mpi_rank == 0) std::cout << "수렴 완료!\n";
             break;
         }
     }
