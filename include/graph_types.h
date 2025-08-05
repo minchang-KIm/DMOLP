@@ -56,21 +56,20 @@ struct PartitionUpdate {
     PartitionUpdate(int pid, int num) : partition_id(pid), node(num) {}
 };
 
-// 그래프 구조체 (CSR) 각 스레드마다 로컬 그래프를 표현
-// global_ids: 글로벌 ID 배열
-// vertex_labels: 각 정점의 라벨
+// 그래프 구조체 (CSR) 각 프로세스마다 로컬 그래프를 표현
+// global_ids: 로컬 노드의 글로벌 ID 배열
+// vertex_labels: 로컬 노드의 라벨 (소유 노드만 변경 가능)
 // row_ptr: 각 정점의 시작 인덱스 (CSR 형식)
-// col_indices: 인접 정점의 로컬 인덱스 배열
+// col_indices: 인접 정점의 인덱스 배열 (로컬: 0~num_vertices-1, Ghost: num_vertices~)
 // num_edges: 총 엣지 수
-// num_vertices: 총 정점 수
-// vertex_labels: 각 정점의 라벨
+// num_vertices: 로컬 정점 수
 struct Graph {
     int num_vertices = 0;
     int num_edges = 0;
     std::vector<int> row_ptr;
     std::vector<int> col_indices;
-    std::vector<int> global_ids; // 글로벌 ID 배열
-    std::vector<int> vertex_labels; // 각 정점의 라벨
+    std::vector<int> global_ids; // 로컬 노드의 글로벌 ID 배열
+    std::vector<int> vertex_labels; // 로컬 노드의 라벨
 
     void clear() {
         num_vertices = 0;
