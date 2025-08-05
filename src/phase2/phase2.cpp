@@ -152,6 +152,15 @@ PartitioningMetrics run_phase2(
         calculatePenalty(PI, num_partitions);
         for (int i = 0; i < num_partitions; i++)
             penalty[i] = PI[i].P_L;
+            
+        // Penalty 디버깅
+        if (mpi_rank == 0 && iter < 3) {
+            std::cout << "  [DEBUG] Penalty 값들: ";
+            for (int i = 0; i < num_partitions; i++) {
+                std::cout << "P[" << i << "]=" << std::fixed << std::setprecision(4) << penalty[i] << " ";
+            }
+            std::cout << "\n";
+        }
 
         // Step3: Boundary 노드 추출(global id)
         auto boundary_nodes_gid = extractBoundaryGlobalIDs(local_graph, local_graph.vertex_labels);
