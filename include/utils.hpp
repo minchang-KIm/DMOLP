@@ -5,6 +5,7 @@
 
 #include "phase1/phase1.h"
 #include "graph_types.h"
+#include <mpi.h>
 #include <vector>
 #include <string>
 #include <iomanip>
