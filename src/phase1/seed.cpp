@@ -11,7 +11,7 @@
 
 #include "graph_types.h"
 #include "utils.hpp"
-#include "seed.hpp"
+#include "phase1/seed.hpp"
 
 using namespace std;
 

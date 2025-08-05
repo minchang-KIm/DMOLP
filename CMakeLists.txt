@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 3.18)
 project(HPCPartitioning LANGUAGES CXX CUDA)
 
-# MPI 찾기
+# MPI, OpenMP, CUDA 찾기
 find_package(MPI REQUIRED)
+find_package(OpenMP REQUIRED)
 find_package(CUDAToolkit REQUIRED)
 include_directories(${MPI_INCLUDE_PATH})
 
@@ -19,16 +20,21 @@ set(SOURCES
     src/utils.cpp
     src/phase1/phase1.cpp
     src/phase1/init.cpp
-    src/phase1/bfs.cpp
     src/phase1/partition.cpp
-    src/phase1/seed_greedy.cpp
+    src/phase1/seed.cpp
     src/phase2/phase2.cpp
     src/phase2/gpu_lp_boundary.cu
 )
 
 add_executable(hpc_partitioning ${SOURCES})
 
-target_link_libraries(hpc_partitioning ${MPI_CXX_LIBRARIES} cuda cudart)
+target_link_libraries(hpc_partitioning 
+    ${MPI_CXX_LIBRARIES} 
+    OpenMP::OpenMP_CXX 
+    roaring 
+    cuda 
+    cudart
+)
 
 # GPU 아키텍처 (원하는 경우 수정)
 set_target_properties(hpc_partitioning PROPERTIES
