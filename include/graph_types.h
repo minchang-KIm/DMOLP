@@ -71,6 +71,15 @@ struct Graph {
     std::vector<int> col_indices;
     std::vector<int> global_ids; // 글로벌 ID 배열
     std::vector<int> vertex_labels; // 각 정점의 라벨
+
+    void clear() {
+        num_vertices = 0;
+        num_edges = 0;
+        row_ptr.clear();
+        col_indices.clear();
+        global_ids.clear();
+        vertex_labels.clear();
+    }
 };
 
 // Ghost 노드 정보 구조체 각 스레드마다 Ghost 노드 정보를 표현
@@ -81,6 +90,12 @@ struct GhostNodes {
     std::vector<int> global_ids;  // 글로벌 ID
     std::vector<int> ghost_labels; // Ghost 노드의 라벨
     std::unordered_map<int, int> global_to_local; // 글로벌 → 로컬 인덱스 매핑
+
+    void clear() {
+        global_ids.clear();
+        ghost_labels.clear();
+        global_to_local.clear();
+    }
 };
 
 // Phase 1 메트릭 구조체 
