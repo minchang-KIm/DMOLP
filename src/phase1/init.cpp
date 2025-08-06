@@ -21,32 +21,39 @@ void load_graph(const char *filename, int procId, int nprocs, unordered_map<int,
     }
 
     string line;
-    int lineNum = 0;
+    unordered_map<int, vector<int>> temp_adj;
     
     getline(infile, line);
     V = stoi(line);
     
     int source = 0;
     while (getline(infile, line) && source < V) {
-        if (source % nprocs == procId) {
-            istringstream iss(line);
-            vector<int> neighbors;
-            int neighbor;
-            
-            while (iss >> neighbor) {
-                neighbors.push_back(neighbor);
+        istringstream iss(line);
+        int neighbor;
+        
+        while (iss >> neighbor) {
+            if (source % nprocs == procId) {
+                temp_adj[source].push_back(neighbor);
             }
             
-            sort(neighbors.begin(), neighbors.end());
-            neighbors.erase(unique(neighbors.begin(), neighbors.end()), neighbors.end());
-            
-            adj[source] = neighbors;
-            local_degree[source] = neighbors.size();
+            if (neighbor % nprocs == procId) {
+                temp_adj[neighbor].push_back(source);
+            }
         }
         source++;
     }
     
     infile.close();
+
+    for (auto &[vertex, neighbors] : temp_adj) {
+        if (vertex % nprocs == procId) {
+            sort(neighbors.begin(), neighbors.end());
+            neighbors.erase(unique(neighbors.begin(), neighbors.end()), neighbors.end());
+            
+            adj[vertex] = neighbors;
+            local_degree[vertex] = neighbors.size();
+        }
+    }
 
     int local_V = adj.size();
     int local_E = 0;
@@ -55,8 +62,8 @@ void load_graph(const char *filename, int procId, int nprocs, unordered_map<int,
         local_E += neighbors.size();
     }
 
-    MPI_Allreduce(&local_E, &E, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
     MPI_Allreduce(&local_V, &V, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(&local_E, &E, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
 }
 
 void gather_degrees(unordered_map<int, int> &local_degree, unordered_map<int, int> &global_degree, int procId, int nprocs) {
