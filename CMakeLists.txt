@@ -7,6 +7,12 @@ find_package(OpenMP REQUIRED)
 find_package(CUDAToolkit REQUIRED)
 include_directories(${MPI_INCLUDE_PATH})
 
+# roaring 라이브러리 찾기 (정적 링킹)
+find_library(ROARING_LIBRARY libroaring.a PATHS /lib/x86_64-linux-gnu /usr/lib/x86_64-linux-gnu)
+if(NOT ROARING_LIBRARY)
+    find_library(ROARING_LIBRARY roaring PATHS /lib/x86_64-linux-gnu /usr/lib/x86_64-linux-gnu REQUIRED)
+endif()
+
 # CUDA 설정
 set(CMAKE_CUDA_STANDARD 14)
 set(CMAKE_CXX_STANDARD 17)
@@ -31,9 +37,15 @@ add_executable(hpc_partitioning ${SOURCES})
 target_link_libraries(hpc_partitioning 
     ${MPI_CXX_LIBRARIES} 
     OpenMP::OpenMP_CXX 
-    roaring 
+    ${ROARING_LIBRARY}
     cuda 
     cudart
+)
+
+# RPATH 설정 (실행 시 라이브러리 경로)
+set_target_properties(hpc_partitioning PROPERTIES
+    INSTALL_RPATH "/lib/x86_64-linux-gnu;/usr/lib/x86_64-linux-gnu"
+    BUILD_WITH_INSTALL_RPATH TRUE
 )
 
 # GPU 아키텍처 (원하는 경우 수정)
