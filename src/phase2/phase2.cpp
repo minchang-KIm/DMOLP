@@ -91,7 +91,8 @@ static void calculatePenalty(std::vector<PartitionInfo> &PI, int num_partitions)
     double imb_rv = (total_var > 0) ? rv_var / total_var : 0.0;
     double imb_re = (total_var > 0) ? re_var / total_var : 0.0;
 
-    for (auto &p : PI) {
+    for (int i = 0; i < num_partitions; i++) {
+        auto &p = PI[i];
         p.imb_RV = imb_rv;
         p.imb_RE = imb_re;
         p.G_RV = (1.0 - p.RV) / num_partitions;
@@ -218,7 +219,6 @@ PartitioningMetrics run_phase2(
 
     std::vector<int> labels_new = local_graph.vertex_labels; // 현재 라벨 복사
     std::vector<PartitionInfo> PI(num_partitions);
-    std::vector<double> penalty(num_partitions, 0.0);
 
     int prev_edge_cut = computeEdgeCut(local_graph, local_graph.vertex_labels, ghost_nodes);
     int convergence_count = 0;
@@ -230,12 +230,8 @@ PartitioningMetrics run_phase2(
         // Step1: RV, RE 계산
         calculatePartitionRatios(local_graph, local_graph.vertex_labels, num_partitions, PI);
 
-        // Penalty 계산 및 강화
+        // Penalty 계산
         calculatePenalty(PI, num_partitions);
-        for (int i = 0; i < num_partitions; i++) {
-            // penalty 값을 50배 강화하여 라벨 변경을 촉진
-            penalty[i] = PI[i].P_L * 50.0;
-        }
 
         // Step3: Boundary 노드 추출(local id)
         auto boundary_nodes_local = extractBoundaryLocalIDs(local_graph, ghost_nodes, mpi_rank);
@@ -257,14 +253,16 @@ PartitioningMetrics run_phase2(
             break;
         }
 
-        // Step4: GPU 커널 실행
-        runBoundaryLPOnGPU_Warp(local_graph.row_ptr,
-                                local_graph.col_indices,
-                                local_graph.vertex_labels, // old labels
-                                labels_new,                // new labels
-                                penalty,
-                                boundary_nodes_local,
-                                num_partitions);
+        // Step4: GPU 커널 실행 (PartitionInfo 직접 전달)
+        bool enable_adaptive_scaling = true;  // 적응적 스케일링 활성화/비활성화
+        runBoundaryLPOnGPU(local_graph.row_ptr,
+                           local_graph.col_indices,
+                           local_graph.vertex_labels, // old labels
+                           labels_new,                // new labels
+                           PI,                        // PartitionInfo 직접 전달
+                           boundary_nodes_local,
+                           num_partitions,
+                           enable_adaptive_scaling);
 
         // Step4b: GPU 결과를 실제 라벨 배열에 적용
         int owned_changes = 0;
@@ -277,8 +275,17 @@ PartitioningMetrics run_phase2(
             }
         }
         
-        if (mpi_rank == 0 && owned_changes > 0) {
-            std::cout << "  [DEBUG] GPU updated " << owned_changes << " boundary nodes\n";
+        // 라벨 변경 결과 출력 (항상)
+        if (mpi_rank == 0) {
+            std::cout << "  [DEBUG] GPU updated " << owned_changes << " boundary nodes";
+            if (owned_changes == 0) {
+                std::cout << " (NO CHANGES - checking penalty values)";
+                std::cout << "\n    Sample penalties: ";
+                for (int i = 0; i < std::min(4, num_partitions); i++) {
+                    std::cout << "P" << i << "=" << std::fixed << std::setprecision(6) << PI[i].P_L << " ";
+                }
+            }
+            std::cout << "\n";
         }
 
         // Step5: 변경된 라벨 정보만 전송 (Delta 구조체 사용)
@@ -324,6 +331,7 @@ PartitioningMetrics run_phase2(
 
         // Step5b: 수신된 라벨 변경사항 적용
         int ghost_updates = 0;
+        int total_deltas_received = recv_deltas.size();
         for (const auto &delta : recv_deltas) {
             // ghost 노드인지 확인
             auto it_ghost = ghost_nodes.global_to_local.find(delta.gid);
@@ -344,6 +352,12 @@ PartitioningMetrics run_phase2(
                     }
                 }
             }
+        }
+        
+        // 통신 디버깅 정보 출력
+        if (mpi_rank == 0) {
+            std::cout << "  [DEBUG] MPI Communication - Received " << total_deltas_received 
+                      << " deltas, applied " << ghost_updates << " ghost updates\n";
         }
 
         // Step6: Edge-cut 변화율 검사
