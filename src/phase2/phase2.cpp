@@ -244,27 +244,8 @@ PartitioningMetrics run_phase2(
             break;
         }
 
-        // 각 프로세서의 boundary 노드 수 출력 (디버그)
-        std::cout << "[Rank " << mpi_rank << "] Boundary nodes: " << boundary_nodes_local.size() << std::endl;
-        std::cout.flush();
-
         // Step4: GPU 커널 실행 (PartitionInfo 직접 전달)
         bool enable_adaptive_scaling = false;  // 적응적 스케일링 비활성화
-        
-        // GPU 메모리 사용량 측정 (전)
-        size_t free_mem_before, total_mem;
-        cudaMemGetInfo(&free_mem_before, &total_mem);
-        
-        std::cout << "[Rank " << mpi_rank << "] GPU " << gpu_id << " 메모리 사용 전: " 
-                  << (total_mem - free_mem_before) / (1024*1024) << "MB / " 
-                  << total_mem / (1024*1024) << "MB" << std::endl;
-        
-        std::cout << "[Rank " << mpi_rank << "] GPU " << gpu_id << " 커널 시작 (boundary nodes: " 
-                  << boundary_nodes_local.size() << ")" << std::endl;
-        std::cout.flush();
-        
-        // GPU 커널 실행 시간 측정
-        auto gpu_start = std::chrono::high_resolution_clock::now();
         
         runBoundaryLPOnGPU(local_graph.row_ptr,
                            local_graph.col_indices,
@@ -277,18 +258,6 @@ PartitioningMetrics run_phase2(
         
         // GPU 동기화
         cudaDeviceSynchronize();
-        
-        auto gpu_end = std::chrono::high_resolution_clock::now();
-        auto gpu_time_ms = std::chrono::duration_cast<std::chrono::milliseconds>(gpu_end - gpu_start).count();
-        
-        // GPU 메모리 사용량 측정 (후)
-        size_t free_mem_after;
-        cudaMemGetInfo(&free_mem_after, &total_mem);
-        
-        std::cout << "[Rank " << mpi_rank << "] GPU " << gpu_id << " 커널 완료 (실행시간: " 
-                  << gpu_time_ms << "ms, 메모리 사용 후: " 
-                  << (total_mem - free_mem_after) / (1024*1024) << "MB)" << std::endl;
-        std::cout.flush();
 
         // Step4b: GPU 결과를 실제 라벨 배열에 적용 & 변경사항을 Delta로 수집
         std::vector<Delta> delta_changes;
@@ -311,7 +280,6 @@ PartitioningMetrics run_phase2(
         }
         
         std::cout << "[Rank " << mpi_rank << "] Label changes: " << delta_changes.size() << std::endl;
-        std::cout.flush();
 
         // Step5: 변경된 라벨 정보만 전송 (Delta 구조체 사용)
 
@@ -319,13 +287,7 @@ PartitioningMetrics run_phase2(
         int send_count = delta_changes.size();
         std::vector<int> recv_counts(mpi_size);
         
-        std::cout << "[Rank " << mpi_rank << "] Before MPI_Allgather, sending " << send_count << " deltas" << std::endl;
-        std::cout.flush();
-        
         MPI_Allgather(&send_count, 1, MPI_INT, recv_counts.data(), 1, MPI_INT, MPI_COMM_WORLD);
-        
-        std::cout << "[Rank " << mpi_rank << "] MPI_Allgather completed" << std::endl;
-        std::cout.flush();
 
         std::vector<int> displs(mpi_size);
         displs[0] = 0;
@@ -411,17 +373,10 @@ PartitioningMetrics run_phase2(
             }
             
             // 모든 프로세서의 카운트를 합산
-            std::cout << "[Rank " << mpi_rank << "] Before MPI_Allreduce for label counts" << std::endl;
-            std::cout.flush();
-            
             int result = MPI_Allreduce(local_counts.data(), global_counts.data(), num_partitions, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
             
             if (result != MPI_SUCCESS) {
                 std::cout << "[Rank " << mpi_rank << "] MPI_Allreduce failed with error code: " << result << std::endl;
-                std::cout.flush();
-            } else {
-                std::cout << "[Rank " << mpi_rank << "] MPI_Allreduce for label counts completed successfully" << std::endl;
-                std::cout.flush();
             }
             
             // 안전한 동기화
@@ -435,11 +390,7 @@ PartitioningMetrics run_phase2(
                     }
                 }
                 std::cout << std::endl;
-                std::cout.flush();
             }
-            
-            // 출력 완료 후 동기화
-            MPI_Barrier(MPI_COMM_WORLD);
         }
         
         // 수렴 완료 조건: edge-cut 변화율이 epsilon 미만으로 k_limit 번 연속 발생
