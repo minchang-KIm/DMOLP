@@ -70,15 +70,25 @@ __global__ void boundaryLPKernel_atomic(
     __syncthreads();
 
     // 현재 노드의 모든 이웃에 대해 점수 계산
-    // Score(L) = |N_L| × (1 + P_L)
+    // Score(L) = |N_L| × (1 + P_L) 여기서 |N_L|은 라벨 L을 가진 이웃 노드 수
+    
+    // 1단계: 각 라벨별 이웃 노드 개수 카운트
     for (int e = row_ptr[node]; e < row_ptr[node + 1]; e++) {
         int neighbor = col_idx[e];
         int neighbor_label = labels_old[neighbor];
         
         // 유효한 라벨인지 확인
         if (neighbor_label >= 0 && neighbor_label < num_partitions) {
-            double score_contribution = 1.0 * (1.0 + PI[neighbor_label].P_L);
-            atomicAdd(&scores[neighbor_label], score_contribution);
+            // 해당 라벨의 이웃 개수를 1씩 증가
+            atomicAdd(&scores[neighbor_label], 1.0);
+        }
+    }
+    __syncthreads();
+    
+    // 2단계: 각 라벨별로 패널티를 곱해서 최종 스코어 계산
+    for (int l = threadIdx.x; l < num_partitions; l += blockDim.x) {
+        if (scores[l] > 0.0) {  // 해당 라벨을 가진 이웃이 있는 경우만
+            scores[l] = scores[l] * (1.0 + PI[l].P_L);
         }
     }
     __syncthreads();
@@ -139,15 +149,25 @@ __global__ void boundaryLPKernel_warp(
     __syncthreads();
 
     // 현재 노드의 모든 이웃에 대해 점수 계산
-    // Score(L) = |N_L| × (1 + P_L)
+    // Score(L) = |N_L| × (1 + P_L) 여기서 |N_L|은 라벨 L을 가진 이웃 노드 수
+    
+    // 1단계: 각 라벨별 이웃 노드 개수 카운트
     for (int e = row_ptr[node]; e < row_ptr[node + 1]; e++) {
         int neighbor = col_idx[e];  // owned 또는 ghost 노드
         int neighbor_label = labels_old[neighbor];
         
         // 유효한 라벨인지 확인
         if (neighbor_label >= 0 && neighbor_label < num_partitions) {
-            double score_contribution = 1.0 * (1.0 + penalty[neighbor_label]);
-            atomicAdd(&scores[neighbor_label], score_contribution);
+            // 해당 라벨의 이웃 개수를 1씩 증가
+            atomicAdd(&scores[neighbor_label], 1.0);
+        }
+    }
+    __syncthreads();
+    
+    // 2단계: 각 라벨별로 패널티를 곱해서 최종 스코어 계산
+    for (int l = threadIdx.x; l < num_partitions; l += blockDim.x) {
+        if (scores[l] > 0.0) {  // 해당 라벨을 가진 이웃이 있는 경우만
+            scores[l] = scores[l] * (1.0 + penalty[l]);
         }
     }
     __syncthreads();
