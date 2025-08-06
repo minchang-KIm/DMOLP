@@ -7,6 +7,10 @@
 #include <algorithm>
 #include <iomanip>
 #include <chrono>
+#include <cuda_runtime.h>
+#include <unistd.h>
+#include <cstring>
+#include <map>
 
 #include "graph_types.h"
 #include "phase2/phase2.h"
@@ -193,13 +197,28 @@ PartitioningMetrics run_phase2(
     int mpi_rank, int mpi_size,
     int num_partitions,
     Graph &local_graph,
-    GhostNodes &ghost_nodes)
+    GhostNodes &ghost_nodes,
+    int gpu_id)
 {
     const int max_iter = 500;
-    const double epsilon = 0.03;
+    const double epsilon = 0.01; // 수렴 기준
     const int k_limit = 10;
 
     auto t_phase2_start = std::chrono::high_resolution_clock::now();
+    
+    std::cout << "[Rank " << mpi_rank << "/" << mpi_size << "] Phase2 시작 (GPU " << gpu_id << ")" << std::endl;
+    std::cout.flush();
+    
+    // GPU가 이미 할당되었으므로 추가 설정만 확인
+    int current_device;
+    cudaGetDevice(&current_device);
+    if (current_device != gpu_id) {
+        cudaSetDevice(gpu_id);
+        std::cout << "[Rank " << mpi_rank << "] GPU " << gpu_id << " 재설정 완료" << std::endl;
+    }
+    
+    // 모든 프로세스 동기화
+    MPI_Barrier(MPI_COMM_WORLD);
 
     std::vector<int> labels_new = local_graph.vertex_labels; // 현재 라벨 복사
     std::vector<PartitionInfo> PI(num_partitions);
@@ -225,8 +244,28 @@ PartitioningMetrics run_phase2(
             break;
         }
 
+        // 각 프로세서의 boundary 노드 수 출력 (디버그)
+        std::cout << "[Rank " << mpi_rank << "] Boundary nodes: " << boundary_nodes_local.size() << std::endl;
+        std::cout.flush();
+
         // Step4: GPU 커널 실행 (PartitionInfo 직접 전달)
         bool enable_adaptive_scaling = false;  // 적응적 스케일링 비활성화
+        
+        // GPU 메모리 사용량 측정 (전)
+        size_t free_mem_before, total_mem;
+        cudaMemGetInfo(&free_mem_before, &total_mem);
+        
+        std::cout << "[Rank " << mpi_rank << "] GPU " << gpu_id << " 메모리 사용 전: " 
+                  << (total_mem - free_mem_before) / (1024*1024) << "MB / " 
+                  << total_mem / (1024*1024) << "MB" << std::endl;
+        
+        std::cout << "[Rank " << mpi_rank << "] GPU " << gpu_id << " 커널 시작 (boundary nodes: " 
+                  << boundary_nodes_local.size() << ")" << std::endl;
+        std::cout.flush();
+        
+        // GPU 커널 실행 시간 측정
+        auto gpu_start = std::chrono::high_resolution_clock::now();
+        
         runBoundaryLPOnGPU(local_graph.row_ptr,
                            local_graph.col_indices,
                            local_graph.vertex_labels, // old labels
@@ -235,6 +274,21 @@ PartitioningMetrics run_phase2(
                            boundary_nodes_local,
                            num_partitions,
                            enable_adaptive_scaling);
+        
+        // GPU 동기화
+        cudaDeviceSynchronize();
+        
+        auto gpu_end = std::chrono::high_resolution_clock::now();
+        auto gpu_time_ms = std::chrono::duration_cast<std::chrono::milliseconds>(gpu_end - gpu_start).count();
+        
+        // GPU 메모리 사용량 측정 (후)
+        size_t free_mem_after;
+        cudaMemGetInfo(&free_mem_after, &total_mem);
+        
+        std::cout << "[Rank " << mpi_rank << "] GPU " << gpu_id << " 커널 완료 (실행시간: " 
+                  << gpu_time_ms << "ms, 메모리 사용 후: " 
+                  << (total_mem - free_mem_after) / (1024*1024) << "MB)" << std::endl;
+        std::cout.flush();
 
         // Step4b: GPU 결과를 실제 라벨 배열에 적용 & 변경사항을 Delta로 수집
         std::vector<Delta> delta_changes;
@@ -255,13 +309,23 @@ PartitioningMetrics run_phase2(
                 }
             }
         }
+        
+        std::cout << "[Rank " << mpi_rank << "] Label changes: " << delta_changes.size() << std::endl;
+        std::cout.flush();
 
         // Step5: 변경된 라벨 정보만 전송 (Delta 구조체 사용)
 
         // Allgather 준비
         int send_count = delta_changes.size();
         std::vector<int> recv_counts(mpi_size);
+        
+        std::cout << "[Rank " << mpi_rank << "] Before MPI_Allgather, sending " << send_count << " deltas" << std::endl;
+        std::cout.flush();
+        
         MPI_Allgather(&send_count, 1, MPI_INT, recv_counts.data(), 1, MPI_INT, MPI_COMM_WORLD);
+        
+        std::cout << "[Rank " << mpi_rank << "] MPI_Allgather completed" << std::endl;
+        std::cout.flush();
 
         std::vector<int> displs(mpi_size);
         displs[0] = 0;
@@ -326,6 +390,58 @@ PartitioningMetrics run_phase2(
         }
         prev_edge_cut = curr_edge_cut;
         
+        // 각 이터레이션마다 라벨별 노드 수 분포 출력
+        {
+            std::map<int, int> local_label_counts;
+            
+            // 로컬 그래프에서 라벨별 노드 수 집계
+            for (int i = 0; i < local_graph.num_vertices; i++) {
+                local_label_counts[local_graph.vertex_labels[i]]++;
+            }
+            
+            // 전체 라벨 개수를 위해 num_partitions 크기의 배열 사용
+            std::vector<int> local_counts(num_partitions, 0);
+            std::vector<int> global_counts(num_partitions, 0);
+            
+            // 로컬 카운트를 배열에 저장
+            for (const auto& pair : local_label_counts) {
+                if (pair.first >= 0 && pair.first < num_partitions) {
+                    local_counts[pair.first] = pair.second;
+                }
+            }
+            
+            // 모든 프로세서의 카운트를 합산
+            std::cout << "[Rank " << mpi_rank << "] Before MPI_Allreduce for label counts" << std::endl;
+            std::cout.flush();
+            
+            int result = MPI_Allreduce(local_counts.data(), global_counts.data(), num_partitions, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+            
+            if (result != MPI_SUCCESS) {
+                std::cout << "[Rank " << mpi_rank << "] MPI_Allreduce failed with error code: " << result << std::endl;
+                std::cout.flush();
+            } else {
+                std::cout << "[Rank " << mpi_rank << "] MPI_Allreduce for label counts completed successfully" << std::endl;
+                std::cout.flush();
+            }
+            
+            // 안전한 동기화
+            MPI_Barrier(MPI_COMM_WORLD);
+            
+            if (mpi_rank == 0) {
+                std::cout << "이터레이션 " << (iter + 1) << " 라벨별 노드 수: ";
+                for (int i = 0; i < num_partitions; i++) {
+                    if (global_counts[i] > 0) {
+                        std::cout << "라벨" << i << ":" << global_counts[i] << " ";
+                    }
+                }
+                std::cout << std::endl;
+                std::cout.flush();
+            }
+            
+            // 출력 완료 후 동기화
+            MPI_Barrier(MPI_COMM_WORLD);
+        }
+        
         // 수렴 완료 조건: edge-cut 변화율이 epsilon 미만으로 k_limit 번 연속 발생
         if (convergence_count >= k_limit) {
             if (mpi_rank == 0) {
@@ -338,6 +454,15 @@ PartitioningMetrics run_phase2(
 
     auto t_phase2_end = std::chrono::high_resolution_clock::now();
     long exec_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t_phase2_end - t_phase2_start).count();
+
+    // GPU 사용 통계 출력
+    std::cout << "[Rank " << mpi_rank << "] Phase2 완료 - GPU " << gpu_id 
+              << " 총 실행시간: " << exec_ms << "ms" << std::endl;
+    
+    // GPU 메모리 정리
+    cudaDeviceReset();
+    std::cout << "[Rank " << mpi_rank << "] GPU " << gpu_id << " 리셋 완료" << std::endl;
+    std::cout.flush();
 
     // Balance 계산
     double max_vertex_ratio = 0.0, max_edge_ratio = 0.0;

@@ -8,5 +8,6 @@ PartitioningMetrics run_phase2(
     int mpi_rank, int mpi_size,
     int num_partitions,
     Graph& local_graph,
-    GhostNodes& ghost_nodes
+    GhostNodes& ghost_nodes,
+    int gpu_id
 );

@@ -7,11 +7,10 @@ find_package(OpenMP REQUIRED)
 find_package(CUDAToolkit REQUIRED)
 include_directories(${MPI_INCLUDE_PATH})
 
-# roaring 라이브러리 찾기 (정적 링킹)
-find_library(ROARING_LIBRARY libroaring.a PATHS /lib/x86_64-linux-gnu /usr/lib/x86_64-linux-gnu)
-if(NOT ROARING_LIBRARY)
-    find_library(ROARING_LIBRARY roaring PATHS /lib/x86_64-linux-gnu /usr/lib/x86_64-linux-gnu REQUIRED)
-endif()
+# CRoaring 라이브러리 설정 (새로 설치한 버전) - 정적 링킹
+set(CROARING_PATH "/home/intern_graph/croaring_install")
+include_directories(${CROARING_PATH}/include)
+set(ROARING_LIBRARY "${CROARING_PATH}/lib/libroaring.a")
 
 # CUDA 설정
 set(CMAKE_CUDA_STANDARD 14)
@@ -34,12 +33,18 @@ set(SOURCES
 
 add_executable(hpc_partitioning ${SOURCES})
 
+# 링킹할 라이브러리들
 target_link_libraries(hpc_partitioning 
     ${MPI_CXX_LIBRARIES} 
     OpenMP::OpenMP_CXX 
     ${ROARING_LIBRARY}
     cuda 
     cudart
+)
+
+# 정적 링킹 설정
+set_target_properties(hpc_partitioning PROPERTIES
+    LINK_FLAGS "-static-libgcc -static-libstdc++"
 )
 
 # RPATH 설정 (실행 시 라이브러리 경로)

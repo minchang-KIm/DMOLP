@@ -181,6 +181,9 @@ Phase1Metrics run_phase1(
     metrics.total_vertices = V;
     metrics.total_edges = E;
 
+    std::cout << "[Rank " << mpi_rank << "] Phase1 함수 완료 준비" << std::endl;
+    std::cout.flush();
+
     return metrics;
 
 }
