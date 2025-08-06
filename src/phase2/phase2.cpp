@@ -256,17 +256,23 @@ PartitioningMetrics run_phase2(
             break;
         }
 
-        // Step4: GPU 커널 실행 (PartitionInfo 직접 전달)
+        // Step4: GPU 커널 실행 (Warp 최적화 버전 사용)
         bool enable_adaptive_scaling = false;  // 적응적 스케일링 비활성화
         
-        runBoundaryLPOnGPU(local_graph.row_ptr,
-                           local_graph.col_indices,
-                           local_graph.vertex_labels, // old labels
-                           labels_new,                // new labels
-                           PI,                        // PartitionInfo 직접 전달
-                           boundary_nodes_local,
-                           num_partitions,
-                           enable_adaptive_scaling);
+        // PartitionInfo에서 penalty 배열 추출
+        std::vector<double> penalty(num_partitions);
+        for (int i = 0; i < num_partitions; i++) {
+            penalty[i] = PI[i].P_L;
+        }
+        
+        runBoundaryLPOnGPU_Warp(local_graph.row_ptr,
+                                local_graph.col_indices,
+                                local_graph.vertex_labels, // old labels
+                                labels_new,                // new labels
+                                penalty,                   // penalty 배열 전달
+                                boundary_nodes_local,
+                                num_partitions,
+                                enable_adaptive_scaling);
         
         // GPU 동기화
         cudaDeviceSynchronize();
