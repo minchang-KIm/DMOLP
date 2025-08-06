@@ -20,6 +20,7 @@
 void calculatePartitionRatios(
     const Graph &g,
     const std::vector<int> &labels,
+    const GhostNodes &ghost_nodes,
     int num_partitions,
     std::vector<PartitionInfo> &PI)
 {
@@ -41,7 +42,19 @@ void calculatePartitionRatios(
         
         for (int e = g.row_ptr[u]; e < g.row_ptr[u + 1]; e++) {
             int v = g.col_indices[e];
-            int label_v = (v < (int)labels.size()) ? labels[v] : -1;
+            int label_v = -1;
+            
+            if (v < g.num_vertices) {
+                // local 노드 - labels 배열에서 직접 가져오기
+                label_v = labels[v];
+            } else {
+                // ghost 노드 - ghost_nodes 구조체에서 가져오기
+                int ghost_idx = v - g.num_vertices;
+                if (ghost_idx >= 0 && ghost_idx < (int)ghost_nodes.ghost_labels.size()) {
+                    label_v = ghost_nodes.ghost_labels[ghost_idx];
+                }
+            }
+            
             if (label_v >= 0 && label_v < num_partitions && label_u == label_v) {
                 local_edge_counts[label_u]++;
             }
@@ -120,12 +133,12 @@ static std::vector<int> extractBoundaryLocalIDs( const Graph &local_graph, const
             int v_label;
             
             if (v < local_graph.num_vertices) {
-                // local 노드 - 같은 프로세스 내의 다른 파티션일 수 있음
+                // local 노드 - vertex_labels에서 직접 가져오기
                 v_label = local_graph.vertex_labels[v];
             } else {
-                // ghost 노드 - 다른 프로세스의 노드
+                // ghost 노드 - ghost_nodes 구조체에서 가져오기
                 int ghost_idx = v - local_graph.num_vertices;
-                if (ghost_idx < (int)ghost_nodes.ghost_labels.size()) {
+                if (ghost_idx >= 0 && ghost_idx < (int)ghost_nodes.ghost_labels.size()) {
                     v_label = ghost_nodes.ghost_labels[ghost_idx];
                 } else {
                     continue; // 잘못된 인덱스는 건너뛰기
@@ -159,22 +172,23 @@ static int computeEdgeCut(const Graph &g, const std::vector<int> &labels, const 
             int v = g.col_indices[e];
             total_edges++;
             
-            // u의 라벨 (owned 노드)
-            int u_label = (u < (int)labels.size()) ? labels[u] : -1;
+            // u의 라벨 (owned 노드만 처리하므로 항상 유효)
+            int u_label = labels[u];
             
             // v의 라벨 결정
             int v_label = -1;
             if (v < g.num_vertices) {
-                // local 노드
-                v_label = (v < (int)labels.size()) ? labels[v] : -1;
+                // local 노드 - labels 배열에서 직접 가져오기
+                v_label = labels[v];
             } else {
-                // ghost 노드
+                // ghost 노드 - ghost_nodes 구조체에서 가져오기
                 int ghost_idx = v - g.num_vertices;
                 if (ghost_idx >= 0 && ghost_idx < (int)ghost_nodes.ghost_labels.size()) {
                     v_label = ghost_nodes.ghost_labels[ghost_idx];
                 }
             }
             
+            // 다른 파티션 간 간선이면 edge-cut에 포함
             if (u_label != -1 && v_label != -1 && u_label != v_label) {
                 local_cut++;
             }
@@ -185,8 +199,6 @@ static int computeEdgeCut(const Graph &g, const std::vector<int> &labels, const 
     int global_total_edges = 0;
     MPI_Allreduce(&local_cut, &global_cut, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
     MPI_Allreduce(&total_edges, &global_total_edges, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
-    
-
     
     // 분산 환경에서는 각 owned 노드의 간선만 카운트하므로 중복이 없음
     return global_cut;
@@ -231,7 +243,7 @@ PartitioningMetrics run_phase2(
         labels_new = local_graph.vertex_labels;
         
         // Step1: RV, RE 계산
-        calculatePartitionRatios(local_graph, local_graph.vertex_labels, num_partitions, PI);
+        calculatePartitionRatios(local_graph, local_graph.vertex_labels, ghost_nodes, num_partitions, PI);
 
         // Penalty 계산
         calculatePenalty(PI, num_partitions);
@@ -314,14 +326,16 @@ PartitioningMetrics run_phase2(
             auto it_ghost = ghost_nodes.global_to_local.find(delta.gid);
             if (it_ghost != ghost_nodes.global_to_local.end()) {
                 int ghost_idx = it_ghost->second;
-                int ghost_lid = local_graph.num_vertices + ghost_idx; // 올바른 ghost 노드 인덱스
                 
-                if (ghost_lid < (int)local_graph.vertex_labels.size()) {
-                    local_graph.vertex_labels[ghost_lid] = delta.new_label;
+                // 올바른 범위 확인
+                if (ghost_idx >= 0 && ghost_idx < (int)ghost_nodes.ghost_labels.size()) {
+                    // Ghost 노드 구조체 업데이트 (primary source)
+                    ghost_nodes.ghost_labels[ghost_idx] = delta.new_label;
                     
-                    // Ghost 노드 배열도 업데이트
-                    if (ghost_idx < (int)ghost_nodes.ghost_labels.size()) {
-                        ghost_nodes.ghost_labels[ghost_idx] = delta.new_label;
+                    // local_graph의 vertex_labels도 동기화 (ghost 노드 부분)
+                    int ghost_lid = local_graph.num_vertices + ghost_idx;
+                    if (ghost_lid < (int)local_graph.vertex_labels.size()) {
+                        local_graph.vertex_labels[ghost_lid] = delta.new_label;
                     }
                 }
             }
