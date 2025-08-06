@@ -307,7 +307,7 @@ PartitioningMetrics run_phase2(
                            ? std::abs((double)(curr_edge_cut - prev_edge_cut) / prev_edge_cut)
                            : 1.0;
         
-        // 수렴 조건 확인
+        // 수렴 조건 확인 (edge-cut 변화율이 epsilon 미만일 때)
         if (delta < epsilon) {
             convergence_count++;
         } else {
@@ -317,12 +317,21 @@ PartitioningMetrics run_phase2(
         // 반복 결과 출력
         if (mpi_rank == 0) {
             std::cout << "Iter " << iter + 1 << ": Edge-cut " << curr_edge_cut 
-                      << " (delta: " << std::fixed << std::setprecision(3) << delta * 100 << "%)\n";
+                      << " (delta: " << std::fixed << std::setprecision(3) << delta * 100 << "%)";
+            
+            if (convergence_count > 0) {
+                std::cout << " [수렴 카운트: " << convergence_count << "/" << k_limit << "]";
+            }
+            std::cout << "\n";
         }
         prev_edge_cut = curr_edge_cut;
         
+        // 수렴 완료 조건: edge-cut 변화율이 epsilon 미만으로 k_limit 번 연속 발생
         if (convergence_count >= k_limit) {
-            if (mpi_rank == 0) std::cout << "수렴 완료!\n";
+            if (mpi_rank == 0) {
+                std::cout << "수렴 완료! (연속 " << k_limit << "회 변화율 < " 
+                          << std::fixed << std::setprecision(1) << epsilon * 100 << "%)\n";
+            }
             break;
         }
     }

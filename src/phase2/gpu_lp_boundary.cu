@@ -175,11 +175,6 @@ void runBoundaryLPOnGPU(
     }
     double scaling_factor = calculateAdaptiveScaling(penalties, enable_adaptive_scaling);
     
-    if (enable_adaptive_scaling) {
-        std::cout << "  [INFO] Adaptive scaling enabled - factor: " << scaling_factor << "\n";
-    } else {
-        std::cout << "  [INFO] Adaptive scaling disabled\n";
-    }
     
     // PartitionInfo를 GPU용으로 변환 (스케일링 적용)
     std::vector<PartitionInfoGPU> PI_gpu(num_partitions);
