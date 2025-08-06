@@ -226,7 +226,7 @@ PartitioningMetrics run_phase2(
         }
 
         // Step4: GPU 커널 실행 (PartitionInfo 직접 전달)
-        bool enable_adaptive_scaling = true;  // 적응적 스케일링 활성화/비활성화
+        bool enable_adaptive_scaling = false;  // 적응적 스케일링 비활성화
         runBoundaryLPOnGPU(local_graph.row_ptr,
                            local_graph.col_indices,
                            local_graph.vertex_labels, // old labels
@@ -236,28 +236,27 @@ PartitioningMetrics run_phase2(
                            num_partitions,
                            enable_adaptive_scaling);
 
-        // Step4b: GPU 결과를 실제 라벨 배열에 적용
+        // Step4b: GPU 결과를 실제 라벨 배열에 적용 & 변경사항을 Delta로 수집
+        std::vector<Delta> delta_changes;
+        
         for (int lid : boundary_nodes_local) {
             if (lid >= 0 && lid < local_graph.num_vertices && lid < (int)labels_new.size()) {
                 if (local_graph.vertex_labels[lid] != labels_new[lid]) {
+                    // Delta 구조체에 변경사항 기록 (적용 전 상태)
+                    if (lid < (int)local_graph.global_ids.size()) {
+                        Delta delta;
+                        delta.gid = local_graph.global_ids[lid];
+                        delta.new_label = labels_new[lid];
+                        delta_changes.push_back(delta);
+                    }
+                    
+                    // 실제 라벨 적용
                     local_graph.vertex_labels[lid] = labels_new[lid];
                 }
             }
         }
 
         // Step5: 변경된 라벨 정보만 전송 (Delta 구조체 사용)
-        std::vector<Delta> delta_changes;
-        for (int lid : boundary_nodes_local) {
-            // local index가 유효한 범위인지 확인
-            if (lid < 0 || lid >= (int)local_graph.global_ids.size()) {
-                continue;
-            }
-            
-            Delta delta;
-            delta.gid = local_graph.global_ids[lid];
-            delta.new_label = labels_new[lid];
-            delta_changes.push_back(delta);
-        }
 
         // Allgather 준비
         int send_count = delta_changes.size();
@@ -293,7 +292,6 @@ PartitioningMetrics run_phase2(
                 
                 if (ghost_lid < (int)local_graph.vertex_labels.size()) {
                     local_graph.vertex_labels[ghost_lid] = delta.new_label;
-                    labels_new[ghost_lid] = delta.new_label;
                     
                     // Ghost 노드 배열도 업데이트
                     if (ghost_idx < (int)ghost_nodes.ghost_labels.size()) {
