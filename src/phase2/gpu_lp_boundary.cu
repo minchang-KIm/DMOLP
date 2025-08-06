@@ -83,14 +83,16 @@ __global__ void boundaryLPKernel_atomic(
         }
     }
     
-    // 디버깅: 이웃 노드 라벨별 개수 출력
-    printf("[GPU-Atomic] Node %d neighbors by label: ", node);
-    for (int l = 0; l < num_partitions && l < 32; l++) {
-        if (neighbor_counts[l] > 0.0) {
-            printf("L%d=%d ", l, (int)neighbor_counts[l]);
+    // 디버깅: 이웃 노드 라벨별 개수 출력 (처음 10개 노드만)
+    if (node < 10) {
+        printf("[GPU-Atomic] Node %d neighbors: ", node);
+        for (int l = 0; l < num_partitions && l < 32; l++) {
+            if (neighbor_counts[l] > 0.0) {
+                printf("L%d=%d ", l, (int)neighbor_counts[l]);
+            }
         }
+        printf("\n");
     }
-    printf("\n");
     
     // 2단계: 각 라벨별로 패널티를 곱해서 최종 스코어 계산
     for (int l = 0; l < num_partitions && l < 32; l++) {
@@ -110,15 +112,30 @@ __global__ void boundaryLPKernel_atomic(
         }
     }
     
-    // 라벨이 변경되는 경우 스코어 정보 출력
-    if (best_label != my_label) {
-        printf("[GPU-Atomic] Node %d: Label %d->%d, OldScore=%.3f, NewScore=%.3f, Improvement=%.3f\n", 
-               node, my_label, best_label, neighbor_counts[my_label], best_score, best_score - neighbor_counts[my_label]);
+    // 라벨이 변경되는 경우 상세 정보 출력 (처음 5개만)
+    if (best_label != my_label && node < 5) {
+        printf("[GPU-Atomic] Node %d: %d->%d | ", node, my_label, best_label);
         
-        // 모든 라벨의 스코어도 출력
-        printf("[GPU-Atomic] Node %d Scores: ", node);
+        // 이웃 개수 출력
+        printf("Neighbors: ");
         for (int l = 0; l < num_partitions && l < 32; l++) {
-            printf("L%d=%.3f ", l, neighbor_counts[l]);
+            if (neighbor_counts[l] > 0.0) {
+                printf("L%d=%d ", l, (int)(neighbor_counts[l] / (1.0 + PI[l].P_L)));
+            }
+        }
+        
+        // 페널티 출력
+        printf("| Penalty: ");
+        for (int l = 0; l < num_partitions && l < 32; l++) {
+            printf("L%d=%.3f ", l, PI[l].P_L);
+        }
+        
+        // 최종 스코어 출력
+        printf("| Scores: ");
+        for (int l = 0; l < num_partitions && l < 32; l++) {
+            if (neighbor_counts[l] > 0.0) {
+                printf("L%d=%.2f ", l, neighbor_counts[l]);
+            }
         }
         printf("\n");
     }
@@ -168,14 +185,16 @@ __global__ void boundaryLPKernel_warp(
         }
     }
     
-    // 디버깅: 이웃 노드 라벨별 개수 출력
-    printf("[GPU-Warp] Node %d neighbors by label: ", node);
-    for (int l = 0; l < num_partitions && l < 32; l++) {
-        if (neighbor_counts[l] > 0.0) {
-            printf("L%d=%d ", l, (int)neighbor_counts[l]);
+    // 디버깅: 이웃 노드 라벨별 개수 출력 (처음 10개 노드만)
+    if (node < 10) {
+        printf("[GPU-Warp] Node %d neighbors: ", node);
+        for (int l = 0; l < num_partitions && l < 32; l++) {
+            if (neighbor_counts[l] > 0.0) {
+                printf("L%d=%d ", l, (int)neighbor_counts[l]);
+            }
         }
+        printf("\n");
     }
-    printf("\n");
     
     // 2단계: 각 라벨별로 패널티를 곱해서 최종 스코어 계산
     for (int l = 0; l < num_partitions && l < 32; l++) {
@@ -195,15 +214,30 @@ __global__ void boundaryLPKernel_warp(
         }
     }
     
-    // 라벨이 변경되는 경우 스코어 정보 출력
-    if (best_label != my_label) {
-        printf("[GPU-Warp] Node %d: Label %d->%d, OldScore=%.3f, NewScore=%.3f, Improvement=%.3f\n", 
-               node, my_label, best_label, neighbor_counts[my_label], best_score, best_score - neighbor_counts[my_label]);
+    // 라벨이 변경되는 경우 상세 정보 출력 (처음 5개만)
+    if (best_label != my_label && node < 5) {
+        printf("[GPU-Warp] Node %d: %d->%d | ", node, my_label, best_label);
         
-        // 모든 라벨의 스코어도 출력
-        printf("[GPU-Warp] Node %d Scores: ", node);
+        // 이웃 개수 출력
+        printf("Neighbors: ");
         for (int l = 0; l < num_partitions && l < 32; l++) {
-            printf("L%d=%.3f ", l, neighbor_counts[l]);
+            if (neighbor_counts[l] > 0.0) {
+                printf("L%d=%d ", l, (int)(neighbor_counts[l] / (1.0 + penalty[l])));
+            }
+        }
+        
+        // 페널티 출력
+        printf("| Penalty: ");
+        for (int l = 0; l < num_partitions && l < 32; l++) {
+            printf("L%d=%.3f ", l, penalty[l]);
+        }
+        
+        // 최종 스코어 출력
+        printf("| Scores: ");
+        for (int l = 0; l < num_partitions && l < 32; l++) {
+            if (neighbor_counts[l] > 0.0) {
+                printf("L%d=%.2f ", l, neighbor_counts[l]);
+            }
         }
         printf("\n");
     }
