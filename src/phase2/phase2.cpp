@@ -247,43 +247,9 @@ PartitioningMetrics run_phase2(
 
         // Penalty 계산
         calculatePenalty(PI, num_partitions);
-        
-        // 디버깅: 패널티 값 출력 (첫 번째 iteration만)
-        if (iter == 0 && mpi_rank == 0) {
-            std::cout << "[Debug] RV values: ";
-            for (int i = 0; i < num_partitions; i++) {
-                std::cout << "P" << i << "=" << std::fixed << std::setprecision(4) << PI[i].RV << " ";
-            }
-            std::cout << std::endl;
-            
-            std::cout << "[Debug] RE values: ";
-            for (int i = 0; i < num_partitions; i++) {
-                std::cout << "P" << i << "=" << std::fixed << std::setprecision(4) << PI[i].RE << " ";
-            }
-            std::cout << std::endl;
-            
-            std::cout << "[Debug] Penalty values: ";
-            for (int i = 0; i < num_partitions; i++) {
-                std::cout << "P" << i << "=" << std::fixed << std::setprecision(6) << PI[i].P_L << " ";
-            }
-            std::cout << std::endl;
-            
-            std::cout << "[Debug] imb_RV=" << std::fixed << std::setprecision(6) << PI[0].imb_RV 
-                      << ", imb_RE=" << PI[0].imb_RE << std::endl;
-        }
 
         // Step3: Boundary 노드 추출(local id)
         auto boundary_nodes_local = extractBoundaryLocalIDs(local_graph, ghost_nodes);
-        
-        // 디버깅: 경계 노드 정보 출력
-        std::cout << "[Rank " << mpi_rank << "] Boundary nodes: " << boundary_nodes_local.size() << std::endl;
-        if (boundary_nodes_local.size() > 0 && boundary_nodes_local.size() <= 10) {
-            std::cout << "[Rank " << mpi_rank << "] First few boundary nodes: ";
-            for (int i = 0; i < std::min(5, (int)boundary_nodes_local.size()); i++) {
-                std::cout << boundary_nodes_local[i] << " ";
-            }
-            std::cout << std::endl;
-        }
         
         if (boundary_nodes_local.empty()) {
             if (mpi_rank == 0) std::cout << "경계 노드 없음, 종료\n";
@@ -291,27 +257,12 @@ PartitioningMetrics run_phase2(
         }
 
         // Step4: GPU 커널 실행 (Warp 최적화 버전 사용)
-        bool enable_adaptive_scaling = true;  // 적응적 스케일링 활성화
+        bool enable_adaptive_scaling = false;  // 적응적 스케일링 비활성화
         
         // PartitionInfo에서 penalty 배열 추출
         std::vector<double> penalty(num_partitions);
         for (int i = 0; i < num_partitions; i++) {
             penalty[i] = PI[i].P_L;
-        }
-        
-        // 패널티 값이 너무 작으면 증폭
-        double max_penalty = *std::max_element(penalty.begin(), penalty.end());
-        double min_penalty = *std::min_element(penalty.begin(), penalty.end());
-        double penalty_range = max_penalty - min_penalty;
-        
-        if (penalty_range < 0.01) {  // 패널티 차이가 1% 미만이면 10배 증폭
-            for (int i = 0; i < num_partitions; i++) {
-                penalty[i] *= 10.0;
-            }
-            if (iter == 0 && mpi_rank == 0) {
-                std::cout << "[Debug] Penalty amplified by 10x due to small range (" 
-                          << std::fixed << std::setprecision(6) << penalty_range << ")" << std::endl;
-            }
         }
         
         runBoundaryLPOnGPU_Warp(local_graph.row_ptr,

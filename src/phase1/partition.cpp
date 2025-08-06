@@ -29,116 +29,51 @@ void update_partition_csr(int partition_id, const vector<int> &partition_nodes, 
 
     if (partition_nodes.empty()) return;
 
-    size_t partition_nodes_size = partition_nodes.size();
-
     unordered_map<int, int> global_to_local;
-    for (size_t i = 0; i < partition_nodes_size; ++i) {
-        global_to_local[partition_nodes[i]] = static_cast<int>(i);
+    int local_idx = 0;
+    for (int idx : partition_nodes) {
+        global_to_local[idx] = local_idx++;
     }
 
+    size_t partition_nodes_size = partition_nodes.size();
     partition_graph.num_vertices = static_cast<int>(partition_nodes_size);
     partition_graph.row_ptr.resize(partition_nodes_size + 1, 0);
     partition_graph.global_ids = partition_nodes;
     partition_graph.vertex_labels.resize(partition_nodes_size, partition_id);
 
-    int max_threads = omp_get_max_threads();
-    
-    vector<vector<int>> thread_col_indices(max_threads);
-    vector<vector<int>> thread_edge_counts(max_threads, vector<int>(partition_nodes_size, 0));
-    vector<unordered_map<int, int>> thread_ghost_mappings(max_threads);
-    vector<vector<int>> thread_ghost_ids(max_threads);
+    int edge_count = 0;
+    for (size_t i = 0; i < partition_nodes_size; i++) {
+        int gid = partition_nodes[i];
+        auto adj_it = local_adj.find(gid);
 
-    #pragma omp parallel
-    {
-        int tid = omp_get_thread_num();
-        auto &local_col = thread_col_indices[tid];
-        auto &local_edge_counts = thread_edge_counts[tid];
-        auto &local_ghost_mapping = thread_ghost_mappings[tid];
-        auto &local_ghost_ids = thread_ghost_ids[tid];
+        if (adj_it == local_adj.end()) {
+            partition_graph.row_ptr[i + 1] = edge_count;
+            continue;
+        }
 
-        #pragma omp for
-        for (size_t i = 0; i < partition_nodes_size; ++i) {
-            int gid = partition_nodes[i];
-            auto adj_it = local_adj.find(gid);
-            if (adj_it == local_adj.end()) continue;
-
-            const vector<int> &neighbors = adj_it->second;
-
-            for (int ngid : neighbors) {
-                if (global_to_local.count(ngid)) {
-                    local_col.push_back(global_to_local[ngid]);
-                } else {
-                    int ghost_idx;
-                    if (local_ghost_mapping.find(ngid) == local_ghost_mapping.end()) {
-                        ghost_idx = static_cast<int>(local_ghost_ids.size());
-                        local_ghost_ids.push_back(ngid);
-                        local_ghost_mapping[ngid] = ghost_idx;
-                    } else {
-                        ghost_idx = local_ghost_mapping[ngid];
-                    }
-                    local_col.push_back(-1 - ghost_idx);
+        const vector<int> &neighbors = adj_it->second;
+        for (int ngid : neighbors) {
+            if (global_to_local.count(ngid)) {
+                partition_graph.col_indices.push_back(global_to_local[ngid]);
+            } else {
+                if (ghost_nodes.global_to_local.count(ngid) == 0) {
+                    int ghost_idx = static_cast<int>(ghost_nodes.global_ids.size());
+                    ghost_nodes.global_ids.push_back(ngid);
+                    ghost_nodes.ghost_labels.push_back(-1);
+                    ghost_nodes.global_to_local[ngid] = ghost_idx;
                 }
-                local_edge_counts[i]++;
+
+                int ghost_idx = ghost_nodes.global_to_local[ngid];
+                partition_graph.col_indices.push_back(partition_graph.num_vertices + ghost_idx);
             }
+
+            edge_count++;
         }
+
+        partition_graph.row_ptr[i + 1] = edge_count;
     }
 
-    unordered_map<int, int> global_ghost_mapping;
-    for (int t = 0; t < max_threads; t++) {
-        for (int ghost_id : thread_ghost_ids[t]) {
-            if (global_ghost_mapping.find(ghost_id) == global_ghost_mapping.end()) {
-                int ghost_idx = static_cast<int>(ghost_nodes.global_ids.size());
-                ghost_nodes.global_ids.push_back(ghost_id);
-                ghost_nodes.ghost_labels.push_back(-1);
-                ghost_nodes.global_to_local[ghost_id] = ghost_idx;
-                global_ghost_mapping[ghost_id] = ghost_idx;
-            }
-        }
-    }
-
-    vector<int> total_edge_counts(partition_nodes_size, 0);
-    for (int t = 0; t < max_threads; t++) {
-        for (size_t i = 0; i < partition_nodes_size; ++i) {
-            total_edge_counts[i] += thread_edge_counts[t][i];
-        }
-    }
-
-    for (size_t i = 0; i < partition_nodes_size; ++i) {
-        partition_graph.row_ptr[i + 1] = partition_graph.row_ptr[i] + total_edge_counts[i];
-    }
-
-    int total_edges = partition_graph.row_ptr[partition_nodes_size];
-    partition_graph.col_indices.resize(total_edges);
-    
-    vector<int> current_pos = partition_graph.row_ptr;
-    
-    for (int t = 0; t < max_threads; t++) {
-        auto &thread_cols = thread_col_indices[t];
-        auto &thread_counts = thread_edge_counts[t];
-        auto &thread_ghost_map = thread_ghost_mappings[t];
-        
-        int col_idx = 0;
-        for (size_t i = 0; i < partition_nodes_size; ++i) {
-            for (int edge_count = 0; edge_count < thread_counts[i]; edge_count++) {
-                int col_val = thread_cols[col_idx];
-                
-                if (col_val >= 0) {
-                    partition_graph.col_indices[current_pos[i]] = col_val;
-                } else {
-                    int local_ghost_idx = -1 - col_val;
-                    int ghost_node_id = thread_ghost_ids[t][local_ghost_idx];
-                    int global_ghost_idx = global_ghost_mapping[ghost_node_id];
-                    partition_graph.col_indices[current_pos[i]] = 
-                        static_cast<int>(partition_nodes_size) + global_ghost_idx;
-                }
-                
-                current_pos[i]++;
-                col_idx++;
-            }
-        }
-    }
-
-    partition_graph.num_edges = total_edges;
+    partition_graph.num_edges = edge_count;
 }
 
 int compute_partition_degree(roaring_bitmap_t *neighbors_bitmap, roaring_bitmap_t *partition_bitmap) {

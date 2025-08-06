@@ -60,87 +60,72 @@ __global__ void boundaryLPKernel_atomic(
     int node = boundary_nodes[idx];
     int my_label = labels_old[node];
 
-    // 각 스레드마다 독립적인 라벨별 카운트 배열 사용
-    double neighbor_counts[32];  // 최대 32개 파티션 지원
+    // 공유 메모리에 각 라벨별 점수 저장
+    extern __shared__ double scores[];
     
-    // 배열 초기화
-    for (int l = 0; l < num_partitions && l < 32; l++) {
-        neighbor_counts[l] = 0.0;
+    // 점수 배열 초기화 (각 스레드가 담당하는 라벨들)
+    for (int l = threadIdx.x; l < num_partitions; l += blockDim.x) {
+        scores[l] = 0.0;
     }
+    __syncthreads();
 
     // 현재 노드의 모든 이웃에 대해 점수 계산
     // Score(L) = |N_L| × (1 + P_L) 여기서 |N_L|은 라벨 L을 가진 이웃 노드 수
     
-    // 1단계: 각 라벨별 이웃 노드 개수 카운트 (각 스레드가 독립적으로)
+    // 1단계: 각 라벨별 이웃 노드 개수 카운트
     for (int e = row_ptr[node]; e < row_ptr[node + 1]; e++) {
         int neighbor = col_idx[e];
         int neighbor_label = labels_old[neighbor];
         
         // 유효한 라벨인지 확인
-        if (neighbor_label >= 0 && neighbor_label < num_partitions && neighbor_label < 32) {
-            // 해당 라벨의 이웃 개수를 1씩 증가 (각 스레드 독립적)
-            neighbor_counts[neighbor_label] += 1.0;
+        if (neighbor_label >= 0 && neighbor_label < num_partitions) {
+            // 해당 라벨의 이웃 개수를 1씩 증가
+            atomicAdd(&scores[neighbor_label], 1.0);
         }
     }
+    __syncthreads();
     
-    // 디버깅: 이웃 노드 라벨별 개수 출력 (처음 10개 노드만)
-    if (node < 10) {
-        printf("[GPU-Atomic] Node %d neighbors: ", node);
-        for (int l = 0; l < num_partitions && l < 32; l++) {
-            if (neighbor_counts[l] > 0.0) {
-                printf("L%d=%d ", l, (int)neighbor_counts[l]);
+    // 디버깅: 이웃 노드 라벨별 개수 출력 (첫 번째 스레드만)
+    if (threadIdx.x == 0) {
+        printf("[GPU-Atomic] Node %d neighbors by label: ", node);
+        for (int l = 0; l < num_partitions; l++) {
+            if (scores[l] > 0.0) {
+                printf("L%d=%d ", l, (int)scores[l]);
             }
         }
         printf("\n");
-        __syncthreads();  // 출력 순서 보장
     }
     
     // 2단계: 각 라벨별로 패널티를 곱해서 최종 스코어 계산
-    for (int l = 0; l < num_partitions && l < 32; l++) {
-        if (neighbor_counts[l] > 0.0) {  // 해당 라벨을 가진 이웃이 있는 경우만
-            neighbor_counts[l] = neighbor_counts[l] * (1.0 + PI[l].P_L);
+    for (int l = threadIdx.x; l < num_partitions; l += blockDim.x) {
+        if (scores[l] > 0.0) {  // 해당 라벨을 가진 이웃이 있는 경우만
+            scores[l] = scores[l] * (1.0 + PI[l].P_L);
         }
     }
+    __syncthreads();
 
     // 최고 점수를 가진 라벨 찾기
     int best_label = my_label;
-    double best_score = neighbor_counts[my_label];
+    double best_score = scores[my_label];
     
-    for (int l = 0; l < num_partitions && l < 32; l++) {
-        if (neighbor_counts[l] > best_score) {
-            best_score = neighbor_counts[l];
+    for (int l = 0; l < num_partitions; l++) {
+        if (scores[l] > best_score) {
+            best_score = scores[l];
             best_label = l;
         }
     }
     
-        // 라벨이 변경되는 경우 상세 정보 출력 (처음 5개만)
-    if (best_label != my_label && node < 5) {
-        printf("[GPU-Atomic] Node %d: %d->%d\n", node, my_label, best_label);
+    // 라벨이 변경되는 경우 스코어 정보 출력
+    if (best_label != my_label && threadIdx.x == 0) {
+        printf("[GPU-Atomic] Node %d: Label %d->%d, OldScore=%.3f, NewScore=%.3f, Improvement=%.3f\n", 
+               node, my_label, best_label, scores[my_label], best_score, best_score - scores[my_label]);
         
-        // 이웃 개수 출력
-        printf("  Neighbors: ");
-        for (int l = 0; l < num_partitions && l < 32; l++) {
-            if (neighbor_counts[l] > 0.0) {
-                printf("L%d=%d ", l, (int)(neighbor_counts[l] / (1.0 + PI[l].P_L)));
-            }
+        // 모든 라벨의 스코어도 출력
+        printf("[GPU-Atomic] Node %d Scores: ", node);
+        for (int l = 0; l < num_partitions; l++) {
+            printf("L%d=%.3f ", l, scores[l]);
         }
         printf("\n");
-        
-        // 페널티 출력
-        printf("  Penalty: ");
-        for (int l = 0; l < num_partitions && l < 32; l++) {
-            printf("L%d=%.3f ", l, PI[l].P_L);
-        }
-        printf("\n");
-        
-        // 최종 스코어 출력
-        printf("  Scores: ");
-        for (int l = 0; l < num_partitions && l < 32; l++) {
-            if (neighbor_counts[l] > 0.0) {
-                printf("L%d=%.2f ", l, neighbor_counts[l]);
-            }
-        }
-        printf("\n\n");
     }
     
     // 새로운 라벨 저장 (owned 노드만)
@@ -165,89 +150,72 @@ __global__ void boundaryLPKernel_warp(
     int node = boundary_nodes[idx];
     int my_label = labels_old[node];
 
-    // 각 스레드마다 독립적인 라벨별 카운트 배열 사용
-    double neighbor_counts[32];  // 최대 32개 파티션 지원
+    // 공유 메모리에 각 라벨별 점수 저장
+    extern __shared__ double scores[];
     
-    // 배열 초기화
-    for (int l = 0; l < num_partitions && l < 32; l++) {
-        neighbor_counts[l] = 0.0;
+    // 점수 배열 초기화 (각 스레드가 담당하는 라벨들)
+    for (int l = threadIdx.x; l < num_partitions; l += blockDim.x) {
+        scores[l] = 0.0;
     }
+    __syncthreads();
 
     // 현재 노드의 모든 이웃에 대해 점수 계산
     // Score(L) = |N_L| × (1 + P_L) 여기서 |N_L|은 라벨 L을 가진 이웃 노드 수
     
-    // 1단계: 각 라벨별 이웃 노드 개수 카운트 (각 스레드가 독립적으로)
+    // 1단계: 각 라벨별 이웃 노드 개수 카운트
     for (int e = row_ptr[node]; e < row_ptr[node + 1]; e++) {
         int neighbor = col_idx[e];  // owned 또는 ghost 노드
         int neighbor_label = labels_old[neighbor];
         
         // 유효한 라벨인지 확인
-        if (neighbor_label >= 0 && neighbor_label < num_partitions && neighbor_label < 32) {
-            // 해당 라벨의 이웃 개수를 1씩 증가 (각 스레드 독립적)
-            neighbor_counts[neighbor_label] += 1.0;
+        if (neighbor_label >= 0 && neighbor_label < num_partitions) {
+            // 해당 라벨의 이웃 개수를 1씩 증가
+            atomicAdd(&scores[neighbor_label], 1.0);
         }
     }
+    __syncthreads();
     
-    // 디버깅: 이웃 노드 라벨별 개수 출력 (처음 5개 노드만, 순차적으로)
-    if (node < 5) {
-        // 노드별로 순차적 출력 (threadIdx.x가 0인 경우만)
-        if (threadIdx.x == 0) {
-            printf("[GPU-Warp] Node %d neighbors: ", node);
-            for (int l = 0; l < num_partitions && l < 32; l++) {
-                if (neighbor_counts[l] > 0.0) {
-                    printf("L%d=%d ", l, (int)neighbor_counts[l]);
-                }
+    // 디버깅: 이웃 노드 라벨별 개수 출력 (첫 번째 스레드만)
+    if (threadIdx.x == 0) {
+        printf("[GPU-Warp] Node %d neighbors by label: ", node);
+        for (int l = 0; l < num_partitions; l++) {
+            if (scores[l] > 0.0) {
+                printf("L%d=%d ", l, (int)scores[l]);
             }
-            printf("\n");
         }
+        printf("\n");
     }
     
     // 2단계: 각 라벨별로 패널티를 곱해서 최종 스코어 계산
-    for (int l = 0; l < num_partitions && l < 32; l++) {
-        if (neighbor_counts[l] > 0.0) {  // 해당 라벨을 가진 이웃이 있는 경우만
-            neighbor_counts[l] = neighbor_counts[l] * (1.0 + penalty[l]);
+    for (int l = threadIdx.x; l < num_partitions; l += blockDim.x) {
+        if (scores[l] > 0.0) {  // 해당 라벨을 가진 이웃이 있는 경우만
+            scores[l] = scores[l] * (1.0 + penalty[l]);
         }
     }
+    __syncthreads();
 
     // 최고 점수를 가진 라벨 찾기
     int best_label = my_label;
-    double best_score = neighbor_counts[my_label];
+    double best_score = scores[my_label];
     
-    for (int l = 0; l < num_partitions && l < 32; l++) {
-        if (neighbor_counts[l] > best_score) {
-            best_score = neighbor_counts[l];
+    for (int l = 0; l < num_partitions; l++) {
+        if (scores[l] > best_score) {
+            best_score = scores[l];
             best_label = l;
         }
     }
     
-    // 라벨이 변경되는 경우 상세 정보 출력 (처음 5개만)
-    if (best_label != my_label && node < 5) {
-        printf("[GPU-Warp] Node %d: %d->%d\n", node, my_label, best_label);
+    // 라벨이 변경되는 경우 스코어 정보 출력
+    if (best_label != my_label && threadIdx.x == 0) {
+        printf("[GPU-Warp] Node %d: Label %d->%d, OldScore=%.3f, NewScore=%.3f, Improvement=%.3f\n", 
+               node, my_label, best_label, scores[my_label], best_score, best_score - scores[my_label]);
         
-        // 이웃 개수 출력
-        printf("  Neighbors: ");
-        for (int l = 0; l < num_partitions && l < 32; l++) {
-            if (neighbor_counts[l] > 0.0) {
-                printf("L%d=%d ", l, (int)(neighbor_counts[l] / (1.0 + penalty[l])));
-            }
+        // 모든 라벨의 스코어도 출력
+        printf("[GPU-Warp] Node %d Scores: ", node);
+        for (int l = 0; l < num_partitions; l++) {
+            printf("L%d=%.3f ", l, scores[l]);
         }
         printf("\n");
-        
-        // 페널티 출력
-        printf("  Penalty: ");
-        for (int l = 0; l < num_partitions && l < 32; l++) {
-            printf("L%d=%.3f ", l, penalty[l]);
-        }
-        printf("\n");
-        
-        // 최종 스코어 출력
-        printf("  Scores: ");
-        for (int l = 0; l < num_partitions && l < 32; l++) {
-            if (neighbor_counts[l] > 0.0) {
-                printf("L%d=%.2f ", l, neighbor_counts[l]);
-            }
-        }
-        printf("\n\n");
     }
     
     // 새로운 라벨 저장 (owned 노드만)
@@ -317,9 +285,10 @@ void runBoundaryLPOnGPU(
     // 커널 실행 설정
     int threads = 128;
     int blocks = (boundary_nodes.size() + threads - 1) / threads;
+    size_t shared_mem = num_partitions * sizeof(double);
 
-    // 커널 실행 (공유 메모리 불필요)
-    boundaryLPKernel_atomic<<<blocks, threads>>>(
+    // 커널 실행
+    boundaryLPKernel_atomic<<<blocks, threads, shared_mem>>>(
         d_row_ptr, d_col_idx,
         d_labels_old, d_labels_new,
         d_PI,
@@ -362,8 +331,6 @@ void runBoundaryLPOnGPU_Warp(
     int num_partitions,
     bool enable_adaptive_scaling)
 {
-    printf("[GPU-Warp] Kernel start (boundary nodes: %zu)\n", boundary_nodes.size());
-    
     // 적응적 스케일링 적용
     double scaling_factor = calculateAdaptiveScaling(penalty, enable_adaptive_scaling);
     std::vector<double> scaled_penalty(penalty.size());
@@ -395,9 +362,10 @@ void runBoundaryLPOnGPU_Warp(
     // 커널 실행 설정
     int threads = 128;
     int blocks = (boundary_nodes.size() + threads - 1) / threads;
+    size_t shared_mem = num_partitions * sizeof(double);
 
-    // 커널 실행 (공유 메모리 불필요)
-    boundaryLPKernel_warp<<<blocks, threads>>>(
+    // 커널 실행
+    boundaryLPKernel_warp<<<blocks, threads, shared_mem>>>(
         d_row_ptr, d_col_idx,
         d_labels_old, d_labels_new,
         d_penalty,
