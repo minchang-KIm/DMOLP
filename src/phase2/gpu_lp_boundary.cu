@@ -2,6 +2,7 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
+#include <chrono>
 
 #include "phase2/gpu_lp_boundary.h"
 
@@ -93,6 +94,19 @@ __global__ void boundaryLPKernel_atomic(
         }
     }
     
+    // 라벨이 변경되는 경우 스코어 정보 출력
+    if (best_label != my_label && threadIdx.x == 0) {
+        printf("[GPU-Atomic] Node %d: Label %d->%d, OldScore=%.3f, NewScore=%.3f, Improvement=%.3f\n", 
+               node, my_label, best_label, scores[my_label], best_score, best_score - scores[my_label]);
+        
+        // 모든 라벨의 스코어도 출력
+        printf("[GPU-Atomic] Node %d Scores: ", node);
+        for (int l = 0; l < num_partitions; l++) {
+            printf("L%d=%.3f ", l, scores[l]);
+        }
+        printf("\n");
+    }
+    
     // 새로운 라벨 저장 (owned 노드만)
     labels_new[node] = best_label;
 }
@@ -149,6 +163,19 @@ __global__ void boundaryLPKernel_warp(
         }
     }
     
+    // 라벨이 변경되는 경우 스코어 정보 출력
+    if (best_label != my_label && threadIdx.x == 0) {
+        printf("[GPU-Warp] Node %d: Label %d->%d, OldScore=%.3f, NewScore=%.3f, Improvement=%.3f\n", 
+               node, my_label, best_label, scores[my_label], best_score, best_score - scores[my_label]);
+        
+        // 모든 라벨의 스코어도 출력
+        printf("[GPU-Warp] Node %d Scores: ", node);
+        for (int l = 0; l < num_partitions; l++) {
+            printf("L%d=%.3f ", l, scores[l]);
+        }
+        printf("\n");
+    }
+    
     // 새로운 라벨 저장 (owned 노드만)
     labels_new[node] = best_label;
 }
@@ -174,6 +201,16 @@ void runBoundaryLPOnGPU(
         penalties[i] = PI[i].P_L;
     }
     double scaling_factor = calculateAdaptiveScaling(penalties, enable_adaptive_scaling);
+    
+    // GPU 메모리 사용량 확인
+    size_t free_mem, total_mem;
+    cudaMemGetInfo(&free_mem, &total_mem);
+    size_t used_mem = total_mem - free_mem;
+    
+    printf("[GPU] Memory before: %zuMB / %zuMB\n", used_mem / (1024*1024), total_mem / (1024*1024));
+    printf("[GPU] Kernel start (boundary nodes: %zu)\n", boundary_nodes.size());
+    
+    auto start_time = std::chrono::high_resolution_clock::now();
     
     
     // PartitionInfo를 GPU용으로 변환 (스케일링 적용)
@@ -218,6 +255,15 @@ void runBoundaryLPOnGPU(
     
     // 동기화 및 결과 복사
     cudaDeviceSynchronize();
+    auto end_time = std::chrono::high_resolution_clock::now();
+    auto exec_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
+    
+    // GPU 메모리 사용량 재확인
+    cudaMemGetInfo(&free_mem, &total_mem);
+    used_mem = total_mem - free_mem;
+    printf("[GPU] Kernel complete (execution time: %ldms, memory after: %zuMB)\n", 
+           exec_time, used_mem / (1024*1024));
+    
     cudaMemcpy(labels_new.data(), d_labels_new, labels_new.size() * sizeof(int), cudaMemcpyDeviceToHost);
 
     // 메모리 해제
