@@ -102,7 +102,7 @@ static void calculatePenalty(std::vector<PartitionInfo> &PI, int num_partitions)
 }
 
 // 경계 노드를 찾는 함수 (병합된 CSR에서 다른 파티션과 인접한 노드 찾기)
-static std::vector<int> extractBoundaryLocalIDs(const Graph &local_graph, const GhostNodes &ghost_nodes, int mpi_rank)
+static std::vector<int> extractBoundaryLocalIDs( const Graph &local_graph, const GhostNodes &ghost_nodes)
 {
     std::vector<int> boundary_nodes;
     
@@ -218,7 +218,7 @@ PartitioningMetrics run_phase2(
         calculatePenalty(PI, num_partitions);
 
         // Step3: Boundary 노드 추출(local id)
-        auto boundary_nodes_local = extractBoundaryLocalIDs(local_graph, ghost_nodes, mpi_rank);
+        auto boundary_nodes_local = extractBoundaryLocalIDs(local_graph, ghost_nodes);
         
         if (boundary_nodes_local.empty()) {
             if (mpi_rank == 0) std::cout << "경계 노드 없음, 종료\n";
@@ -237,12 +237,10 @@ PartitioningMetrics run_phase2(
                            enable_adaptive_scaling);
 
         // Step4b: GPU 결과를 실제 라벨 배열에 적용
-        int owned_changes = 0;
         for (int lid : boundary_nodes_local) {
             if (lid >= 0 && lid < local_graph.num_vertices && lid < (int)labels_new.size()) {
                 if (local_graph.vertex_labels[lid] != labels_new[lid]) {
                     local_graph.vertex_labels[lid] = labels_new[lid];
-                    owned_changes++;
                 }
             }
         }
@@ -252,9 +250,6 @@ PartitioningMetrics run_phase2(
         for (int lid : boundary_nodes_local) {
             // local index가 유효한 범위인지 확인
             if (lid < 0 || lid >= (int)local_graph.global_ids.size()) {
-                if (mpi_rank == 0) {
-                    std::cout << "  [ERROR] Invalid local index: " << lid << " (max: " << local_graph.global_ids.size() << ")\n";
-                }
                 continue;
             }
             
@@ -289,8 +284,6 @@ PartitioningMetrics run_phase2(
         MPI_Type_free(&MPI_DELTA);
 
         // Step5b: 수신된 라벨 변경사항 적용
-        int ghost_updates = 0;
-        int total_deltas_received = recv_deltas.size();
         for (const auto &delta : recv_deltas) {
             // ghost 노드인지 확인
             auto it_ghost = ghost_nodes.global_to_local.find(delta.gid);
@@ -299,9 +292,6 @@ PartitioningMetrics run_phase2(
                 int ghost_lid = local_graph.num_vertices + ghost_idx; // 올바른 ghost 노드 인덱스
                 
                 if (ghost_lid < (int)local_graph.vertex_labels.size()) {
-                    if (local_graph.vertex_labels[ghost_lid] != delta.new_label) {
-                        ghost_updates++;
-                    }
                     local_graph.vertex_labels[ghost_lid] = delta.new_label;
                     labels_new[ghost_lid] = delta.new_label;
                     
