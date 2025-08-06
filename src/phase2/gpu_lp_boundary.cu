@@ -92,6 +92,7 @@ __global__ void boundaryLPKernel_atomic(
             }
         }
         printf("\n");
+        __syncthreads();  // 출력 순서 보장
     }
     
     // 2단계: 각 라벨별로 패널티를 곱해서 최종 스코어 계산
@@ -112,32 +113,34 @@ __global__ void boundaryLPKernel_atomic(
         }
     }
     
-    // 라벨이 변경되는 경우 상세 정보 출력 (처음 5개만)
+        // 라벨이 변경되는 경우 상세 정보 출력 (처음 5개만)
     if (best_label != my_label && node < 5) {
-        printf("[GPU-Atomic] Node %d: %d->%d | ", node, my_label, best_label);
+        printf("[GPU-Atomic] Node %d: %d->%d\n", node, my_label, best_label);
         
         // 이웃 개수 출력
-        printf("Neighbors: ");
+        printf("  Neighbors: ");
         for (int l = 0; l < num_partitions && l < 32; l++) {
             if (neighbor_counts[l] > 0.0) {
                 printf("L%d=%d ", l, (int)(neighbor_counts[l] / (1.0 + PI[l].P_L)));
             }
         }
+        printf("\n");
         
         // 페널티 출력
-        printf("| Penalty: ");
+        printf("  Penalty: ");
         for (int l = 0; l < num_partitions && l < 32; l++) {
             printf("L%d=%.3f ", l, PI[l].P_L);
         }
+        printf("\n");
         
         // 최종 스코어 출력
-        printf("| Scores: ");
+        printf("  Scores: ");
         for (int l = 0; l < num_partitions && l < 32; l++) {
             if (neighbor_counts[l] > 0.0) {
                 printf("L%d=%.2f ", l, neighbor_counts[l]);
             }
         }
-        printf("\n");
+        printf("\n\n");
     }
     
     // 새로운 라벨 저장 (owned 노드만)
@@ -185,15 +188,18 @@ __global__ void boundaryLPKernel_warp(
         }
     }
     
-    // 디버깅: 이웃 노드 라벨별 개수 출력 (처음 10개 노드만)
-    if (node < 10) {
-        printf("[GPU-Warp] Node %d neighbors: ", node);
-        for (int l = 0; l < num_partitions && l < 32; l++) {
-            if (neighbor_counts[l] > 0.0) {
-                printf("L%d=%d ", l, (int)neighbor_counts[l]);
+    // 디버깅: 이웃 노드 라벨별 개수 출력 (처음 5개 노드만, 순차적으로)
+    if (node < 5) {
+        // 노드별로 순차적 출력 (threadIdx.x가 0인 경우만)
+        if (threadIdx.x == 0) {
+            printf("[GPU-Warp] Node %d neighbors: ", node);
+            for (int l = 0; l < num_partitions && l < 32; l++) {
+                if (neighbor_counts[l] > 0.0) {
+                    printf("L%d=%d ", l, (int)neighbor_counts[l]);
+                }
             }
+            printf("\n");
         }
-        printf("\n");
     }
     
     // 2단계: 각 라벨별로 패널티를 곱해서 최종 스코어 계산
@@ -216,30 +222,32 @@ __global__ void boundaryLPKernel_warp(
     
     // 라벨이 변경되는 경우 상세 정보 출력 (처음 5개만)
     if (best_label != my_label && node < 5) {
-        printf("[GPU-Warp] Node %d: %d->%d | ", node, my_label, best_label);
+        printf("[GPU-Warp] Node %d: %d->%d\n", node, my_label, best_label);
         
         // 이웃 개수 출력
-        printf("Neighbors: ");
+        printf("  Neighbors: ");
         for (int l = 0; l < num_partitions && l < 32; l++) {
             if (neighbor_counts[l] > 0.0) {
                 printf("L%d=%d ", l, (int)(neighbor_counts[l] / (1.0 + penalty[l])));
             }
         }
+        printf("\n");
         
         // 페널티 출력
-        printf("| Penalty: ");
+        printf("  Penalty: ");
         for (int l = 0; l < num_partitions && l < 32; l++) {
             printf("L%d=%.3f ", l, penalty[l]);
         }
+        printf("\n");
         
         // 최종 스코어 출력
-        printf("| Scores: ");
+        printf("  Scores: ");
         for (int l = 0; l < num_partitions && l < 32; l++) {
             if (neighbor_counts[l] > 0.0) {
                 printf("L%d=%.2f ", l, neighbor_counts[l]);
             }
         }
-        printf("\n");
+        printf("\n\n");
     }
     
     // 새로운 라벨 저장 (owned 노드만)
@@ -354,6 +362,8 @@ void runBoundaryLPOnGPU_Warp(
     int num_partitions,
     bool enable_adaptive_scaling)
 {
+    printf("[GPU-Warp] Kernel start (boundary nodes: %zu)\n", boundary_nodes.size());
+    
     // 적응적 스케일링 적용
     double scaling_factor = calculateAdaptiveScaling(penalty, enable_adaptive_scaling);
     std::vector<double> scaled_penalty(penalty.size());
