@@ -182,23 +182,7 @@ static int computeEdgeCut(const Graph &g, const std::vector<int> &labels, const 
     MPI_Allreduce(&local_cut, &global_cut, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
     MPI_Allreduce(&total_edges, &global_total_edges, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
     
-    // 디버깅을 위한 정보 출력 (첫 번째 호출만)
-    static bool first_call = true;
-    if (first_call) {
-        int mpi_rank;
-        MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
-        if (mpi_rank == 0) {
-            std::cout << "  [DEBUG] Initial edge-cut: " << global_cut << " (total_edges: " << global_total_edges << ")\n";
-            
-            // 첫 번째 몇개 노드의 라벨 샘플 출력
-            std::cout << "    Initial node labels: ";
-            for (int i = 0; i < std::min(10, g.num_vertices); i++) {
-                std::cout << "Node" << i << "(L" << labels[i] << ") ";
-            }
-            std::cout << "\n";
-        }
-        first_call = false;
-    }
+
     
     // 분산 환경에서는 각 owned 노드의 간선만 카운트하므로 중복이 없음
     return global_cut;
@@ -236,18 +220,6 @@ PartitioningMetrics run_phase2(
         // Step3: Boundary 노드 추출(local id)
         auto boundary_nodes_local = extractBoundaryLocalIDs(local_graph, ghost_nodes, mpi_rank);
         
-        if (mpi_rank == 0 && iter < 5) {  // 처음 5번만 상세 출력
-            std::cout << "  Iter " << iter + 1 << ": Found " << boundary_nodes_local.size() << " boundary nodes\n";
-            
-            // 파티션별 상태 출력 (처음만)
-            if (iter == 0) {
-                for (int i = 0; i < num_partitions; i++) {
-                    std::cout << "    Partition " << i << ": RV=" << std::fixed << std::setprecision(3) << PI[i].RV 
-                              << ", RE=" << PI[i].RE << ", Penalty=" << std::setprecision(6) << PI[i].P_L << "\n";
-                }
-            }
-        }
-        
         if (boundary_nodes_local.empty()) {
             if (mpi_rank == 0) std::cout << "경계 노드 없음, 종료\n";
             break;
@@ -273,19 +245,6 @@ PartitioningMetrics run_phase2(
                     owned_changes++;
                 }
             }
-        }
-        
-        // 라벨 변경 결과 출력 (항상)
-        if (mpi_rank == 0) {
-            std::cout << "  [DEBUG] GPU updated " << owned_changes << " boundary nodes";
-            if (owned_changes == 0) {
-                std::cout << " (NO CHANGES - checking penalty values)";
-                std::cout << "\n    Sample penalties: ";
-                for (int i = 0; i < std::min(4, num_partitions); i++) {
-                    std::cout << "P" << i << "=" << std::fixed << std::setprecision(6) << PI[i].P_L << " ";
-                }
-            }
-            std::cout << "\n";
         }
 
         // Step5: 변경된 라벨 정보만 전송 (Delta 구조체 사용)
@@ -352,12 +311,6 @@ PartitioningMetrics run_phase2(
                     }
                 }
             }
-        }
-        
-        // 통신 디버깅 정보 출력
-        if (mpi_rank == 0) {
-            std::cout << "  [DEBUG] MPI Communication - Received " << total_deltas_received 
-                      << " deltas, applied " << ghost_updates << " ghost updates\n";
         }
 
         // Step6: Edge-cut 변화율 검사
