@@ -141,7 +141,7 @@ vector<int> find_hub_nodes(const unordered_map<int, int> &global_degree) {
 pair<int, int> find_first_seed(const unordered_map<int, int> &global_degree) {
     vector<pair<int, int>> sorted_degree(global_degree.begin(), global_degree.end());
     sort(sorted_degree.begin(), sorted_degree.end(), [](const auto &a, const auto &b) {
-        return a.second > b.second;
+        return (a.second > b.second) || (a.second == b.second && a.first < b.first);
     });
 
     pair<int, int> first_seed;
