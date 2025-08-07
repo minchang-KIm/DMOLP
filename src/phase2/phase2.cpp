@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <cstring>
 #include <map>
+#include <omp.h>
 
 #include "graph_types.h"
 #include "phase2/phase2.h"
@@ -27,36 +28,62 @@ std::vector<double> calculatePenalties(
     std::vector<int> local_vertex_counts(num_partitions, 0);
     std::vector<int> local_edge_counts(num_partitions, 0);
 
-    // 각 파티션의 노드 수 계산 (owned 노드만)
-    for (int u = 0; u < g.num_vertices; u++) {
-        int label = labels[u];
-        if (label >= 0 && label < num_partitions) {
-            local_vertex_counts[label]++;
+    // 각 파티션의 노드 수 계산 (owned 노드만) - OpenMP 병렬화
+    #pragma omp parallel
+    {
+        std::vector<int> thread_vertex_counts(num_partitions, 0);
+        
+        #pragma omp for nowait
+        for (int u = 0; u < g.num_vertices; u++) {
+            int label = labels[u];
+            if (label >= 0 && label < num_partitions) {
+                thread_vertex_counts[label]++;
+            }
+        }
+        
+        #pragma omp critical
+        {
+            for (int i = 0; i < num_partitions; i++) {
+                local_vertex_counts[i] += thread_vertex_counts[i];
+            }
         }
     }
     
-    // 각 파티션의 간선 수 계산 (파티션 내부 간선만)
-    for (int u = 0; u < g.num_vertices; u++) {
-        int label_u = labels[u];
-        if (label_u < 0 || label_u >= num_partitions) continue;
+    // 각 파티션의 간선 수 계산 (파티션 내부 간선만) - OpenMP 병렬화
+    #pragma omp parallel
+    {
+        std::vector<int> thread_edge_counts(num_partitions, 0);
         
-        for (int e = g.row_ptr[u]; e < g.row_ptr[u + 1]; e++) {
-            int v = g.col_indices[e];
-            int label_v = -1;
+        #pragma omp for nowait
+        for (int u = 0; u < g.num_vertices; u++) {
+            int label_u = labels[u];
+            if (label_u < 0 || label_u >= num_partitions) continue;
             
-            if (v < g.num_vertices) {
-                // local 노드 - labels 배열에서 직접 가져오기
-                label_v = labels[v];
-            } else {
-                // ghost 노드 - ghost_nodes 구조체에서 가져오기
-                int ghost_idx = v - g.num_vertices;
-                if (ghost_idx >= 0 && ghost_idx < (int)ghost_nodes.ghost_labels.size()) {
-                    label_v = ghost_nodes.ghost_labels[ghost_idx];
+            for (int e = g.row_ptr[u]; e < g.row_ptr[u + 1]; e++) {
+                int v = g.col_indices[e];
+                int label_v = -1;
+                
+                if (v < g.num_vertices) {
+                    // local 노드 - labels 배열에서 직접 가져오기
+                    label_v = labels[v];
+                } else {
+                    // ghost 노드 - ghost_nodes 구조체에서 가져오기
+                    int ghost_idx = v - g.num_vertices;
+                    if (ghost_idx >= 0 && ghost_idx < (int)ghost_nodes.ghost_labels.size()) {
+                        label_v = ghost_nodes.ghost_labels[ghost_idx];
+                    }
+                }
+                
+                if (label_v >= 0 && label_v < num_partitions && label_u == label_v) {
+                    thread_edge_counts[label_u]++;
                 }
             }
-            
-            if (label_v >= 0 && label_v < num_partitions && label_u == label_v) {
-                local_edge_counts[label_u]++;
+        }
+        
+        #pragma omp critical
+        {
+            for (int i = 0; i < num_partitions; i++) {
+                local_edge_counts[i] += thread_edge_counts[i];
             }
         }
     }
@@ -131,79 +158,96 @@ std::vector<double> calculatePenalties(
     return penalties;  // penalty 배열만 반환
 }
 
-// 경계 노드를 찾는 함수 (병합된 CSR에서 다른 파티션과 인접한 노드 찾기)
+// 경계 노드를 찾는 함수 (병합된 CSR에서 다른 파티션과 인접한 노드 찾기) - OpenMP 병렬화
 static std::vector<int> extractBoundaryLocalIDs( const Graph &local_graph, const GhostNodes &ghost_nodes)
 {
     std::vector<int> boundary_nodes;
     
-    for (int u = 0; u < local_graph.num_vertices; u++) {
-        int u_label = local_graph.vertex_labels[u];
-        bool is_boundary = false;
+    #pragma omp parallel
+    {
+        std::vector<int> thread_boundary_nodes;
         
-        // u의 이웃들을 검사
-        for (int edge_idx = local_graph.row_ptr[u]; edge_idx < local_graph.row_ptr[u + 1]; edge_idx++) {
-            int v = local_graph.col_indices[edge_idx];
-            int v_label;
+        #pragma omp for nowait
+        for (int u = 0; u < local_graph.num_vertices; u++) {
+            int u_label = local_graph.vertex_labels[u];
+            bool is_boundary = false;
             
-            if (v < local_graph.num_vertices) {
-                // local 노드 - vertex_labels에서 직접 가져오기
-                v_label = local_graph.vertex_labels[v];
-            } else {
-                // ghost 노드 - ghost_nodes 구조체에서 가져오기
-                int ghost_idx = v - local_graph.num_vertices;
-                if (ghost_idx >= 0 && ghost_idx < (int)ghost_nodes.ghost_labels.size()) {
-                    v_label = ghost_nodes.ghost_labels[ghost_idx];
+            // u의 이웃들을 검사
+            for (int edge_idx = local_graph.row_ptr[u]; edge_idx < local_graph.row_ptr[u + 1]; edge_idx++) {
+                int v = local_graph.col_indices[edge_idx];
+                int v_label;
+                
+                if (v < local_graph.num_vertices) {
+                    // local 노드 - vertex_labels에서 직접 가져오기
+                    v_label = local_graph.vertex_labels[v];
                 } else {
-                    continue; // 잘못된 인덱스는 건너뛰기
+                    // ghost 노드 - ghost_nodes 구조체에서 가져오기
+                    int ghost_idx = v - local_graph.num_vertices;
+                    if (ghost_idx >= 0 && ghost_idx < (int)ghost_nodes.ghost_labels.size()) {
+                        v_label = ghost_nodes.ghost_labels[ghost_idx];
+                    } else {
+                        continue; // 잘못된 인덱스는 건너뛰기
+                    }
+                }
+                
+                // 다른 파티션 라벨을 가진 이웃이 있으면 경계 노드
+                if (u_label != v_label) {
+                    is_boundary = true;
+                    break;
                 }
             }
             
-            // 다른 파티션 라벨을 가진 이웃이 있으면 경계 노드
-            if (u_label != v_label) {
-                is_boundary = true;
-                break;
+            if (is_boundary) {
+                thread_boundary_nodes.push_back(u);
             }
         }
         
-        if (is_boundary) {
-            boundary_nodes.push_back(u);
+        #pragma omp critical
+        {
+            boundary_nodes.insert(boundary_nodes.end(), 
+                                thread_boundary_nodes.begin(), 
+                                thread_boundary_nodes.end());
         }
     }
     
     return boundary_nodes;
 }
 
-// === Edge-cut 계산 ===
+// === Edge-cut 계산 === - OpenMP 병렬화
 static int computeEdgeCut(const Graph &g, const std::vector<int> &labels, const GhostNodes &ghost_nodes)
 {
     int local_cut = 0;
     int total_edges = 0;
     
-    // owned 노드의 간선만 카운트 (중복 방지)
-    for (int u = 0; u < g.num_vertices; u++) {
-        for (int e = g.row_ptr[u]; e < g.row_ptr[u + 1]; e++) {
-            int v = g.col_indices[e];
-            total_edges++;
-            
-            // u의 라벨 (owned 노드만 처리하므로 항상 유효)
-            int u_label = labels[u];
-            
-            // v의 라벨 결정
-            int v_label = -1;
-            if (v < g.num_vertices) {
-                // local 노드 - labels 배열에서 직접 가져오기
-                v_label = labels[v];
-            } else {
-                // ghost 노드 - ghost_nodes 구조체에서 가져오기
-                int ghost_idx = v - g.num_vertices;
-                if (ghost_idx >= 0 && ghost_idx < (int)ghost_nodes.ghost_labels.size()) {
-                    v_label = ghost_nodes.ghost_labels[ghost_idx];
+    // owned 노드의 간선만 카운트 (중복 방지) - OpenMP 병렬화
+    #pragma omp parallel reduction(+:local_cut,total_edges)
+    {
+        #pragma omp for nowait
+        for (int u = 0; u < g.num_vertices; u++) {
+            for (int e = g.row_ptr[u]; e < g.row_ptr[u + 1]; e++) {
+                int v = g.col_indices[e];
+                total_edges++;
+                
+                // u의 라벨 (owned 노드만 처리하므로 항상 유효)
+                int u_label = labels[u];
+                
+                // v의 라벨 결정
+                int v_label = -1;
+                if (v < g.num_vertices) {
+                    // local 노드 - labels 배열에서 직접 가져오기
+                    v_label = labels[v];
+                } else {
+                    // ghost 노드 - ghost_nodes 구조체에서 가져오기
+                    int ghost_idx = v - g.num_vertices;
+                    if (ghost_idx >= 0 && ghost_idx < (int)ghost_nodes.ghost_labels.size()) {
+                        v_label = ghost_nodes.ghost_labels[ghost_idx];
+                    }
                 }
-            }
-            
-            // 다른 파티션 간 간선이면 edge-cut에 포함
-            if (u_label != -1 && v_label != -1 && u_label != v_label) {
-                local_cut++;
+                
+                // 다른 파티션 간 간선이면 edge-cut에 포함
+                if (u_label != -1 && v_label != -1 && u_label != v_label) {
+                    local_cut++;
+                }
             }
         }
     }
@@ -395,37 +439,63 @@ PartitioningMetrics run_phase2(
     // 최종 Balance 계산을 위한 penalty 계산 (마지막 한 번만)
     std::vector<double> final_penalty = calculatePenalties(local_graph, local_graph.vertex_labels, ghost_nodes, num_partitions, 0);
     
-    // Balance 계산 (간소화된 방식)
+    // Balance 계산 (간소화된 방식) - OpenMP 병렬화
     // 임시로 최종 비율 계산
     std::vector<int> local_vertex_counts(num_partitions, 0);
     std::vector<int> local_edge_counts(num_partitions, 0);
 
-    for (int u = 0; u < local_graph.num_vertices; u++) {
-        int label = local_graph.vertex_labels[u];
-        if (label >= 0 && label < num_partitions) {
-            local_vertex_counts[label]++;
+    #pragma omp parallel
+    {
+        std::vector<int> thread_vertex_counts(num_partitions, 0);
+        
+        #pragma omp for nowait
+        for (int u = 0; u < local_graph.num_vertices; u++) {
+            int label = local_graph.vertex_labels[u];
+            if (label >= 0 && label < num_partitions) {
+                thread_vertex_counts[label]++;
+            }
+        }
+        
+        #pragma omp critical
+        {
+            for (int i = 0; i < num_partitions; i++) {
+                local_vertex_counts[i] += thread_vertex_counts[i];
+            }
         }
     }
     
-    for (int u = 0; u < local_graph.num_vertices; u++) {
-        int label_u = local_graph.vertex_labels[u];
-        if (label_u < 0 || label_u >= num_partitions) continue;
+    #pragma omp parallel
+    {
+        std::vector<int> thread_edge_counts(num_partitions, 0);
         
-        for (int e = local_graph.row_ptr[u]; e < local_graph.row_ptr[u + 1]; e++) {
-            int v = local_graph.col_indices[e];
-            int label_v = -1;
+        #pragma omp for nowait
+        for (int u = 0; u < local_graph.num_vertices; u++) {
+            int label_u = local_graph.vertex_labels[u];
+            if (label_u < 0 || label_u >= num_partitions) continue;
             
-            if (v < local_graph.num_vertices) {
-                label_v = local_graph.vertex_labels[v];
-            } else {
-                int ghost_idx = v - local_graph.num_vertices;
-                if (ghost_idx >= 0 && ghost_idx < (int)ghost_nodes.ghost_labels.size()) {
-                    label_v = ghost_nodes.ghost_labels[ghost_idx];
+            for (int e = local_graph.row_ptr[u]; e < local_graph.row_ptr[u + 1]; e++) {
+                int v = local_graph.col_indices[e];
+                int label_v = -1;
+                
+                if (v < local_graph.num_vertices) {
+                    label_v = local_graph.vertex_labels[v];
+                } else {
+                    int ghost_idx = v - local_graph.num_vertices;
+                    if (ghost_idx >= 0 && ghost_idx < (int)ghost_nodes.ghost_labels.size()) {
+                        label_v = ghost_nodes.ghost_labels[ghost_idx];
+                    }
+                }
+                
+                if (label_v >= 0 && label_v < num_partitions && label_u == label_v) {
+                    thread_edge_counts[label_u]++;
                 }
             }
-            
-            if (label_v >= 0 && label_v < num_partitions && label_u == label_v) {
-                local_edge_counts[label_u]++;
+        }
+        
+        #pragma omp critical
+        {
+            for (int i = 0; i < num_partitions; i++) {
+                local_edge_counts[i] += thread_edge_counts[i];
             }
         }
     }
