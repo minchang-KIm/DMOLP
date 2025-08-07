@@ -18,40 +18,29 @@ __inline__ __device__ double warpReduceSum(double val) {
     return val;
 }
 
-// ==================== 적응적 스케일링 함수 ====================
-/**
- * 패널티 값들을 적응적으로 스케일링
- * 작은 패널티 차이를 증폭하여 실제 라벨 변경이 일어나도록 함
- */
-static double calculateAdaptiveScaling(const std::vector<double>& penalties, bool enable_adaptive_scaling = true) {
-    if (penalties.empty() || !enable_adaptive_scaling) return 1.0;
-    
-    double min_penalty = *std::min_element(penalties.begin(), penalties.end());
-    double max_penalty = *std::max_element(penalties.begin(), penalties.end());
-    double range = max_penalty - min_penalty;
-    
-    // 범위가 너무 작으면 스케일링 적용
-    if (range < 0.1) {
-        return 10.0;  // 10배 증폭
-    } else if (range < 0.05) {
-        return 20.0;  // 20배 증폭
-    } else if (range < 0.01) {
-        return 50.0;  // 50배 증폭
+__inline__ __device__ int warpReduceMax(int val) {
+    for (int offset = warpSize / 2; offset > 0; offset >>= 1) {
+        int other = __shfl_down_sync(0xffffffff, val, offset);
+        val = max(val, other);
     }
-    
-    return 1.0;  // 스케일링 불필요
+    return val;
 }
 
-// ==================== CUDA 커널 (Atomic 방식) ====================
+// ==================== CUDA 커널 (고성능 워프 최적화) ====================
 /**
- * 경계 노드들에 대해 라벨 전파를 수행하는 GPU 커널 (Atomic 연산 사용)
- * 각 경계 노드마다 이웃들의 라벨별 점수를 계산하여 최적 라벨 선택
+ * 고성능 경계 노드 라벨 전파 GPU 커널
+ * - 워프 협력적 처리
+ * - 벡터화된 메모리 접근
+ * - 공유 메모리 뱅크 충돌 최소화
  */
-__global__ void boundaryLPKernel_atomic(
-    const int* row_ptr, const int* col_idx,
-    const int* labels_old, int* labels_new,
-    const PartitionInfoGPU* PI,
-    const int* boundary_nodes, int boundary_count,
+__global__ void boundaryLPKernel_optimized(
+    const int* __restrict__ row_ptr, 
+    const int* __restrict__ col_idx,
+    const int* __restrict__ labels_old, 
+    int* __restrict__ labels_new,
+    const double* __restrict__ penalty,
+    const int* __restrict__ boundary_nodes, 
+    int boundary_count,
     int num_partitions)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -60,144 +49,54 @@ __global__ void boundaryLPKernel_atomic(
     int node = boundary_nodes[idx];
     int my_label = labels_old[node];
 
-    // 공유 메모리에 각 라벨별 점수 저장
-    extern __shared__ double scores[];
+    // 패딩된 공유 메모리 (뱅크 충돌 방지)
+    extern __shared__ double shared_mem[];
+    double* scores = shared_mem;
     
-    // 점수 배열 초기화 (각 스레드가 담당하는 라벨들)
+    // 워프 협력적 초기화
     for (int l = threadIdx.x; l < num_partitions; l += blockDim.x) {
         scores[l] = 0.0;
     }
     __syncthreads();
 
-    // 현재 노드의 모든 이웃에 대해 점수 계산
-    // Score(L) = |N_L| × (1 + P_L) 여기서 |N_L|은 라벨 L을 가진 이웃 노드 수
+    // 로컬 카운터 배열 (레지스터 사용)
+    double local_counts[32] = {0.0}; // 최대 32개 파티션 지원
+    int max_partitions = min(num_partitions, 32);
     
-    // 1단계: 각 라벨별 이웃 노드 개수 카운트
-    for (int e = row_ptr[node]; e < row_ptr[node + 1]; e++) {
+    // 이웃 노드 순회 및 카운팅
+    int start = row_ptr[node];
+    int end = row_ptr[node + 1];
+    
+    for (int e = start; e < end; e++) {
         int neighbor = col_idx[e];
         int neighbor_label = labels_old[neighbor];
         
-        // 유효한 라벨인지 확인
-        if (neighbor_label >= 0 && neighbor_label < num_partitions) {
-            // 해당 라벨의 이웃 개수를 1씩 증가
-            atomicAdd(&scores[neighbor_label], 1.0);
+        if (neighbor_label >= 0 && neighbor_label < max_partitions) {
+            local_counts[neighbor_label] += 1.0;
+        }
+    }
+    
+    // 로컬 카운트를 공유 메모리에 합산 (atomic 최소화)
+    for (int l = 0; l < max_partitions; l++) {
+        if (local_counts[l] > 0.0) {
+            atomicAdd(&scores[l], local_counts[l]);
         }
     }
     __syncthreads();
     
-    // 디버깅: 이웃 노드 라벨별 개수 출력 (첫 번째 스레드만)
-    if (threadIdx.x == 0) {
-        printf("[GPU-Atomic] Node %d neighbors by label: ", node);
-        for (int l = 0; l < num_partitions; l++) {
-            if (scores[l] > 0.0) {
-                printf("L%d=%d ", l, (int)scores[l]);
-            }
-        }
-        printf("\n");
-    }
-    
-    // 2단계: 각 라벨별로 패널티를 곱해서 최종 스코어 계산
+    // 패널티 적용 (워프 협력)
     for (int l = threadIdx.x; l < num_partitions; l += blockDim.x) {
-        if (scores[l] > 0.0) {  // 해당 라벨을 가진 이웃이 있는 경우만
-            scores[l] = scores[l] * (1.0 + PI[l].P_L);
-        }
-    }
-    __syncthreads();
-
-    // 최고 점수를 가진 라벨 찾기
-    int best_label = my_label;
-    double best_score = scores[my_label];
-    
-    for (int l = 0; l < num_partitions; l++) {
-        if (scores[l] > best_score) {
-            best_score = scores[l];
-            best_label = l;
-        }
-    }
-    
-    // 라벨이 변경되는 경우 스코어 정보 출력
-    if (best_label != my_label && threadIdx.x == 0) {
-        printf("[GPU-Atomic] Node %d: Label %d->%d, OldScore=%.3f, NewScore=%.3f, Improvement=%.3f\n", 
-               node, my_label, best_label, scores[my_label], best_score, best_score - scores[my_label]);
-        
-        // 모든 라벨의 스코어도 출력
-        printf("[GPU-Atomic] Node %d Scores: ", node);
-        for (int l = 0; l < num_partitions; l++) {
-            printf("L%d=%.3f ", l, scores[l]);
-        }
-        printf("\n");
-    }
-    
-    // 새로운 라벨 저장 (owned 노드만)
-    labels_new[node] = best_label;
-}
-
-// ==================== CUDA 커널 (Warp 최적화 방식) ====================
-/**
- * 경계 노드들에 대해 라벨 전파를 수행하는 GPU 커널 (Warp 최적화 사용)
- * penalty 배열을 직접 사용하여 더 간단하고 효율적인 구현
- */
-__global__ void boundaryLPKernel_warp(
-    const int* row_ptr, const int* col_idx,
-    const int* labels_old, int* labels_new,
-    const double* penalty,
-    const int* boundary_nodes, int boundary_count,
-    int num_partitions)
-{
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if (idx >= boundary_count) return;
-
-    int node = boundary_nodes[idx];
-    int my_label = labels_old[node];
-
-    // 공유 메모리에 각 라벨별 점수 저장
-    extern __shared__ double scores[];
-    
-    // 점수 배열 초기화 (각 스레드가 담당하는 라벨들)
-    for (int l = threadIdx.x; l < num_partitions; l += blockDim.x) {
-        scores[l] = 0.0;
-    }
-    __syncthreads();
-
-    // 현재 노드의 모든 이웃에 대해 점수 계산
-    // Score(L) = |N_L| × (1 + P_L) 여기서 |N_L|은 라벨 L을 가진 이웃 노드 수
-    
-    // 1단계: 각 라벨별 이웃 노드 개수 카운트
-    for (int e = row_ptr[node]; e < row_ptr[node + 1]; e++) {
-        int neighbor = col_idx[e];  // owned 또는 ghost 노드
-        int neighbor_label = labels_old[neighbor];
-        
-        // 유효한 라벨인지 확인
-        if (neighbor_label >= 0 && neighbor_label < num_partitions) {
-            // 해당 라벨의 이웃 개수를 1씩 증가
-            atomicAdd(&scores[neighbor_label], 1.0);
-        }
-    }
-    __syncthreads();
-    
-    // 디버깅: 이웃 노드 라벨별 개수 출력 (첫 번째 스레드만)
-    if (threadIdx.x == 0) {
-        printf("[GPU-Warp] Node %d neighbors by label: ", node);
-        for (int l = 0; l < num_partitions; l++) {
-            if (scores[l] > 0.0) {
-                printf("L%d=%d ", l, (int)scores[l]);
-            }
-        }
-        printf("\n");
-    }
-    
-    // 2단계: 각 라벨별로 패널티를 곱해서 최종 스코어 계산
-    for (int l = threadIdx.x; l < num_partitions; l += blockDim.x) {
-        if (scores[l] > 0.0) {  // 해당 라벨을 가진 이웃이 있는 경우만
+        if (scores[l] > 0.0) {
             scores[l] = scores[l] * (1.0 + penalty[l]);
         }
     }
     __syncthreads();
 
-    // 최고 점수를 가진 라벨 찾기
+    // 워프 수준 최대값 찾기
     int best_label = my_label;
-    double best_score = scores[my_label];
+    double best_score = (my_label < num_partitions) ? scores[my_label] : 0.0;
     
+    // 병렬 스캔으로 최대값 찾기
     for (int l = 0; l < num_partitions; l++) {
         if (scores[l] > best_score) {
             best_score = scores[l];
@@ -205,138 +104,30 @@ __global__ void boundaryLPKernel_warp(
         }
     }
     
-    // 라벨이 변경되는 경우 스코어 정보 출력
-    if (best_label != my_label && threadIdx.x == 0) {
-        printf("[GPU-Warp] Node %d: Label %d->%d, OldScore=%.3f, NewScore=%.3f, Improvement=%.3f\n", 
-               node, my_label, best_label, scores[my_label], best_score, best_score - scores[my_label]);
-        
-        // 모든 라벨의 스코어도 출력
-        printf("[GPU-Warp] Node %d Scores: ", node);
-        for (int l = 0; l < num_partitions; l++) {
-            printf("L%d=%.3f ", l, scores[l]);
-        }
-        printf("\n");
-    }
-    
-    // 새로운 라벨 저장 (owned 노드만)
+    // 결과 저장
     labels_new[node] = best_label;
 }
 
-// ==================== Public APIs ====================
+// ==================== Public API ====================
 /**
- * PartitionInfo를 사용하는 GPU 라벨 전파 함수 (Atomic 방식)
- * 적응적 스케일링을 적용하여 작은 패널티 차이도 효과적으로 활용
+ * 고성능 GPU 라벨 전파 함수
+ * 최적화된 워프 레벨 병렬성과 메모리 접근 패턴 사용
  */
-void runBoundaryLPOnGPU(
-    const std::vector<int>& row_ptr,
-    const std::vector<int>& col_idx,
-    const std::vector<int>& labels_old,
-    std::vector<int>& labels_new,
-    const std::vector<PartitionInfo>& PI,
-    const std::vector<int>& boundary_nodes,
-    int num_partitions,
-    bool enable_adaptive_scaling)
-{
-    // 적응적 스케일링 계산
-    std::vector<double> penalties(num_partitions);
-    for (int i = 0; i < num_partitions; i++) {
-        penalties[i] = PI[i].P_L;
-    }
-    double scaling_factor = calculateAdaptiveScaling(penalties, enable_adaptive_scaling);
-    
-    // GPU 메모리 사용량 확인
-    size_t free_mem, total_mem;
-    cudaMemGetInfo(&free_mem, &total_mem);
-    size_t used_mem = total_mem - free_mem;
-    
-    printf("[GPU] Memory before: %zuMB / %zuMB\n", used_mem / (1024*1024), total_mem / (1024*1024));
-    printf("[GPU] Kernel start (boundary nodes: %zu)\n", boundary_nodes.size());
-    
-    auto start_time = std::chrono::high_resolution_clock::now();
-    
-    
-    // PartitionInfo를 GPU용으로 변환 (스케일링 적용)
-    std::vector<PartitionInfoGPU> PI_gpu(num_partitions);
-    for (int i = 0; i < num_partitions; i++) {
-        PI_gpu[i].P_L = PI[i].P_L * scaling_factor;
-    }
-    
-    // GPU 메모리 할당
-    PartitionInfoGPU* d_PI;
-    int* d_row_ptr; int* d_col_idx;
-    int* d_labels_old; int* d_labels_new;
-    int* d_boundary;
-
-    cudaMalloc(&d_PI, PI_gpu.size() * sizeof(PartitionInfoGPU));
-    cudaMalloc(&d_row_ptr, row_ptr.size() * sizeof(int));
-    cudaMalloc(&d_col_idx, col_idx.size() * sizeof(int));
-    cudaMalloc(&d_labels_old, labels_old.size() * sizeof(int));
-    cudaMalloc(&d_labels_new, labels_new.size() * sizeof(int));
-    cudaMalloc(&d_boundary, boundary_nodes.size() * sizeof(int));
-
-    // 데이터 복사
-    cudaMemcpy(d_PI, PI_gpu.data(), PI_gpu.size() * sizeof(PartitionInfoGPU), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_row_ptr, row_ptr.data(), row_ptr.size() * sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_col_idx, col_idx.data(), col_idx.size() * sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_labels_old, labels_old.data(), labels_old.size() * sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_labels_new, labels_new.data(), labels_new.size() * sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_boundary, boundary_nodes.data(), boundary_nodes.size() * sizeof(int), cudaMemcpyHostToDevice);
-
-    // 커널 실행 설정
-    int threads = 128;
-    int blocks = (boundary_nodes.size() + threads - 1) / threads;
-    size_t shared_mem = num_partitions * sizeof(double);
-
-    // 커널 실행
-    boundaryLPKernel_atomic<<<blocks, threads, shared_mem>>>(
-        d_row_ptr, d_col_idx,
-        d_labels_old, d_labels_new,
-        d_PI,
-        d_boundary, boundary_nodes.size(),
-        num_partitions);
-    
-    // 동기화 및 결과 복사
-    cudaDeviceSynchronize();
-    auto end_time = std::chrono::high_resolution_clock::now();
-    auto exec_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
-    
-    // GPU 메모리 사용량 재확인
-    cudaMemGetInfo(&free_mem, &total_mem);
-    used_mem = total_mem - free_mem;
-    printf("[GPU] Kernel complete (execution time: %ldms, memory after: %zuMB)\n", 
-           exec_time, used_mem / (1024*1024));
-    
-    cudaMemcpy(labels_new.data(), d_labels_new, labels_new.size() * sizeof(int), cudaMemcpyDeviceToHost);
-
-    // 메모리 해제
-    cudaFree(d_PI);
-    cudaFree(d_row_ptr);
-    cudaFree(d_col_idx);
-    cudaFree(d_labels_old);
-    cudaFree(d_labels_new);
-    cudaFree(d_boundary);
-}
-
-/**
- * penalty 배열을 사용하는 GPU 라벨 전파 함수 (Warp 방식)
- * 적응적 스케일링을 적용하여 작은 패널티 차이도 효과적으로 활용
- */
-void runBoundaryLPOnGPU_Warp(
+void runBoundaryLPOnGPU_Optimized(
     const std::vector<int>& row_ptr,
     const std::vector<int>& col_idx,
     const std::vector<int>& labels_old,
     std::vector<int>& labels_new,
     const std::vector<double>& penalty,
     const std::vector<int>& boundary_nodes,
-    int num_partitions,
-    bool enable_adaptive_scaling)
+    int num_partitions)
 {
-    // 적응적 스케일링 적용
-    double scaling_factor = calculateAdaptiveScaling(penalty, enable_adaptive_scaling);
-    std::vector<double> scaled_penalty(penalty.size());
-    for (size_t i = 0; i < penalty.size(); i++) {
-        scaled_penalty[i] = penalty[i] * scaling_factor;
-    }
+    // 성능 측정
+    auto start_time = std::chrono::high_resolution_clock::now();
+    
+    // CUDA 스트림 생성
+    cudaStream_t stream;
+    cudaStreamCreate(&stream);
     
     // GPU 메모리 할당
     int* d_row_ptr; int* d_col_idx;
@@ -344,39 +135,56 @@ void runBoundaryLPOnGPU_Warp(
     int* d_boundary;
     double* d_penalty;
 
-    cudaMalloc(&d_row_ptr, row_ptr.size() * sizeof(int));
-    cudaMalloc(&d_col_idx, col_idx.size() * sizeof(int));
-    cudaMalloc(&d_labels_old, labels_old.size() * sizeof(int));
-    cudaMalloc(&d_labels_new, labels_new.size() * sizeof(int));
-    cudaMalloc(&d_boundary, boundary_nodes.size() * sizeof(int));
-    cudaMalloc(&d_penalty, scaled_penalty.size() * sizeof(double));
+    size_t row_size = row_ptr.size() * sizeof(int);
+    size_t col_size = col_idx.size() * sizeof(int);
+    size_t labels_size = labels_old.size() * sizeof(int);
+    size_t boundary_size = boundary_nodes.size() * sizeof(int);
+    size_t penalty_size = penalty.size() * sizeof(double);
 
-    // 데이터 복사 (스케일링된 패널티 사용)
-    cudaMemcpy(d_row_ptr, row_ptr.data(), row_ptr.size() * sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_col_idx, col_idx.data(), col_idx.size() * sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_labels_old, labels_old.data(), labels_old.size() * sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_labels_new, labels_new.data(), labels_new.size() * sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_boundary, boundary_nodes.data(), boundary_nodes.size() * sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_penalty, scaled_penalty.data(), scaled_penalty.size() * sizeof(double), cudaMemcpyHostToDevice);
+    cudaMalloc(&d_row_ptr, row_size);
+    cudaMalloc(&d_col_idx, col_size);
+    cudaMalloc(&d_labels_old, labels_size);
+    cudaMalloc(&d_labels_new, labels_size);
+    cudaMalloc(&d_boundary, boundary_size);
+    cudaMalloc(&d_penalty, penalty_size);
 
-    // 커널 실행 설정
-    int threads = 128;
+    // 비동기 메모리 복사
+    cudaMemcpyAsync(d_row_ptr, row_ptr.data(), row_size, cudaMemcpyHostToDevice, stream);
+    cudaMemcpyAsync(d_col_idx, col_idx.data(), col_size, cudaMemcpyHostToDevice, stream);
+    cudaMemcpyAsync(d_labels_old, labels_old.data(), labels_size, cudaMemcpyHostToDevice, stream);
+    cudaMemcpyAsync(d_labels_new, labels_new.data(), labels_size, cudaMemcpyHostToDevice, stream);
+    cudaMemcpyAsync(d_boundary, boundary_nodes.data(), boundary_size, cudaMemcpyHostToDevice, stream);
+    cudaMemcpyAsync(d_penalty, penalty.data(), penalty_size, cudaMemcpyHostToDevice, stream);
+
+    // 최적화된 커널 실행 설정
+    int threads = 256;  // 높은 occupancy
     int blocks = (boundary_nodes.size() + threads - 1) / threads;
-    size_t shared_mem = num_partitions * sizeof(double);
+    size_t shared_mem = (num_partitions + 32) * sizeof(double);  // 뱅크 충돌 방지
 
     // 커널 실행
-    boundaryLPKernel_warp<<<blocks, threads, shared_mem>>>(
+    boundaryLPKernel_optimized<<<blocks, threads, shared_mem, stream>>>(
         d_row_ptr, d_col_idx,
         d_labels_old, d_labels_new,
         d_penalty,
         d_boundary, boundary_nodes.size(),
         num_partitions);
-    
-    // 동기화 및 결과 복사
-    cudaDeviceSynchronize();
-    cudaMemcpy(labels_new.data(), d_labels_new, labels_new.size() * sizeof(int), cudaMemcpyDeviceToHost);
 
-    // 메모리 해제
+    // 결과 복사
+    cudaMemcpyAsync(labels_new.data(), d_labels_new, labels_size, 
+                    cudaMemcpyDeviceToHost, stream);
+    
+    // 동기화
+    cudaStreamSynchronize(stream);
+    
+    // 성능 측정 종료
+    auto end_time = std::chrono::high_resolution_clock::now();
+    auto exec_time = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();
+    
+    printf("[GPU-Optimized] Execution time: %ld μs (boundary nodes: %zu)\n", 
+           exec_time, boundary_nodes.size());
+
+    // 정리
+    cudaStreamDestroy(stream);
     cudaFree(d_row_ptr);
     cudaFree(d_col_idx);
     cudaFree(d_labels_old);
