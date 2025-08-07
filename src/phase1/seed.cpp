@@ -16,7 +16,7 @@
 using namespace std;
 
 const int INF = INT_MAX;
-const int MAX_LEVELS = 6;
+const int MAX_LEVELS = 3;
 
 BFSResult compute_bfs(int procId, int nprocs, int start_node, const unordered_map<int, vector<int>> &adj) {
     BFSResult result;
@@ -83,10 +83,12 @@ BFSResult compute_bfs(int procId, int nprocs, int start_node, const unordered_ma
             }
         }
 
+        unordered_set<int> temp_visited = visited;
         for (const auto &thread_neighbor : thread_neighbors) {
             for (int neighbor : thread_neighbor) {
-                if (!visited.count(neighbor)) {
+                if (temp_visited.find(neighbor) == temp_visited.end()) {
                     visited.insert(neighbor);
+                    temp_visited.insert(neighbor);
                     next_level.insert(neighbor);
                 }
             }
@@ -117,11 +119,10 @@ BFSResult gather_result(int procId, int nprocs, const BFSResult &local_result) {
         total_size += all_sizes[i];
     }
 
-    vector<int> all_visited(total_size);
-    MPI_Allgatherv(local_visited.data(), local_size, MPI_INT, all_visited.data(), all_sizes.data(), displs.data(), MPI_INT, MPI_COMM_WORLD);
-
-    for (int node : all_visited) {
-        global_result.all_visited.insert(node);
+    if (total_size > 0) {
+        vector<int> all_visited(total_size);
+        MPI_Allgatherv(local_visited.data(), local_size, MPI_INT, all_visited.data(), all_sizes.data(), displs.data(), MPI_INT, MPI_COMM_WORLD);
+        global_result.all_visited.insert(all_visited.begin(), all_visited.end());
     }
 
     int local_max_level = static_cast<int>(local_result.levels.size());
@@ -145,11 +146,10 @@ BFSResult gather_result(int procId, int nprocs, const BFSResult &local_result) {
             level_total += level_sizes[i];
         }
 
-        vector<int> all_level_nodes(level_total);
-        MPI_Allgatherv(local_level_nodes.data(), local_level_size, MPI_INT, all_level_nodes.data(), level_sizes.data(), level_displs.data(), MPI_INT, MPI_COMM_WORLD);
-
-        for (int node : all_level_nodes) {
-            global_result.levels[level].insert(node);
+        if (level_total > 0) {
+            vector<int> all_level_nodes(level_total);
+            MPI_Allgatherv(local_level_nodes.data(), local_level_size, MPI_INT, all_level_nodes.data(), level_sizes.data(), level_displs.data(), MPI_INT, MPI_COMM_WORLD);
+            global_result.levels[level].insert(all_level_nodes.begin(), all_level_nodes.end());
         }
     }
 
@@ -158,24 +158,26 @@ BFSResult gather_result(int procId, int nprocs, const BFSResult &local_result) {
 
 int find_next_seed(int procId, int nprocs, const vector<int> &selected_seeds, const vector<int> &hub_nodes, const vector<bool> &used_hubs, const unordered_map<int, vector<int>> &adj, const unordered_map<int, int> &global_degree) {
     unordered_set<int> covered_nodes;
+    static unordered_map<int, unordered_set<int>> bfs_cache;
 
     for (int seed : selected_seeds) {
-        BFSResult local_bfs = compute_bfs(procId, nprocs, seed, adj);
-        BFSResult global_bfs = gather_result(procId, nprocs, local_bfs);
+        if (bfs_cache.find(seed) != bfs_cache.end()) {
+            const auto &cached_nodes = bfs_cache[seed];
+            covered_nodes.insert(cached_nodes.begin(), cached_nodes.end());
+        } else {
+            BFSResult local_bfs = compute_bfs(procId, nprocs, seed, adj);
+            BFSResult global_bfs = gather_result(procId, nprocs, local_bfs);
 
-        for (int node : global_bfs.all_visited) {
-            covered_nodes.insert(node);
+            bfs_cache[seed] = global_bfs.all_visited;
+            covered_nodes.insert(global_bfs.all_visited.begin(), global_bfs.all_visited.end());
         }
     }
 
     int local_best_hub = -1;
     int local_max_degree = -1;
-
     size_t hub_count = hub_nodes.size();
-    size_t start_idx = (hub_count * procId) / nprocs;
-    size_t end_idx = (hub_count * (procId + 1)) / nprocs;
 
-    for (size_t i = start_idx; i < end_idx; i++) {
+    for (size_t i = procId; i < hub_count; i += nprocs) {
         if (used_hubs[i]) continue;
 
         int hub = hub_nodes[i];
@@ -210,6 +212,7 @@ int find_next_seed(int procId, int nprocs, const vector<int> &selected_seeds, co
 }
 
 vector<int> find_seeds(int procId, int nprocs, int numParts, const pair<int, int> &first_seed, const vector<int> &hub_nodes, const unordered_map<int, int> &global_degree, const unordered_map<int, vector<int>> &adj) {
+    auto total_start_time = chrono::high_resolution_clock::now();
     vector<int> selected_seeds = {first_seed.first};
     if (numParts <= 0 || hub_nodes.empty()) {
         if (procId == 0) cout << "Error: Invalid numParts (" << numParts << ") or empty hub_nodes" << endl;
@@ -243,6 +246,8 @@ vector<int> find_seeds(int procId, int nprocs, int numParts, const pair<int, int
         int next_degree = global_degree.count(next_seed) ? global_degree.at(next_seed) : 0;
         if (procId == 0) cout << "Selected seed " << (k + 1) << ": " << next_seed << " with degree " << next_degree << " (took " << duration.count() << " ms)\n" << endl;
     }
+    auto total_end_time = chrono::high_resolution_clock::now();
+    auto total_duration = chrono::duration_cast<chrono::milliseconds>(total_end_time - total_start_time);
 
     size_t result_size = selected_seeds.size();
     if (procId == 0) {
@@ -252,7 +257,7 @@ vector<int> find_seeds(int procId, int nprocs, int numParts, const pair<int, int
             cout << selected_seeds[i];
             if (i < result_size - 1) cout << ", ";
         }
-        cout << endl;
+        cout << "\nTotal execution time: " << total_duration.count() << "(ms)" << endl;
     }
     
     return selected_seeds;
