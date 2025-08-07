@@ -133,18 +133,4 @@ struct PartitioningMetrics {
         total_edges = m.total_edges;
     }
 };
-
-
-// 파티션 정보 구조체 (Phase2 등에서 사용)
-struct PartitionInfo {
-    double RV = 1.0;  // Ratio of Vertex
-    double RE = 1.0;  // Ratio of Edge
-    double imb_RV = 0.0;  // imbalance RV
-    double imb_RE = 0.0;  // imbalance RE
-    double G_RV = 0.0;    // Gain RV
-    double G_RE = 0.0;    // Gain RE
-    double P_L = 0.0;     // Penalty function
-};
-
-
 #endif // DMOLP_GRAPH_TYPES_H

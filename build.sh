@@ -1,17 +1,34 @@
 #!/bin/bash
 set -e
 
-# phase2 디렉토리로 이동
+# 프로젝트 루트 디렉토리로 이동
 dir="$(dirname "$0")"
 cd "$dir"
+
+# 기존 빌드 파일 정리
+echo "[INFO] 기존 빌드 파일 정리 중..."
+rm -rf build CMakeCache.txt CMakeFiles cmake_install.cmake Makefile hpc_partitioning
 
 # 빌드 디렉토리 생성 및 이동
 mkdir -p build
 cd build
 
-# CMake 및 Make
+# CMake 및 Make (빌드 디렉토리에서 실행)
+echo "[INFO] CMake 설정 중..."
 cmake ..
+echo "[INFO] 컴파일 중..."
 make -j$(nproc)
+
+# 실행파일 생성 확인 (build 디렉토리에 그대로 둠)
+if [ -f "hpc_partitioning" ]; then
+    echo "[INFO] 실행파일 생성 완료: $(pwd)/hpc_partitioning"
+else
+    echo "[ERROR] 실행파일 생성 실패"
+    exit 1
+fi
+
+# 실행파일 경로를 build 디렉토리로 설정
+cd ..
 
 
 
@@ -30,7 +47,7 @@ else
 fi
 
 myip=$(hostname -I | awk '{print $1}')
-binfile="$(pwd)/hpc_partitioning"
+binfile="$(pwd)/build/hpc_partitioning"
 
 echo "[INFO] 실행파일을 다른 노드에 복사 중..."
 while read -r line; do

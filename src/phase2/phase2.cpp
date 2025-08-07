@@ -16,13 +16,13 @@
 #include "phase2/phase2.h"
 #include "phase2/gpu_lp_boundary.h"
 
-// === Partition 비율 계산 ===
-void calculatePartitionRatios(
+// === 직접 Penalty 계산 (PartitionInfo 없이) ===
+std::vector<double> calculatePenalties(
     const Graph &g,
     const std::vector<int> &labels,
     const GhostNodes &ghost_nodes,
     int num_partitions,
-    std::vector<PartitionInfo> &PI)
+    int mpi_rank = 0)
 {
     std::vector<int> local_vertex_counts(num_partitions, 0);
     std::vector<int> local_edge_counts(num_partitions, 0);
@@ -78,28 +78,40 @@ void calculatePartitionRatios(
     double expected_vertices = static_cast<double>(total_vertices) / num_partitions;
     double expected_edges = (total_edges > 0) ? static_cast<double>(total_edges) / num_partitions : 1.0;
 
-    // 비율 계산
+    // RV, RE 비율 계산 (임시 벡터)
+    std::vector<double> RV(num_partitions), RE(num_partitions);
     for (int i = 0; i < num_partitions; i++) {
-        PI[i].RV = (expected_vertices > 0) ? static_cast<double>(global_vertex_counts[i]) / expected_vertices : 1.0;
-        PI[i].RE = (expected_edges > 0) ? static_cast<double>(global_edge_counts[i]) / expected_edges : 1.0;
+        RV[i] = (expected_vertices > 0) ? static_cast<double>(global_vertex_counts[i]) / expected_vertices : 1.0;
+        RE[i] = (expected_edges > 0) ? static_cast<double>(global_edge_counts[i]) / expected_edges : 1.0;
     }
-}
+    
+    // 디버깅 출력 (Rank 0만)
+    if (mpi_rank == 0) {
+        printf("\n=== Label Statistics ===\n");
+        printf("Total: %d vertices, %d edges\n", total_vertices, total_edges);
+        printf("Expected per label: %.1f vertices, %.1f edges\n", expected_vertices, expected_edges);
+        
+        for (int i = 0; i < num_partitions; i++) {
+            printf("Label %d: %d vertices (%.3f), %d edges (%.3f)\n", 
+                   i, global_vertex_counts[i], RV[i], 
+                   global_edge_counts[i], RE[i]);
+        }
+        printf("========================\n\n");
+    }
 
-// === Penalty 계산 ===
-static void calculatePenalty(std::vector<PartitionInfo> &PI, int num_partitions)
-{
+    // Penalty 직접 계산
     double rv_mean = 0.0, re_mean = 0.0;
-    for (auto &p : PI) {
-        rv_mean += p.RV;
-        re_mean += p.RE;
+    for (int i = 0; i < num_partitions; i++) {
+        rv_mean += RV[i];
+        re_mean += RE[i];
     }
     rv_mean /= num_partitions;
     re_mean /= num_partitions;
 
     double rv_var = 0.0, re_var = 0.0;
-    for (auto &p : PI) {
-        rv_var += (p.RV - rv_mean) * (p.RV - rv_mean);
-        re_var += (p.RE - re_mean) * (p.RE - re_mean);
+    for (int i = 0; i < num_partitions; i++) {
+        rv_var += (RV[i] - rv_mean) * (RV[i] - rv_mean);
+        re_var += (RE[i] - re_mean) * (RE[i] - re_mean);
     }
     rv_var /= num_partitions;
     re_var /= num_partitions;
@@ -108,14 +120,15 @@ static void calculatePenalty(std::vector<PartitionInfo> &PI, int num_partitions)
     double imb_rv = (total_var > 0) ? rv_var / total_var : 0.0;
     double imb_re = (total_var > 0) ? re_var / total_var : 0.0;
 
+    // Penalty 배열 직접 생성
+    std::vector<double> penalties(num_partitions);
     for (int i = 0; i < num_partitions; i++) {
-        auto &p = PI[i];
-        p.imb_RV = imb_rv;
-        p.imb_RE = imb_re;
-        p.G_RV = (1.0 - p.RV) / num_partitions;
-        p.G_RE = (1.0 - p.RE) / num_partitions;
-        p.P_L = imb_rv * p.G_RV + imb_re * p.G_RE;
+        double G_RV = (1.0 - RV[i]) / num_partitions;
+        double G_RE = (1.0 - RE[i]) / num_partitions;
+        penalties[i] = imb_rv * G_RV + imb_re * G_RE;
     }
+
+    return penalties;  // penalty 배열만 반환
 }
 
 // 경계 노드를 찾는 함수 (병합된 CSR에서 다른 파티션과 인접한 노드 찾기)
@@ -233,22 +246,21 @@ PartitioningMetrics run_phase2(
     MPI_Barrier(MPI_COMM_WORLD);
 
     std::vector<int> labels_new = local_graph.vertex_labels; // 현재 라벨 복사
-    std::vector<PartitionInfo> PI(num_partitions);
 
     int prev_edge_cut = computeEdgeCut(local_graph, local_graph.vertex_labels, ghost_nodes);
     int convergence_count = 0;
+
+    // Balance 계산용 변수 (마지막에 사용)
+    std::vector<double> final_RV, final_RE;
 
     for (int iter = 0; iter < max_iter; iter++) {
         // labels_new를 현재 라벨로 동기화
         labels_new = local_graph.vertex_labels;
         
-        // Step1: RV, RE 계산
-        calculatePartitionRatios(local_graph, local_graph.vertex_labels, ghost_nodes, num_partitions, PI);
+        // Step1: 직접 penalty 계산 (PartitionInfo 없이)
+        std::vector<double> penalty = calculatePenalties(local_graph, local_graph.vertex_labels, ghost_nodes, num_partitions, mpi_rank);
 
-        // Penalty 계산
-        calculatePenalty(PI, num_partitions);
-
-        // Step3: Boundary 노드 추출(local id)
+        // Step2: Boundary 노드 추출(local id)
         auto boundary_nodes_local = extractBoundaryLocalIDs(local_graph, ghost_nodes);
         
         if (boundary_nodes_local.empty()) {
@@ -256,17 +268,12 @@ PartitioningMetrics run_phase2(
             break;
         }
 
-        // Step4: 고성능 GPU 커널 실행
-        std::vector<double> penalty(num_partitions);
-        for (int i = 0; i < num_partitions; i++) {
-            penalty[i] = PI[i].P_L;
-        }
-        
+        // Step3: 고성능 GPU 커널 실행 (penalty 직접 전달)
         runBoundaryLPOnGPU_Optimized(local_graph.row_ptr,
                                    local_graph.col_indices,
                                    local_graph.vertex_labels, // old labels
                                    labels_new,                // new labels
-                                   penalty,                   // penalty 배열
+                                   penalty,                   // penalty 배열 직접 전달
                                    boundary_nodes_local,
                                    num_partitions);
         
@@ -385,19 +392,73 @@ PartitioningMetrics run_phase2(
     std::cout << "[Rank " << mpi_rank << "] Phase2 완료 - GPU " << gpu_id 
               << " 총 실행시간: " << exec_ms << "ms" << std::endl;
     
-    // GPU 메모리 정리
-    cudaDeviceReset();
-    std::cout << "[Rank " << mpi_rank << "] GPU " << gpu_id << " 리셋 완료" << std::endl;
-    std::cout.flush();
+    // 최종 Balance 계산을 위한 penalty 계산 (마지막 한 번만)
+    std::vector<double> final_penalty = calculatePenalties(local_graph, local_graph.vertex_labels, ghost_nodes, num_partitions, 0);
+    
+    // Balance 계산 (간소화된 방식)
+    // 임시로 최종 비율 계산
+    std::vector<int> local_vertex_counts(num_partitions, 0);
+    std::vector<int> local_edge_counts(num_partitions, 0);
 
-    // Balance 계산
-    double max_vertex_ratio = 0.0, max_edge_ratio = 0.0;
-    for (const auto &p : PI) {
-        max_vertex_ratio = std::max(max_vertex_ratio, p.RV);
-        max_edge_ratio = std::max(max_edge_ratio, p.RE);
+    for (int u = 0; u < local_graph.num_vertices; u++) {
+        int label = local_graph.vertex_labels[u];
+        if (label >= 0 && label < num_partitions) {
+            local_vertex_counts[label]++;
+        }
     }
-    double avg_vertex_ratio = std::accumulate(PI.begin(), PI.end(), 0.0, [](double acc, const PartitionInfo &p) { return acc + p.RV; }) / num_partitions;
-    double avg_edge_ratio = std::accumulate(PI.begin(), PI.end(), 0.0, [](double acc, const PartitionInfo &p) { return acc + p.RE; }) / num_partitions;
+    
+    for (int u = 0; u < local_graph.num_vertices; u++) {
+        int label_u = local_graph.vertex_labels[u];
+        if (label_u < 0 || label_u >= num_partitions) continue;
+        
+        for (int e = local_graph.row_ptr[u]; e < local_graph.row_ptr[u + 1]; e++) {
+            int v = local_graph.col_indices[e];
+            int label_v = -1;
+            
+            if (v < local_graph.num_vertices) {
+                label_v = local_graph.vertex_labels[v];
+            } else {
+                int ghost_idx = v - local_graph.num_vertices;
+                if (ghost_idx >= 0 && ghost_idx < (int)ghost_nodes.ghost_labels.size()) {
+                    label_v = ghost_nodes.ghost_labels[ghost_idx];
+                }
+            }
+            
+            if (label_v >= 0 && label_v < num_partitions && label_u == label_v) {
+                local_edge_counts[label_u]++;
+            }
+        }
+    }
+
+    std::vector<int> global_vertex_counts(num_partitions, 0);
+    std::vector<int> global_edge_counts(num_partitions, 0);
+
+    MPI_Allreduce(local_vertex_counts.data(), global_vertex_counts.data(),
+                  num_partitions, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(local_edge_counts.data(), global_edge_counts.data(),
+                  num_partitions, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+
+    int total_vertices = std::accumulate(global_vertex_counts.begin(), global_vertex_counts.end(), 0);
+    int total_edges = std::accumulate(global_edge_counts.begin(), global_edge_counts.end(), 0);
+
+    double expected_vertices = static_cast<double>(total_vertices) / num_partitions;
+    double expected_edges = (total_edges > 0) ? static_cast<double>(total_edges) / num_partitions : 1.0;
+
+    double max_vertex_ratio = 0.0, max_edge_ratio = 0.0;
+    double sum_vertex_ratio = 0.0, sum_edge_ratio = 0.0;
+    
+    for (int i = 0; i < num_partitions; i++) {
+        double rv = (expected_vertices > 0) ? static_cast<double>(global_vertex_counts[i]) / expected_vertices : 1.0;
+        double re = (expected_edges > 0) ? static_cast<double>(global_edge_counts[i]) / expected_edges : 1.0;
+        
+        max_vertex_ratio = std::max(max_vertex_ratio, rv);
+        max_edge_ratio = std::max(max_edge_ratio, re);
+        sum_vertex_ratio += rv;
+        sum_edge_ratio += re;
+    }
+    
+    double avg_vertex_ratio = sum_vertex_ratio / num_partitions;
+    double avg_edge_ratio = sum_edge_ratio / num_partitions;
 
     PartitioningMetrics m2;
     m2.edge_cut = prev_edge_cut;
@@ -407,7 +468,6 @@ PartitioningMetrics run_phase2(
     m2.distribution_time_ms = 0;
     m2.num_partitions = num_partitions;
     
-    // 총 노드 수 계산 (owned 노드만)
     int local_vertices = local_graph.num_vertices;
     int global_vertices = 0;
     MPI_Allreduce(&local_vertices, &global_vertices, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
@@ -421,6 +481,11 @@ PartitioningMetrics run_phase2(
     int global_edges = 0;
     MPI_Allreduce(&local_edges, &global_edges, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
     m2.total_edges = global_edges; // 이것이 전체 그래프의 실제 간선 수
+
+    MPI_Barrier(MPI_COMM_WORLD);
+    cudaDeviceSynchronize();  // 모든 GPU 작업 완료 대기
+    std::cout << "[Rank " << mpi_rank << "] GPU " << gpu_id << " 작업 완료" << std::endl;
+    std::cout.flush();
     
     return m2;
 }
