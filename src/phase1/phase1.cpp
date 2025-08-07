@@ -97,7 +97,7 @@ Phase1Metrics run_phase1(
     std::unordered_map<int, int> local_degree;
     std::unordered_map<int, int> global_degree;
     std::vector<int> hub_nodes;
-    std::vector<int> landmarks;
+    std::pair<int, int> first_seed;
     std::vector<int> seeds;
     std::vector<std::vector<int>> partitions;
     int V;
@@ -106,7 +106,6 @@ Phase1Metrics run_phase1(
     double load_start = MPI_Wtime();
 
     load_graph(graph_file, mpi_rank, mpi_size, graph, local_degree, V, E);
-
     
     double distribute_start = MPI_Wtime();
 
@@ -114,13 +113,13 @@ Phase1Metrics run_phase1(
 
     if (mpi_rank == 0) {
         hub_nodes = find_hub_nodes(global_degree);
-        landmarks = find_landmarks(global_degree);
     }
 
-    sync_vector(mpi_rank, 0, hub_nodes);
-    sync_vector(mpi_rank, 0, landmarks);
+    first_seed = find_first_seed(global_degree);
 
-    seeds = find_seeds(mpi_rank, mpi_size, num_parts, landmarks, hub_nodes, global_degree, graph);
+    sync_vector(mpi_rank, 0, hub_nodes);
+
+    seeds = find_seeds(mpi_rank, mpi_size, num_parts, first_seed, hub_nodes, global_degree, graph);
 
     sync_vector(mpi_rank, 0, seeds);
 

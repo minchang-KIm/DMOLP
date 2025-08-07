@@ -138,18 +138,14 @@ vector<int> find_hub_nodes(const unordered_map<int, int> &global_degree) {
     return hub_nodes;
 }
 
-vector<int> find_landmarks(const unordered_map<int, int> &global_degree) {
-    int N = global_degree.size();
-    int K = max(1, (int)log10(N));
-
+pair<int, int> find_first_seed(const unordered_map<int, int> &global_degree) {
     vector<pair<int, int>> sorted_degree(global_degree.begin(), global_degree.end());
     sort(sorted_degree.begin(), sorted_degree.end(), [](const auto &a, const auto &b) {
         return a.second > b.second;
     });
 
-    vector<int> landmarks;
-    for (int i = 0; i < K && i < sorted_degree.size(); ++i)
-        landmarks.push_back(sorted_degree[i].first);
-
-    return landmarks;
+    pair<int, int> first_seed;
+    if (!global_degree.empty()) first_seed = sorted_degree[0];
+    
+    return first_seed;
 }
