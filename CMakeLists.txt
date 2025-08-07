@@ -1,10 +1,16 @@
 cmake_minimum_required(VERSION 3.18)
 project(HPCPartitioning LANGUAGES CXX CUDA)
 
-# MPI, OpenMP, CUDA 찾기
+# Intel MPI 우선 탐지, 없으면 일반 MPI 사용
 find_package(MPI REQUIRED)
 find_package(OpenMP REQUIRED)
 find_package(CUDAToolkit REQUIRED)
+
+# MPI 컴파일러 정보 출력
+message(STATUS "MPI C compiler: ${MPI_C_COMPILER}")
+message(STATUS "MPI CXX compiler: ${MPI_CXX_COMPILER}")
+message(STATUS "OpenMP version: ${OpenMP_CXX_VERSION}")
+
 include_directories(${MPI_INCLUDE_PATH})
 
 # CRoaring 라이브러리 설정 (새로 설치한 버전) - 정적 링킹
@@ -12,9 +18,30 @@ set(CROARING_PATH "/home/intern_graph/croaring_install")
 include_directories(${CROARING_PATH}/include)
 set(ROARING_LIBRARY "${CROARING_PATH}/lib/libroaring.a")
 
-# CUDA 설정
+# CUDA 및 최적화 설정
 set(CMAKE_CUDA_STANDARD 14)
 set(CMAKE_CXX_STANDARD 17)
+
+# 기본 빌드 타입을 Release로 설정
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+endif()
+
+# 최적화 플래그 설정
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native -mtune=native -DNDEBUG -ffast-math")
+set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -DDEBUG")
+
+# CUDA 최적화 플래그
+set(CMAKE_CUDA_FLAGS_RELEASE "-O3 -DNDEBUG")
+set(CMAKE_CUDA_FLAGS_DEBUG "-O0 -g -DDEBUG")
+
+message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+message(STATUS "CXX flags: ${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE}}")
+
+# OpenMP 최적화 옵션
+if(OpenMP_CXX_FOUND)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+endif()
 
 # include 디렉토리
 include_directories(${CMAKE_SOURCE_DIR}/include)
