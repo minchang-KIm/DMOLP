@@ -3,6 +3,7 @@
 #include <vector>
 #include <unordered_map>
 #include <algorithm>
+#include <chrono>
 
 #include "phase1/phase1.h"
 #include "phase1/init.hpp"
@@ -103,11 +104,11 @@ Phase1Metrics run_phase1(
     int V;
     int E;
 
-    double load_start = MPI_Wtime();
+    auto load_start = std::chrono::high_resolution_clock::now();
 
     load_graph(graph_file, mpi_rank, mpi_size, graph, local_degree, V, E);
     
-    double distribute_start = MPI_Wtime();
+    auto distribute_start = std::chrono::high_resolution_clock::now();
 
     gather_degrees(local_degree, global_degree, mpi_rank, mpi_size);
 
@@ -127,7 +128,9 @@ Phase1Metrics run_phase1(
     std::unordered_map<int, GhostNodes> tmp_ghost;
     partition_expansion(mpi_rank, mpi_size, num_parts, theta, seeds, global_degree, graph, partitions, tmp_graph, tmp_ghost);
     
-    double distribute_end = MPI_Wtime();
+    auto distribute_end = std::chrono::high_resolution_clock::now();
+    auto load_duration = std::chrono::duration_cast<std::chrono::milliseconds>(distribute_start - load_start);
+    auto distribution_duration = std::chrono::duration_cast<std::chrono::milliseconds>(distribute_end - distribute_start);
 
     merge_csr(mpi_rank, tmp_graph, tmp_ghost, local_graph, ghost_nodes);
 
@@ -175,8 +178,8 @@ Phase1Metrics run_phase1(
         max_edge_ratio = std::max(max_edge_ratio, count / expected_edges);
     metrics.initial_edge_balance = max_edge_ratio;
 
-    metrics.loading_time_ms = (distribute_start - load_start) * 1000.0;
-    metrics.distribution_time_ms = (distribute_end - distribute_start) * 1000.0;
+    metrics.loading_time_ms = load_duration.count();
+    metrics.distribution_time_ms = distribution_duration.count();
     metrics.total_vertices = V;
     metrics.total_edges = E;
 
