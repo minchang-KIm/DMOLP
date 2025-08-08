@@ -60,6 +60,12 @@ set(SOURCES
 
 add_executable(hpc_partitioning ${SOURCES})
 
+# 컴파일 정의 추가
+target_compile_definitions(hpc_partitioning PRIVATE
+    GPU_PARTITION
+    USE_MASTER_WORKER_PENALTY
+)
+
 # 링킹할 라이브러리들
 target_link_libraries(hpc_partitioning 
     ${MPI_CXX_LIBRARIES} 

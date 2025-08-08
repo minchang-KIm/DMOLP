@@ -97,6 +97,18 @@ struct GhostNodes {
     }
 };
 
+// 파티션별 통계 구조체
+struct PartitionStats {
+    std::vector<int> local_vertex_counts;
+    std::vector<int> local_edge_counts;
+    std::vector<int> global_vertex_counts;
+    std::vector<int> global_edge_counts;
+    int total_vertices;
+    int total_edges;
+    double expected_vertices;
+    double expected_edges;
+};
+
 // Phase 1 메트릭 구조체 
 struct Phase1Metrics {
     int initial_edge_cut = 0;
