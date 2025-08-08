@@ -10,6 +10,7 @@
 
 #include "phase1/phase1.h"
 #include "phase2/phase2.h"
+#include "phase2/gpu_lp_boundary.h"  // GPU 리소스 정리 함수 포함
 #include "utils.hpp"
 
 // GPU 할당 함수
@@ -213,6 +214,11 @@ int main(int argc, char** argv) {
     if (mpi_rank == 0) {
         printComparisonReport(metrics1, metrics2);
     }
+    
+    // GPU 리소스 정리 (메모리 누수 방지)
+#ifdef GPU_PARTITION
+    cleanupGPUResources();
+#endif
     
     MPI_Finalize();
     return 0;

@@ -161,12 +161,13 @@ if [ "$TEST_MODE" = true ]; then
     fi
     
     echo "[INFO] 실행 시작..."
-    echo "명령어: $MPI_CMD --hostfile $HOSTFILE_ARG -np 4 $binfile ./dataset/ljournal-2008.adj.graph-txt 4 50000"
+    echo "명령어: $MPI_CMD --hostfile $HOSTFILE_ARG -np 4 $binfile ./dataset/copter2.graph 4 5000"
     echo ""
     
-    # 실제 실행
-    #$MPI_CMD --hostfile "$HOSTFILE_ARG" -np 4 "$binfile" ./dataset/ljournal-2008.adj.graph-txt 4 50000
+    # 실제 실행 (메모리 누수 테스트를 위해 중간 크기 그래프 사용)
     $MPI_CMD --hostfile "$HOSTFILE_ARG" -np 4 "$binfile" ./dataset/copter2.graph 4 5000
+    #$MPI_CMD --hostfile "$HOSTFILE_ARG" -np 4 "$binfile" ./dataset/ljournal-2008.adj.graph-txt 4 50000
+    #$MPI_CMD --hostfile "$HOSTFILE_ARG" -np 4 "$binfile" ./dataset/test.graph 4 5
     
     echo ""
     echo "=========================================="
