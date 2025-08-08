@@ -289,6 +289,62 @@ PartitioningMetrics run_phase2(
     // 모든 프로세스 동기화
     MPI_Barrier(MPI_COMM_WORLD);
 
+    // *** CRITICAL: Phase1과 Phase2 사이의 Ghost Node 라벨 동기화 ***
+    // Phase1 완료 후 모든 owned 노드의 최신 라벨을 다른 프로세스와 공유
+    std::vector<Delta> all_owned_labels;
+    for (int i = 0; i < local_graph.num_vertices; i++) {
+        if (i < (int)local_graph.global_ids.size()) {
+            Delta delta;
+            delta.gid = local_graph.global_ids[i];
+            delta.new_label = local_graph.vertex_labels[i];
+            all_owned_labels.push_back(delta);
+        }
+    }
+    
+    // 모든 프로세스의 owned 노드 라벨을 수집
+    int send_count = all_owned_labels.size();
+    std::vector<int> recv_counts(mpi_size);
+    MPI_Allgather(&send_count, 1, MPI_INT, recv_counts.data(), 1, MPI_INT, MPI_COMM_WORLD);
+    
+    std::vector<int> displs(mpi_size);
+    displs[0] = 0;
+    for (int i = 1; i < mpi_size; i++)
+        displs[i] = displs[i - 1] + recv_counts[i - 1];
+    int total_recv = displs[mpi_size - 1] + recv_counts[mpi_size - 1];
+    
+    std::vector<Delta> recv_all_labels(total_recv);
+    
+    MPI_Datatype MPI_DELTA;
+    MPI_Type_contiguous(2, MPI_INT, &MPI_DELTA);
+    MPI_Type_commit(&MPI_DELTA);
+    
+    MPI_Allgatherv(all_owned_labels.data(), send_count, MPI_DELTA,
+                   recv_all_labels.data(), recv_counts.data(), displs.data(),
+                   MPI_DELTA, MPI_COMM_WORLD);
+    
+    // Ghost 노드 라벨 업데이트
+    for (const auto &delta : recv_all_labels) {
+        auto it_ghost = ghost_nodes.global_to_local.find(delta.gid);
+        if (it_ghost != ghost_nodes.global_to_local.end()) {
+            int ghost_idx = it_ghost->second;
+            if (ghost_idx >= 0 && ghost_idx < (int)ghost_nodes.ghost_labels.size()) {
+                ghost_nodes.ghost_labels[ghost_idx] = delta.new_label;
+                
+                // local_graph의 vertex_labels도 동기화
+                int ghost_lid = local_graph.num_vertices + ghost_idx;
+                if (ghost_lid < (int)local_graph.vertex_labels.size()) {
+                    local_graph.vertex_labels[ghost_lid] = delta.new_label;
+                }
+            }
+        }
+    }
+    
+    MPI_Type_free(&MPI_DELTA);
+    
+    if (mpi_rank == 0) {
+        std::cout << "Phase1-Phase2 라벨 동기화 완료 (전체 라벨: " << total_recv << "개)" << std::endl;
+    }
+
     std::vector<int> labels_new = local_graph.vertex_labels; // 현재 라벨 복사
 
     int prev_edge_cut = computeEdgeCut(local_graph, local_graph.vertex_labels, ghost_nodes);
