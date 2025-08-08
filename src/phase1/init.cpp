@@ -20,50 +20,44 @@ void load_graph(const char *filename, int procId, int nprocs, unordered_map<int,
         MPI_Abort(MPI_COMM_WORLD, 1);
     }
 
+    ios::sync_with_stdio(false);
     string line;
-    unordered_map<int, vector<int>> temp_adj;
     
     getline(infile, line);
     V = stoi(line);
     
     int source = 0;
     while (getline(infile, line) && source < V) {
-        istringstream iss(line);
-        int neighbor;
-        
-        while (iss >> neighbor) {
-            if (source % nprocs == procId) {
-                temp_adj[source].push_back(neighbor);
-            }
-            
-            if (neighbor % nprocs == procId) {
-                temp_adj[neighbor].push_back(source);
-            }
+        const char *ptr = line.c_str();
+        char *end;
+        vector<int> source_neighbors;
+
+        while (*ptr) {
+            int neighbor = strtol(ptr, &end, 10);
+            if (ptr == end) break;
+            ptr = end;
+
+            if (source % nprocs == procId) adj[source].push_back(neighbor);
+            if (neighbor % nprocs == procId) adj[neighbor].push_back(source);
         }
-        source++;
+
+        ++source;
     }
     
     infile.close();
 
-    for (auto &[vertex, neighbors] : temp_adj) {
-        if (vertex % nprocs == procId) {
-            sort(neighbors.begin(), neighbors.end());
-            neighbors.erase(unique(neighbors.begin(), neighbors.end()), neighbors.end());
-            
-            adj[vertex] = neighbors;
-            local_degree[vertex] = neighbors.size();
-        }
-    }
-
     int local_V = adj.size();
     int local_E = 0;
-    
-    for (const auto &[v, neighbors] : adj) {
+
+    for (auto &[vertex, neighbors] : adj) {
+        sort(neighbors.begin(), neighbors.end());
+        neighbors.erase(unique(neighbors.begin(), neighbors.end()), neighbors.end());
+        local_degree[vertex] = neighbors.size();
         local_E += neighbors.size();
     }
 
-    MPI_Allreduce(&local_V, &V, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
     MPI_Allreduce(&local_E, &E, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(&local_V, &V, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
 }
 
 void gather_degrees(unordered_map<int, int> &local_degree, unordered_map<int, int> &global_degree, int procId, int nprocs) {
