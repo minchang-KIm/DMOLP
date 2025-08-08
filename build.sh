@@ -165,7 +165,8 @@ if [ "$TEST_MODE" = true ]; then
     echo ""
     
     # 실제 실행
-    $MPI_CMD --hostfile "$HOSTFILE_ARG" -np 4 "$binfile" ./dataset/ljournal-2008.adj.graph-txt 4 50000
+    #$MPI_CMD --hostfile "$HOSTFILE_ARG" -np 4 "$binfile" ./dataset/ljournal-2008.adj.graph-txt 4 50000
+    $MPI_CMD --hostfile "$HOSTFILE_ARG" -np 4 "$binfile" ./dataset/copter2.graph 4 5000
     
     echo ""
     echo "=========================================="

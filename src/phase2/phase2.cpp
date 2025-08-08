@@ -270,7 +270,7 @@ PartitioningMetrics run_phase2(
     int gpu_id)
 {
     const int max_iter = 500;
-    const double epsilon = 0.01; // 수렴 기준
+    const double epsilon = 0.03; // 수렴 기준
     const int k_limit = 10;
 
     auto t_phase2_start = std::chrono::high_resolution_clock::now();
