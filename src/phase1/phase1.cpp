@@ -120,7 +120,7 @@ Phase1Metrics run_phase1(
 
     sync_vector(mpi_rank, 0, hub_nodes);
 
-    seeds = find_seeds(mpi_rank, mpi_size, num_parts, first_seed, hub_nodes, global_degree, graph);
+    seeds = find_seeds(mpi_rank, mpi_size, num_parts, V, first_seed, hub_nodes, global_degree, graph);
 
     sync_vector(mpi_rank, 0, seeds);
 

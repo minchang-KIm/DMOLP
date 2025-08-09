@@ -4,18 +4,21 @@
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
+#include <boost/dynamic_bitset.hpp>
 
 struct BFSResult {
-    std::vector<std::unordered_set<int>> levels;
-    std::unordered_set<int> all_visited;
+    std::vector<boost::dynamic_bitset<>> levels;
+    boost::dynamic_bitset<> all_visited;
+
+    BFSResult(size_t num_nodes = 0) : all_visited(num_nodes) {}
 
     void clear() {
         levels.clear();
         all_visited.clear();
     }
 
-    void ensure_level(int level) {
-        if (level >= static_cast<int>(levels.size())) levels.resize(level + 1);
+    void ensure_level(int level, size_t num_nodes) {
+        if (level >= static_cast<int>(levels.size())) levels.resize(level + 1, boost::dynamic_bitset<>(num_nodes));
     }
 };
 

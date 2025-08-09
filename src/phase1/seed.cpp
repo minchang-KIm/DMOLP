@@ -2,12 +2,11 @@
 #include <omp.h>
 #include <vector>
 #include <unordered_map>
-#include <unordered_set>
 #include <algorithm>
 #include <climits>
 #include <iostream>
-#include <mutex>
 #include <chrono>
+#include <boost/dynamic_bitset.hpp>
 
 #include "graph_types.h"
 #include "utils.hpp"
@@ -18,36 +17,36 @@ using namespace std;
 const int INF = INT_MAX;
 const int MAX_LEVELS = 3;
 
-BFSResult compute_bfs(int procId, int nprocs, int start_node, const unordered_map<int, vector<int>> &adj) {
-    BFSResult result;
+BFSResult compute_bfs(int procId, int nprocs, int start_node, const unordered_map<int, vector<int>> &adj, size_t num_nodes) {
+    BFSResult result(num_nodes);
 
-    unordered_set<int> visited;
-    unordered_set<int> current_level;
+    boost::dynamic_bitset<> visited(num_nodes);
+    boost::dynamic_bitset<> current_level(num_nodes);
     
     if (start_node % nprocs == procId) {
-        current_level.insert(start_node);
-        visited.insert(start_node);
+        current_level.set(start_node);
+        visited.set(start_node);
     }
 
     int level = 0;
 
     while (level < MAX_LEVELS) {
-        int local_has_nodes = current_level.empty() ? 0 : 1;
+        int local_has_nodes = current_level.any() ? 1 : 0;
         int global_has_nodes = 0;
         MPI_Allreduce(&local_has_nodes, &global_has_nodes, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
         if (global_has_nodes == 0) break;
 
-        result.ensure_level(level);
-        result.levels[level] = current_level;
+        result.ensure_level(level, num_nodes);
+        result.levels[level] |= current_level;
+        result.all_visited |= current_level;
 
-        for (int node : current_level) {
-            result.all_visited.insert(node);
+        vector<int> local_frontier;
+        for (size_t i = current_level.find_first(); i != boost::dynamic_bitset<>::npos; i = current_level.find_next(i)) {
+            local_frontier.push_back(static_cast<int>(i));
         }
 
-        vector<int> local_frontier(current_level.begin(), current_level.end());
-
         vector<int> recv_counts(nprocs);
-        int send_count = local_frontier.size();
+        int send_count = static_cast<int>(local_frontier.size());
         MPI_Allgather(&send_count, 1, MPI_INT, recv_counts.data(), 1, MPI_INT, MPI_COMM_WORLD);
 
         vector<int> displs(nprocs, 0);
@@ -60,7 +59,7 @@ BFSResult compute_bfs(int procId, int nprocs, int start_node, const unordered_ma
         vector<int> global_frontier(total);
         MPI_Allgatherv(local_frontier.data(), send_count, MPI_INT, global_frontier.data(), recv_counts.data(), displs.data(), MPI_INT, MPI_COMM_WORLD);
 
-        unordered_set<int> next_level;
+        boost::dynamic_bitset<> next_level(num_nodes);
         vector<vector<int>> thread_neighbors(omp_get_max_threads());
 
         #pragma omp parallel
@@ -83,93 +82,72 @@ BFSResult compute_bfs(int procId, int nprocs, int start_node, const unordered_ma
             }
         }
 
-        unordered_set<int> temp_visited = visited;
+        boost::dynamic_bitset<> temp_visited = visited;
         for (const auto &thread_neighbor : thread_neighbors) {
             for (int neighbor : thread_neighbor) {
-                if (temp_visited.find(neighbor) == temp_visited.end()) {
-                    visited.insert(neighbor);
-                    temp_visited.insert(neighbor);
-                    next_level.insert(neighbor);
+                if (!temp_visited[neighbor]) {
+                    visited.set(neighbor);
+                    temp_visited.set(neighbor);
+                    next_level.set(neighbor);
                 }
             }
         }
 
-        current_level = move(next_level);
+        current_level = boost::move(next_level);
         ++level;
     }
 
     return result;
 }
 
-BFSResult gather_result(int procId, int nprocs, const BFSResult &local_result) {
+BFSResult gather_result(int procId, int nprocs, const BFSResult &local_result, size_t num_nodes) {
     if (nprocs <= 1) return local_result;
 
-    BFSResult global_result;
+    BFSResult global_result(num_nodes);
 
-    vector<int> local_visited(local_result.all_visited.begin(), local_result.all_visited.end());
-    int local_size = static_cast<int>(local_visited.size());
-    
-    vector<int> all_sizes(nprocs);
-    MPI_Allgather(&local_size, 1, MPI_INT, all_sizes.data(), 1, MPI_INT, MPI_COMM_WORLD);
+    vector<unsigned long> local_bits(local_result.all_visited.num_blocks());
+    boost::to_block_range(local_result.all_visited, local_bits.begin());
 
-    vector<int> displs(nprocs, 0);
-    int total_size = 0;
-    for (int i = 0; i < nprocs; i++) {
-        displs[i] = total_size;
-        total_size += all_sizes[i];
-    }
-
-    if (total_size > 0) {
-        vector<int> all_visited(total_size);
-        MPI_Allgatherv(local_visited.data(), local_size, MPI_INT, all_visited.data(), all_sizes.data(), displs.data(), MPI_INT, MPI_COMM_WORLD);
-        global_result.all_visited.insert(all_visited.begin(), all_visited.end());
-    }
+    size_t local_bits_size = local_bits.size();
+    vector<unsigned long> global_bits(local_bits_size);
+    MPI_Allreduce(local_bits.data(), global_bits.data(), local_bits_size, MPI_UNSIGNED_LONG, MPI_BOR, MPI_COMM_WORLD);
+    boost::from_block_range(global_bits.begin(), global_bits.end(), global_result.all_visited);
 
     int local_max_level = static_cast<int>(local_result.levels.size());
     int global_max_level = 0;
     MPI_Allreduce(&local_max_level, &global_max_level, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
-
-    global_result.levels.resize(global_max_level);
+    
+    global_result.levels.resize(global_max_level, boost::dynamic_bitset<>(num_nodes));
 
     for (int level = 0; level < global_max_level; level++) {
-        vector<int> local_level_nodes;
-        if (level < static_cast<int>(local_result.levels.size())) local_level_nodes.assign(local_result.levels[level].begin(), local_result.levels[level].end());
+        boost::dynamic_bitset<> local_level(num_nodes);
+        if (level < static_cast<int>(local_result.levels.size())) local_level = local_result.levels[level];
 
-        int local_level_size = static_cast<int>(local_level_nodes.size());
-        vector<int> level_sizes(nprocs);
-        MPI_Allgather(&local_level_size, 1, MPI_INT, level_sizes.data(), 1, MPI_INT, MPI_COMM_WORLD);
+        vector<unsigned long> local_level_bits(local_level.num_blocks());
+        boost::to_block_range(local_level, local_level_bits.begin());
 
-        vector<int> level_displs(nprocs, 0);
-        int level_total = 0;
-        for (int i = 0; i < nprocs; i++) {
-            level_displs[i] = level_total;
-            level_total += level_sizes[i];
-        }
-
-        if (level_total > 0) {
-            vector<int> all_level_nodes(level_total);
-            MPI_Allgatherv(local_level_nodes.data(), local_level_size, MPI_INT, all_level_nodes.data(), level_sizes.data(), level_displs.data(), MPI_INT, MPI_COMM_WORLD);
-            global_result.levels[level].insert(all_level_nodes.begin(), all_level_nodes.end());
-        }
+        size_t local_level_bits_size = local_level_bits.size();
+        vector<unsigned long> global_level_bits(local_level_bits_size);
+        MPI_Allreduce(local_level_bits.data(), global_level_bits.data(), local_level_bits_size, MPI_UNSIGNED_LONG, MPI_BOR, MPI_COMM_WORLD);
+        boost::from_block_range(global_level_bits.begin(), global_level_bits.end(), global_result.levels[level]);
     }
 
     return global_result;
 }
 
-int find_next_seed(int procId, int nprocs, const vector<int> &selected_seeds, const vector<int> &hub_nodes, const vector<bool> &used_hubs, const unordered_map<int, vector<int>> &adj, const unordered_map<int, int> &global_degree) {
-    unordered_set<int> covered_nodes;
-    static unordered_map<int, unordered_set<int>> bfs_cache;
+int find_next_seed(int procId, int nprocs, const vector<int> &selected_seeds, const vector<int> &hub_nodes, const boost::dynamic_bitset<> &used_hubs, const unordered_map<int, vector<int>> &adj, const unordered_map<int, int> &global_degree, size_t num_nodes) {
+    boost::dynamic_bitset<> covered_nodes(num_nodes);
+    static unordered_map<int, boost::dynamic_bitset<>> bfs_cache;
 
     for (int seed : selected_seeds) {
         if (bfs_cache.find(seed) != bfs_cache.end()) {
-            const auto &cached_nodes = bfs_cache[seed];
-            covered_nodes.insert(cached_nodes.begin(), cached_nodes.end());
+            covered_nodes |= bfs_cache[seed];
         } else {
-            BFSResult local_bfs = compute_bfs(procId, nprocs, seed, adj);
-            BFSResult global_bfs = gather_result(procId, nprocs, local_bfs);
+            BFSResult local_bfs = compute_bfs(procId, nprocs, seed, adj, num_nodes);
+            BFSResult global_bfs = gather_result(procId, nprocs, local_bfs, num_nodes);
 
             bfs_cache[seed] = global_bfs.all_visited;
-            covered_nodes.insert(global_bfs.all_visited.begin(), global_bfs.all_visited.end());
+            covered_nodes |= global_bfs.all_visited;
         }
     }
 
@@ -181,7 +159,7 @@ int find_next_seed(int procId, int nprocs, const vector<int> &selected_seeds, co
         if (used_hubs[i]) continue;
 
         int hub = hub_nodes[i];
-        if (covered_nodes.count(hub)) continue;
+        if (covered_nodes[hub]) continue;
 
         int degree = global_degree.count(hub) ? global_degree.at(hub) : 0;
 
@@ -211,7 +189,7 @@ int find_next_seed(int procId, int nprocs, const vector<int> &selected_seeds, co
     return global_best_hub;
 }
 
-vector<int> find_seeds(int procId, int nprocs, int numParts, const pair<int, int> &first_seed, const vector<int> &hub_nodes, const unordered_map<int, int> &global_degree, const unordered_map<int, vector<int>> &adj) {
+vector<int> find_seeds(int procId, int nprocs, int numParts, size_t num_nodes, const pair<int, int> &first_seed, const vector<int> &hub_nodes, const unordered_map<int, int> &global_degree, const unordered_map<int, vector<int>> &adj) {
     auto total_start_time = chrono::high_resolution_clock::now();
     vector<int> selected_seeds = {first_seed.first};
     if (numParts <= 0 || hub_nodes.empty()) {
@@ -221,14 +199,14 @@ vector<int> find_seeds(int procId, int nprocs, int numParts, const pair<int, int
     
     if (procId == 0) cout << "Finding " << numParts << " seeds from " << hub_nodes.size() << " hub nodes using " << nprocs << " processes..." << endl;
 
-    vector<bool> used_hubs(hub_nodes.size(), false);
+    boost::dynamic_bitset<> used_hubs(hub_nodes.size());
     auto it = find(hub_nodes.begin(), hub_nodes.end(), first_seed.first);
-    if (it != hub_nodes.end()) used_hubs[distance(hub_nodes.begin(), it)] = true;
+    if (it != hub_nodes.end()) used_hubs.set(distance(hub_nodes.begin(), it));
 
     for (int k = 1; k < numParts; k++) {
         auto start_time = chrono::high_resolution_clock::now();
 
-        int next_seed = find_next_seed(procId, nprocs, selected_seeds, hub_nodes, used_hubs, adj, global_degree);
+        int next_seed = find_next_seed(procId, nprocs, selected_seeds, hub_nodes, used_hubs, adj, global_degree, num_nodes);
         
         auto end_time = chrono::high_resolution_clock::now();
         auto duration = chrono::duration_cast<chrono::milliseconds>(end_time - start_time);
@@ -241,7 +219,7 @@ vector<int> find_seeds(int procId, int nprocs, int numParts, const pair<int, int
         selected_seeds.push_back(next_seed);
 
         auto it = find(hub_nodes.begin(), hub_nodes.end(), next_seed);
-        if (it != hub_nodes.end()) used_hubs[distance(hub_nodes.begin(), it)] = true;
+        if (it != hub_nodes.end()) used_hubs.set(distance(hub_nodes.begin(), it));
 
         int next_degree = global_degree.count(next_seed) ? global_degree.at(next_seed) : 0;
         if (procId == 0) cout << "Selected seed " << (k + 1) << ": " << next_seed << " with degree " << next_degree << " (took " << duration.count() << " ms)\n" << endl;
