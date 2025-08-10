@@ -3,11 +3,9 @@
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
+#include <queue>
 #include <algorithm>
 #include <iostream>
-#include <cstdint>
-#include <iterator>
-#include <roaring/roaring.h>
 
 #include "graph_types.h"
 #include "utils.hpp"
@@ -15,529 +13,447 @@
 
 using namespace std;
 
-vector<int> get_assigned_partitions(int procId, int nprocs, int numParts) {
-    vector<int> assigned;
-    for (int p = 0; p < numParts; p++) {
-        if (p % nprocs == procId) assigned.push_back(p);
-    }
-    return assigned;
+// ======== Ghost 캐시 구조 확장: 이웃 + 현재 라벨 ========
+struct GhostEntry {
+    std::vector<int> nbrs; // 이웃 목록
+    int label = -1;        // 소유 랭크가 알고 있는 현재 라벨 (-1: 미라벨)
+};
+
+// ======== 유틸 ========
+static inline bool is_unlabeled_local(const unordered_map<int,int>& node_label, int v) {
+    auto it = node_label.find(v);
+    return (it == node_label.end() || it->second == -1);
 }
 
-void update_partition_csr(int partition_id, const vector<int> &partition_nodes, const unordered_map<int, vector<int>> &local_adj, Graph &partition_graph, GhostNodes &ghost_nodes) {
-    partition_graph.clear();
-    ghost_nodes.clear();
+static inline bool is_unlabeled(const unordered_map<int,int>& node_label,
+                                const unordered_map<int, GhostEntry>& ghost_nodes,
+                                const unordered_map<int, vector<int>>& local_adj,
+                                int v) {
+    if (local_adj.count(v)) return is_unlabeled_local(node_label, v);
+    auto it = ghost_nodes.find(v);
+    if (it == ghost_nodes.end()) return true; // 아직 정보 없음 → 미라벨 취급
+    return (it->second.label == -1);
+}
 
-    if (partition_nodes.empty()) return;
-
-    unordered_map<int, int> global_to_local;
-    int local_idx = 0;
-    for (int idx : partition_nodes) {
-        global_to_local[idx] = local_idx++;
+static void fetch_ghost_nodes(
+    const unordered_set<int> &to_request_ghosts,
+    const unordered_map<int, vector<int>> &local_adj,
+    const unordered_map<int, int> &node_label,   // 현재 소유 랭크의 라벨 테이블
+    int procId,
+    int nprocs,
+    unordered_map<int, GhostEntry> &ghost_nodes  // [출력] ghost_id → {nbrs, label}
+) {
+    // 1) 각 소유 랭크별 요청 목록 구성
+    vector<vector<int>> requests_per_rank(nprocs);
+    for (int ghost : to_request_ghosts) {
+        int owner = ghost % nprocs; // 예시: owner = gid % nprocs
+        requests_per_rank[owner].push_back(ghost);
     }
 
-    size_t partition_nodes_size = partition_nodes.size();
-    partition_graph.num_vertices = static_cast<int>(partition_nodes_size);
-    partition_graph.row_ptr.resize(partition_nodes_size + 1, 0);
-    partition_graph.global_ids = partition_nodes;
-    partition_graph.vertex_labels.resize(partition_nodes_size, partition_id);
+    // 2) 요청 카운트 교환
+    vector<int> send_counts(nprocs, 0), recv_counts(nprocs, 0);
+    for (int r = 0; r < nprocs; ++r) send_counts[r] = (int)requests_per_rank[r].size();
+    MPI_Alltoall(send_counts.data(), 1, MPI_INT, recv_counts.data(), 1, MPI_INT, MPI_COMM_WORLD);
 
-    int edge_count = 0;
-    for (size_t i = 0; i < partition_nodes_size; i++) {
-        int gid = partition_nodes[i];
-        auto adj_it = local_adj.find(gid);
+    // 3) 요청 버퍼 플래튼
+    vector<int> sdispls(nprocs, 0), rdispls(nprocs, 0);
+    int s_total = 0, r_total = 0;
+    for (int r = 0; r < nprocs; ++r) {
+        sdispls[r] = s_total; s_total += send_counts[r];
+        rdispls[r] = r_total; r_total += recv_counts[r];
+    }
+    vector<int> sendbuf(s_total), recvbuf(r_total);
+    for (int r = 0, idx = 0; r < nprocs; ++r)
+        for (int g : requests_per_rank[r]) sendbuf[idx++] = g;
 
-        if (adj_it == local_adj.end()) {
-            partition_graph.row_ptr[i + 1] = edge_count;
-            continue;
+    // 4) 요청 전송
+    MPI_Alltoallv(sendbuf.data(), send_counts.data(), sdispls.data(), MPI_INT,
+                  recvbuf.data(), recv_counts.data(), rdispls.data(), MPI_INT,
+                  MPI_COMM_WORLD);
+
+    // 5) 소유 랭크에서 응답(이웃 + 현재 라벨) 직렬화
+    vector<vector<int>> send_reply_per_rank(nprocs);
+    vector<int> send_reply_counts(nprocs, 0);
+
+    for (int r = 0; r < nprocs; ++r) {
+        auto &out = send_reply_per_rank[r];
+        for (int j = 0; j < recv_counts[r]; ++j) {
+            int nid = recvbuf[rdispls[r] + j];
+
+            // 기본값
+            int label = -1;
+            int degree = 0;
+            const vector<int>* nbrs_ptr = nullptr;
+
+            auto adj_it = local_adj.find(nid);
+            if (adj_it != local_adj.end()) {
+                nbrs_ptr = &adj_it->second;
+                degree = (int)nbrs_ptr->size();
+                auto lab_it = node_label.find(nid);
+                if (lab_it != node_label.end()) label = lab_it->second;
+            }
+
+            out.push_back(nid);
+            out.push_back(degree);
+            out.push_back(label);
+            if (degree && nbrs_ptr) {
+                for (int v : *nbrs_ptr) out.push_back(v);
+            }
         }
+        send_reply_counts[r] = (int)out.size();
+    }
 
-        const vector<int> &neighbors = adj_it->second;
-        for (int ngid : neighbors) {
-            if (global_to_local.count(ngid)) {
-                partition_graph.col_indices.push_back(global_to_local[ngid]);
+    // 6) 응답 크기 교환
+    vector<int> recv_reply_counts(nprocs, 0);
+    MPI_Alltoall(send_reply_counts.data(), 1, MPI_INT,
+                 recv_reply_counts.data(), 1, MPI_INT, MPI_COMM_WORLD);
+
+    // 7) 응답 버퍼 플래튼 + 전송
+    vector<int> reply_displs(nprocs, 0), recv_reply_displs(nprocs, 0);
+    int reply_total = 0, recv_reply_total = 0;
+    for (int r = 0; r < nprocs; ++r) {
+        reply_displs[r] = reply_total; reply_total += send_reply_counts[r];
+        recv_reply_displs[r] = recv_reply_total; recv_reply_total += recv_reply_counts[r];
+    }
+    vector<int> send_reply(reply_total), recv_reply(recv_reply_total);
+
+    for (int r = 0, idx = 0; r < nprocs; ++r)
+        for (int v : send_reply_per_rank[r]) send_reply[idx++] = v;
+
+    MPI_Alltoallv(send_reply.data(), send_reply_counts.data(), reply_displs.data(), MPI_INT,
+                  recv_reply.data(), recv_reply_counts.data(), recv_reply_displs.data(), MPI_INT,
+                  MPI_COMM_WORLD);
+
+    // 8) 역직렬화하여 ghost_nodes 캐시 갱신
+    for (int i = 0; i < recv_reply_total; ) {
+        int node_id = recv_reply[i++];
+        int degree  = recv_reply[i++];
+        int label   = recv_reply[i++];
+
+        vector<int> nbrs;
+        nbrs.reserve(degree);
+        for (int d = 0; d < degree; ++d) nbrs.push_back(recv_reply[i++]);
+
+        ghost_nodes[node_id] = GhostEntry{ std::move(nbrs), label };
+    }
+}
+
+void partition_expansion(
+    int procId, 
+    int nprocs, 
+    int numParts, 
+    const vector<int> &seeds, 
+    const unordered_map<int, int> &global_degree,
+    const unordered_map<int, vector<int>> &local_adj, 
+    unordered_map<int, Graph> &local_partition_graphs, 
+    unordered_map<int, GhostNodes> &local_partition_ghosts
+) {
+    int total_num = global_degree.size();
+    vector<vector<int>> partition_verts(numParts);
+    vector<queue<int>> frontiers(numParts);
+
+    unordered_map<int, int> node_label;
+    unordered_map<int, GhostEntry> ghost_nodes;
+
+    vector<int> my_partitions;
+
+    for (const auto &kv : local_adj) node_label[kv.first] = -1;
+
+    unordered_set<int> initial_ghost_seed;
+    for (int p = 0; p < numParts; ++p) {
+        int seed = seeds[p];
+        if (p % nprocs == procId) {
+            if (local_adj.count(seed)) {
+                node_label[seed] = p;
+                partition_verts[p].push_back(seed);
             } else {
-                if (ghost_nodes.global_to_local.count(ngid) == 0) {
-                    int ghost_idx = static_cast<int>(ghost_nodes.global_ids.size());
-                    ghost_nodes.global_ids.push_back(ngid);
-                    ghost_nodes.ghost_labels.push_back(-1);
-                    ghost_nodes.global_to_local[ngid] = ghost_idx;
-                }
-
-                int ghost_idx = ghost_nodes.global_to_local[ngid];
-                partition_graph.col_indices.push_back(partition_graph.num_vertices + ghost_idx);
+                initial_ghost_seed.insert(seed);
             }
-
-            edge_count++;
-        }
-
-        partition_graph.row_ptr[i + 1] = edge_count;
-    }
-
-    partition_graph.num_edges = edge_count;
-}
-
-int compute_partition_degree(roaring_bitmap_t *neighbors_bitmap, roaring_bitmap_t *partition_bitmap) {
-    roaring_bitmap_t *intersection = roaring_bitmap_and(neighbors_bitmap, partition_bitmap);
-    int count = static_cast<int>(roaring_bitmap_get_cardinality(intersection));
-    roaring_bitmap_free(intersection);
-    return count;
-}
-
-inline double compute_ratio(int node, roaring_bitmap_t *neighbors_bitmap, roaring_bitmap_t *partition_bitmap, const unordered_map<int, int> &global_degree) {
-    auto it = global_degree.find(node);
-    if (it == global_degree.end()) return 0.0;
-
-    int node_degree = it->second;
-    if (node_degree == 0) return 0.0;
-    else if (node_degree == 1) return 1.0;
-
-    int partition_degree = compute_partition_degree(neighbors_bitmap, partition_bitmap);
-
-    return static_cast<double>(partition_degree) / node_degree;
-}
-
-vector<FrontierNode> collect_local_frontier_candidates(int procId, const vector<int> &partition_nodes, const unordered_map<int, roaring_bitmap_t*> &bitmap_adj, const unordered_set<int> &global_partitioned, const unordered_map<int, int> &global_degree, int partition_id, int theta) {
-    if (partition_nodes.empty()) return vector<FrontierNode>();
-
-    roaring_bitmap_t *partition_bitmap = create_partition_bitmap(partition_nodes);
-    
-    vector<pair<int, roaring_bitmap_t*>> adj_vector;
-    adj_vector.reserve(bitmap_adj.size());
-    for (const auto &pair : bitmap_adj) {
-        adj_vector.push_back(pair);
-    }
-
-    vector<FrontierNode> local_candidates;
-    size_t adj_vector_size = adj_vector.size();
-    local_candidates.reserve(adj_vector_size);
-
-    #pragma omp parallel
-    {
-        vector<FrontierNode> thread_candidates;
-
-        #pragma omp for schedule(dynamic)
-        for (int i = 0; i < static_cast<int>(adj_vector_size); ++i) {
-            int node = adj_vector[i].first;
-            roaring_bitmap_t *neighbors_bitmap = adj_vector[i].second;
-
-            if (global_partitioned.count(node)) continue;
-
-            int partition_degree = compute_partition_degree(neighbors_bitmap, partition_bitmap);
-            if (partition_degree == 0) continue;
-
-            double ratio = compute_ratio(node, neighbors_bitmap, partition_bitmap, global_degree);
-            if (ratio <= 0.0) continue;
-
-            auto degree_it = global_degree.find(node);
-            if (degree_it == global_degree.end()) continue;
-
-            int total_degree = degree_it->second;
-            thread_candidates.emplace_back(node, ratio, partition_degree, total_degree, partition_id);
-        }
-
-        #pragma omp critical(merge_candidates)
-        {
-            local_candidates.insert(local_candidates.end(), thread_candidates.begin(), thread_candidates.end());
+            frontiers[p].push(seed);
+            my_partitions.push_back(p);
         }
     }
+    fetch_ghost_nodes(initial_ghost_seed, local_adj, node_label, procId, nprocs, ghost_nodes);
 
-    roaring_bitmap_free(partition_bitmap);
+    int local_labeled = 0;
+    for (const auto &[gid, lbl] : node_label) if (lbl != -1) ++local_labeled;
+    int total_labeled = 0;
+    MPI_Allreduce(&local_labeled, &total_labeled, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
 
-    if (static_cast<int>(local_candidates.size()) > theta) {
-        nth_element(local_candidates.begin(), local_candidates.begin() + theta, local_candidates.end(), greater<FrontierNode>());
-        local_candidates.resize(theta);
-    }
+    int round = 0;
+    while (total_labeled < total_num) {
 
-    sort(local_candidates.begin(), local_candidates.end(), greater<FrontierNode>());
-    return local_candidates;
-}
+        bool all_empty = true;
 
-vector<FrontierNode> select_global_frontiers(int procId, int nprocs, const vector<FrontierNode> &local_frontiers, int theta) {
-    vector<int> sendbuf;
-    sendbuf.push_back(static_cast<int>(local_frontiers.size()));
-    for (const auto &frontier : local_frontiers) {
-        sendbuf.push_back(frontier.vertex);
-        sendbuf.push_back(frontier.partition_degree);
-        sendbuf.push_back(frontier.total_degree);
-        sendbuf.push_back(static_cast<int>(frontier.ratio * 1000000));
-        sendbuf.push_back(frontier.partition_id);
-    }
-
-    int send_size = static_cast<int>(sendbuf.size());
-
-    vector<int> recv_counts(nprocs);
-    MPI_Allgather(&send_size, 1, MPI_INT, recv_counts.data(), 1, MPI_INT, MPI_COMM_WORLD);
-
-    vector<int> displs(nprocs);
-    int total_size = 0;
-    for (int p = 0; p < nprocs; p++) {
-        displs[p] = total_size;
-        total_size += recv_counts[p];
-    }
-    if (total_size == 0) return vector<FrontierNode>();
-
-    vector<int> recvbuf(total_size);
-    MPI_Allgatherv(sendbuf.data(), send_size, MPI_INT, recvbuf.data(), recv_counts.data(), displs.data(), MPI_INT, MPI_COMM_WORLD);
-
-    vector<FrontierNode> all_frontiers;
-    int idx = 0;
-    for (int p = 0; p < nprocs; p++) {
-        if (recv_counts[p] == 0) continue;
-
-        int num_frontiers = recvbuf[idx++];
-        for (int i = 0; i < num_frontiers; i++) {
-            int vertex = recvbuf[idx++];
-            int partition_degree = recvbuf[idx++];
-            int total_degree = recvbuf[idx++];
-            double ratio = static_cast<double>(recvbuf[idx++]) / 1000000.0;
-            int partition_id = recvbuf[idx++];
-
-            all_frontiers.emplace_back(vertex, ratio, partition_degree, total_degree, partition_id);
-        }
-    }
-
-    unordered_map<int, FrontierNode> best_frontiers;
-    for (const auto &frontier : all_frontiers) {
-        auto it = best_frontiers.find(frontier.vertex);
-        if (it == best_frontiers.end()) {
-            best_frontiers[frontier.vertex] = frontier;
-        } else {
-            const double ratio_diff = frontier.ratio - it->second.ratio;
-            const double epsilon = 1e-9;
-
-            if (ratio_diff > epsilon) {
-                it->second = frontier;
-            } else if (abs(ratio_diff) <= epsilon) {
-                if (frontier.partition_degree > it->second.partition_degree) {
-                    it->second = frontier;
-                } else if (frontier.partition_degree == it->second.partition_degree) {
-                    if (frontier.partition_id < it->second.partition_id) it->second = frontier;
-                }
-            }
-        }
-    }
-
-    vector<FrontierNode> global_frontiers;
-    global_frontiers.reserve(best_frontiers.size());
-    for (const auto &[node, frontier] : best_frontiers) {
-        global_frontiers.push_back(frontier);
-    }
-
-    if (static_cast<int>(global_frontiers.size()) > theta) {
-        nth_element(global_frontiers.begin(), global_frontiers.begin() + theta, global_frontiers.end(), greater<FrontierNode>());
-        global_frontiers.resize(theta);
-    }
-
-    sort(global_frontiers.begin(), global_frontiers.end(), greater<FrontierNode>());
-    return global_frontiers;
-}
-
-vector<PartitionUpdate> resolve_race_condition(int procId, int nprocs, const vector<FrontierNode> &candidates, unordered_set<int> &global_partitioned) {
-    vector<PartitionUpdate> updates;
-    vector<FrontierNode> sorted_candidates = candidates;
-    sort(sorted_candidates.begin(), sorted_candidates.end(), [](const FrontierNode &a, const FrontierNode &b) {
-        if (abs(a.ratio - b.ratio) > 1e-9) return a.ratio > b.ratio;
-        if (a.partition_degree != b.partition_degree) return a.partition_degree > b.partition_degree;
-        return a.vertex < b.vertex;
-    });
-
-    for (const auto &candidate : sorted_candidates) {
-        if (global_partitioned.find(candidate.vertex) != global_partitioned.end()) continue;
-
-        int local_decision = 1;
-        int global_decision;
-        MPI_Allreduce(&local_decision, &global_decision, 1, MPI_INT, MPI_MIN, MPI_COMM_WORLD);
-
-        if (global_decision == 1) updates.emplace_back(candidate.partition_id, candidate.vertex);
-    }
-
-    return updates;
-}
-
-int find_smallest_partition(const vector<vector<int>> &partitions) {
-    size_t min_size = SIZE_MAX;
-    int min_partition = 0;
-    size_t size = partitions.size();
-
-    for (size_t p = 0; p < size; p++) {
-        size_t current_size = partitions[p].size();
-        if (current_size < min_size) {
-            min_size = current_size;
-            min_partition = static_cast<int>(p);
-        } else if (current_size == min_size && static_cast<int>(p) < min_partition) {
-            min_partition = static_cast<int>(p);
-        }
-    }
-    
-    return min_partition;
-}
-
-vector<PartitionUpdate> handle_isolated_nodes(int procId, int nprocs, int numParts, const unordered_set<int> &all_nodes, const unordered_set<int> &global_partitioned, const vector<vector<int>> &partitions, int theta) {
-    vector<PartitionUpdate> local_updates;
-    vector<int> isolated_nodes;
-    int node_index = 0;
-
-    for (int node : all_nodes) {
-        if (global_partitioned.find(node) == global_partitioned.end()) {
-            if (node_index % nprocs == procId) isolated_nodes.push_back(node);
-            node_index++;
-        }
-    }
-
-    int max_batch = min(theta / numParts, static_cast<int>(isolated_nodes.size()));
-
-    if (!isolated_nodes.empty() && max_batch > 0) {
-        vector<pair<size_t, int>> partition_sizes;
-        for (int p = 0; p < numParts; p++) {
-            partition_sizes.push_back({partitions[p].size(), p});
-        }
-        sort(partition_sizes.begin(), partition_sizes.end());
-
-        for (int i = 0; i < max_batch && i < static_cast<int>(isolated_nodes.size()); i++) {
-            int target_partition = partition_sizes[i % numParts].second;
-            local_updates.emplace_back(target_partition, isolated_nodes[i]);
-        }
-    }
-
-    return local_updates;
-}
-
-void update_local_ghost_labels(int procId, int nprocs, const vector<int> &assigned_partitions, unordered_map<int, Graph> &local_partition_graphs, unordered_map<int, GhostNodes> &local_partition_ghosts, const vector<vector<int>> &partitions) {
-    unordered_map<int, int> node_to_partition;
-    int partitions_size = static_cast<int>(partitions.size());
-    for (int p = 0; p < partitions_size; p++) {
-        for (int node : partitions[p]) {
-            node_to_partition[node] = p;
-        }
-    }
-
-    vector<int> local_mapping;
-    local_mapping.push_back(static_cast<int>(node_to_partition.size()));
-    for (const auto &[node, partition] : node_to_partition) {
-        local_mapping.push_back(node);
-        local_mapping.push_back(partition);
-    }
-
-    int local_size = static_cast<int>(local_mapping.size());
-    vector<int> recv_counts(nprocs);
-    MPI_Allgather(&local_size, 1, MPI_INT, recv_counts.data(), 1, MPI_INT, MPI_COMM_WORLD);
-
-    vector<int> displs(nprocs);
-    int total_size = 0;
-    for (int p = 0; p < nprocs; p++) {
-        displs[p] = total_size;
-        total_size += recv_counts[p];
-    }
-
-    if (total_size > 0) {
-        vector<int> global_mapping(total_size);
-        MPI_Allgatherv(local_mapping.data(), local_size, MPI_INT, global_mapping.data(), recv_counts.data(), displs.data(), MPI_INT, MPI_COMM_WORLD);
-
-        unordered_map<int, int> global_node_to_partition;
-        int idx = 0;
-        for (int p = 0; p < nprocs; p++) {
-            if (recv_counts[p] == 0) continue;
-
-            int num_nodes = global_mapping[idx++];
-            for (int i = 0; i < num_nodes; i++) {
-                int node = global_mapping[idx++];
-                int partition = global_mapping[idx++];
-                global_node_to_partition[node] = partition;
-            }
-        }
-
-        for (int p : assigned_partitions) {
-            auto ghost_it = local_partition_ghosts.find(p);
-            if (ghost_it == local_partition_ghosts.end()) continue;
-            
-            GhostNodes &ghost = ghost_it->second;
-            for (size_t i = 0; i < ghost.global_ids.size(); i++) {
-                int ghost_node = ghost.global_ids[i];
-                auto it = global_node_to_partition.find(ghost_node);
-                if (it != global_node_to_partition.end()) {
-                    ghost.ghost_labels[i] = it->second;
-                }
-            }
-        }
-    }
-}
-void sync_local_csr_updates(int procId, int nprocs, const vector<int> &assigned_partitions, const vector<PartitionUpdate> &updates, const unordered_map<int, vector<int>> &local_adj, unordered_map<int, Graph> &local_partition_graphs, unordered_map<int, GhostNodes> &local_partition_ghosts, const vector<vector<int>> &partitions) {
-    unordered_set<int> updated_partitions;
-    for (const auto &update : updates) {
-        updated_partitions.insert(update.partition_id);
-    }
-
-    for (int id : assigned_partitions) {
-        if (updated_partitions.count(id)) {
-            update_partition_csr(id, partitions[id], local_adj, local_partition_graphs[id], local_partition_ghosts[id]);
-        }
-    }
-
-    update_local_ghost_labels(procId, nprocs, assigned_partitions, local_partition_graphs, local_partition_ghosts, partitions);
-}
-
-void partition_expansion(int procId, int nprocs, int numParts, int theta, const vector<int> &seeds, const unordered_map<int, int> &global_degree, const unordered_map<int, vector<int>> &local_adj, vector<vector<int>> &partitions, unordered_map<int, Graph> &local_partition_graphs, unordered_map<int, GhostNodes> &local_partition_ghosts) {
-    unordered_set<int> all_nodes;
-    for (const auto &[node, degree] : global_degree) {
-        all_nodes.insert(node);
-    }
-
-    unordered_set<int> global_partitioned;
-    partitions.resize(numParts);
-    unordered_map<int, roaring_bitmap_t*> bitmap_adj = convert_adj(local_adj);
-    vector<int> assigned_partitions = get_assigned_partitions(procId, nprocs, numParts);
-    
-    for (int p : assigned_partitions) {
-        local_partition_graphs[p] = Graph();
-        local_partition_ghosts[p] = GhostNodes();
-    }
-
-    if (static_cast<int>(seeds.size()) != numParts) {
-        cerr << "[Error] Total number of seeds must be same with number of partition\n";
-        free_converted_graph(bitmap_adj);
-        return;
-    }
-
-    vector<int> sorted_seeds = seeds;
-    sort(sorted_seeds.begin(), sorted_seeds.end());
-
-    for (int i = 0; i < numParts; i++) {
-        partitions[i].push_back(sorted_seeds[i]);
-        global_partitioned.insert(sorted_seeds[i]);
-
-        if (find(assigned_partitions.begin(), assigned_partitions.end(), i) != assigned_partitions.end()) {
-            update_partition_csr(i, partitions[i], local_adj, local_partition_graphs[i], local_partition_ghosts[i]);
-        }
-    }
-
-    update_local_ghost_labels(procId, nprocs, assigned_partitions, local_partition_graphs, local_partition_ghosts, partitions);
-
-    if (procId == 0) {
-        cout << "[proc " << procId << "] Seed distribution\n";
-        for (int p = 0; p < numParts; p++) {
-            cout << " Partition " << p << ": Node" << sorted_seeds[p] << "\n";
-        }
-        cout << "[proc " << procId << "] Starting iterative expansion...\n";
-        cout << "[proc " << procId << "] Process assignment: ";
-        for (int proc = 0; proc < nprocs; proc++) {
-            vector<int> proc_partitions = get_assigned_partitions(proc, nprocs, numParts);
-            cout << "Proc" << proc << "(";
-            for (size_t i = 0; i < proc_partitions.size(); i++) {
-                cout << "P" << proc_partitions[i];
-                if (i < proc_partitions.size() - 1) cout << ",";
-            }
-            cout << ") ";
-        }
-        cout << "\n";
-    }
-
-    int iteration = 0;
-    const size_t total_nodes = all_nodes.size();
-
-    while (global_partitioned.size() < total_nodes) {
-        iteration++;
-
-        if (procId == 0) cout << "[proc " << procId << "] Iteration " << iteration << " - Partitioned: " << global_partitioned.size() << "/" << all_nodes.size() << "\n";
-
-        bool expansion = false;
-
-        for (int p = 0; p < numParts; p++) {
-            if (partitions[p].empty()) continue;
-
-            vector<FrontierNode> local_frontiers;
-            if (find(assigned_partitions.begin(), assigned_partitions.end(), p) != assigned_partitions.end()) {
-                local_frontiers = collect_local_frontier_candidates(procId, partitions[p], bitmap_adj, global_partitioned, global_degree, p, theta);
-            }
-            
-            vector<FrontierNode> global_frontiers = select_global_frontiers(procId, nprocs, local_frontiers, theta);
-            vector<PartitionUpdate> updates = resolve_race_condition(procId, nprocs, global_frontiers, global_partitioned);
-
-            if (!updates.empty()) {
-                sync_updates(procId, nprocs, updates, partitions);
-                sync_partitioned_status(procId, nprocs, updates, global_partitioned);
-                sync_local_csr_updates(procId, nprocs, assigned_partitions, updates, local_adj, local_partition_graphs, local_partition_ghosts, partitions);
-                
-                expansion = true;
-
-                if (procId == 0) {
-                    cout << "[proc " << procId << "] Partition " << p << " added " << updates.size() << " nodes (new size: " << partitions[p].size() << ")\n";
-                }
-
-                if (procId == 0 && find(assigned_partitions.begin(), assigned_partitions.end(), p) != assigned_partitions.end()) {
-                    cout << "[proc " << procId << "] CSR - Vertices: " << local_partition_graphs[p].num_vertices 
-                         << ", Edges: " << local_partition_graphs[p].num_edges 
-                         << ", Ghosts: " << local_partition_ghosts[p].global_ids.size() << "\n";
-                    
-                    if (!local_partition_ghosts[p].global_ids.empty()) {
-                        cout << "[proc " << procId << "] Sample Ghost Labels for Partition " << p << ": ";
-                        int sample_count = min(5, static_cast<int>(local_partition_ghosts[p].global_ids.size()));
-                        for (int g = 0; g < sample_count; g++) {
-                            cout << "Node" << local_partition_ghosts[p].global_ids[g] 
-                                 << "(label:" << local_partition_ghosts[p].ghost_labels[g] << ") ";
-                        }
-                        cout << "\n";
+        cout << all_empty << endl;
+        //프론티어 없는데 남는게 있는지 검사
+        if (all_empty) {
+            for (const auto &[v, _] : local_adj) {
+                if (node_label.count(v) == 0 || node_label[v] == -1) {
+                    int best_p = my_partitions[0];
+                    for (int p : my_partitions) {
+                        if (partition_verts[p].size() < partition_verts[best_p].size()) best_p = p;
                     }
+                    node_label[v] = best_p;
+                    partition_verts[best_p].push_back(v);
+                    frontiers[best_p].push(v);
                 }
             }
-
-            MPI_Barrier(MPI_COMM_WORLD);
         }
 
-        if (procId == 0) cout << "\n";
-        
-        if (!expansion) {
-            size_t remaining_nodes = total_nodes - global_partitioned.size();
-            if (remaining_nodes > 0) {
-                vector<PartitionUpdate> local_isolated_updates = handle_isolated_nodes(procId, nprocs, numParts, all_nodes, global_partitioned, partitions, theta);
-                vector<PartitionUpdate> all_isolated_updates = collect_updates(procId, nprocs, local_isolated_updates);
-            
-                if (!all_isolated_updates.empty()) {
-                    vector<FrontierNode> isolated_frontiers;
-                    for (const auto &update : all_isolated_updates) {
-                        isolated_frontiers.emplace_back(update.node, 1.0, 1, 1, update.partition_id);
-                    }
+        unordered_set<int> to_request_ghosts;
+        for (int p : my_partitions) {
+            queue<int> q = frontiers[p];
+            while (!q.empty()) {
+                int u = q.front(); q.pop();
 
-                    vector<PartitionUpdate> final_isolated_updates = resolve_race_condition(procId, nprocs, isolated_frontiers, global_partitioned);
+                const vector<int>* nbrs_ptr = nullptr;
+                if (local_adj.count(u)) nbrs_ptr = &local_adj.at(u);
+                else if (ghost_nodes.count(u)) nbrs_ptr = &ghost_nodes[u].nbrs;
+                if (!nbrs_ptr) continue;
 
-                    if (!final_isolated_updates.empty()) {
-                        sync_updates(procId, nprocs, final_isolated_updates, partitions);
-                        sync_partitioned_status(procId, nprocs, final_isolated_updates, global_partitioned);
-                        sync_local_csr_updates(procId, nprocs, assigned_partitions, final_isolated_updates, local_adj, local_partition_graphs, local_partition_ghosts, partitions);
-                        
-                        expansion = true;
-
-                        if (procId == 0) cout << "[proc " << procId << "] Processed " << final_isolated_updates.size() << " isolated nodes\n";
+                for (int v : *nbrs_ptr) {
+                    if ((is_unlabeled(node_label, ghost_nodes, local_adj, v)) &&
+                        !local_adj.count(v) && !ghost_nodes.count(v)) {
+                        to_request_ghosts.insert(v);
                     }
                 }
             }
         }
+        fetch_ghost_nodes(to_request_ghosts, local_adj, node_label, procId, nprocs, ghost_nodes);
+
+        vector<queue<int>> next_frontiers(numParts);
+        unordered_set<int> visited_this_round;
+        for (int p : my_partitions) {
+            queue<int> q = frontiers[p];
+            while (!q.empty()) {
+                int u = q.front(); q.pop();
+
+                const vector<int>* nbrs_ptr = nullptr;
+                if (local_adj.count(u)) nbrs_ptr = &local_adj.at(u);
+                else if (ghost_nodes.count(u)) nbrs_ptr = &ghost_nodes[u].nbrs;
+                if (!nbrs_ptr) continue;
+
+                for (int v : *nbrs_ptr) {
+                    if (is_unlabeled(node_label, ghost_nodes, local_adj, v) &&
+                        visited_this_round.insert(v).second) {
+                        next_frontiers[p].push(v);
+                    }
+                }
+            }
+        }
+
+
+        for (int p = 0; p < numParts; ++p) {
+            frontiers[p] = queue<int>();
+        }
+
+        unordered_map<int, vector<int>> node_partition_candidates;
+        for (int p = 0; p < numParts; ++p) {
+            while (!next_frontiers[p].empty()) {
+                int v = next_frontiers[p].front(); next_frontiers[p].pop();
+                frontiers[p].push(v);
+                node_partition_candidates[v].push_back(p);
+            }
+        }
+
+        unordered_map<int, vector<pair<int, vector<int>>>> ghost_requests_per_rank;
+        for (const auto &[v, plist] : node_partition_candidates) {
+            if (!is_unlabeled(node_label, ghost_nodes, local_adj, v)) continue;
+
+            if (local_adj.count(v)) {
+                int winner = plist[0];
+                for (int p : plist) {
+                    if (partition_verts[p].size() < partition_verts[winner].size()) winner = p;
+                    else if (partition_verts[p].size() == partition_verts[winner].size() && p < winner) winner = p;
+                }
+                node_label[v] = winner;
+                partition_verts[winner].push_back(v);
+            } else {
+                int owner = v % nprocs;
+                ghost_requests_per_rank[owner].emplace_back(v, plist);
+            }
+        }
+
+        vector<int> send_counts(nprocs), recv_counts(nprocs);
+        vector<vector<int>> sendbufs(nprocs);
+
+        for (int r = 0; r < nprocs; ++r) {
+            for (const auto &[v, plist] : ghost_requests_per_rank[r]) {
+                sendbufs[r].push_back(v);
+                sendbufs[r].push_back(plist.size());
+                for (int p : plist) sendbufs[r].push_back(p);
+            }
+            send_counts[r] = sendbufs[r].size();
+        }
+
+        MPI_Alltoall(send_counts.data(), 1, MPI_INT,
+                     recv_counts.data(), 1, MPI_INT, MPI_COMM_WORLD);
+                     
         MPI_Barrier(MPI_COMM_WORLD);
-    }
 
-    free_converted_graph(bitmap_adj);
-
-    if (procId == 0) {
-        cout << "[proc " << procId << "] Partition expansion completed after " << iteration << " iterations\n";
-        cout << "[proc " << procId << "] Final CSR Statistics (Local partitions only):\n";
-    }
-
-    for (int p : assigned_partitions) {
-        cout << "[proc " << procId << "] Partition " << p 
-             << " - Nodes: " << partitions[p].size()
-             << ", CSR Vertices: " << local_partition_graphs[p].num_vertices
-             << ", CSR Edges: " << local_partition_graphs[p].num_edges
-             << ", Ghost Nodes: " << local_partition_ghosts[p].global_ids.size() << "\n";
-        
-        if (!local_partition_ghosts[p].global_ids.empty()) {
-            unordered_map<int, int> label_count;
-            for (int label : local_partition_ghosts[p].ghost_labels) {
-                label_count[label]++;
-            }
-            cout << "[proc " << procId << "] Partition " << p << " Ghost Label Distribution: ";
-            for (const auto &[label, count] : label_count) {
-                cout << "P" << label << ":" << count << " ";
-            }
-            cout << "\n";
+        vector<int> sdispls(nprocs), rdispls(nprocs);
+        int s_total = 0, r_total = 0;
+        for (int r = 0; r < nprocs; ++r) {
+            sdispls[r] = s_total; s_total += send_counts[r];
+            rdispls[r] = r_total; r_total += recv_counts[r];
         }
+        vector<int> sendbuf(s_total), recvbuf(r_total);
+        for (int r = 0, idx = 0; r < nprocs; ++r) {
+            for (int v : sendbufs[r]) sendbuf[idx++] = v;
+        }
+
+        MPI_Alltoallv(sendbuf.data(), send_counts.data(), sdispls.data(), MPI_INT,
+                      recvbuf.data(), recv_counts.data(), rdispls.data(), MPI_INT,
+                      MPI_COMM_WORLD);
+
+        MPI_Barrier(MPI_COMM_WORLD);
+        int i = 0;
+        while (i < recvbuf.size()) {
+            int v = recvbuf[i++];
+            int len = recvbuf[i++];
+            vector<int> plist;
+            for (int j = 0; j < len; ++j) plist.push_back(recvbuf[i++]);
+
+            if (!local_adj.count(v)) continue;
+
+            int winner = plist[0];
+            for (int p : plist) {
+                if (partition_verts[p].size() < partition_verts[winner].size()) winner = p;
+                else if (partition_verts[p].size() == partition_verts[winner].size() && p < winner) winner = p;
+            }
+            node_label[v] = winner;
+            partition_verts[winner].push_back(v);
+        }
+
+        vector<vector<int>> label_updates_per_rank(nprocs);
+        vector<int> upd_send_counts(nprocs, 0);
+
+        for (int r = 0; r < nprocs; ++r) {
+            int start = rdispls[r];
+            int end   = rdispls[r] + recv_counts[r];
+            auto &ub  = label_updates_per_rank[r];
+            for (int i = start; i < end; ) {
+                int v   = recvbuf[i++];
+                int len = recvbuf[i++];
+                i += len;
+                
+                auto it = node_label.find(v);
+                int winner = (it != node_label.end() ? it->second : -1);
+
+                ub.push_back(v);
+                ub.push_back(winner);
+            }
+            upd_send_counts[r] = (int)label_updates_per_rank[r].size();
+        }
+
+        vector<int> upd_recv_counts(nprocs, 0);
+        MPI_Alltoall(upd_send_counts.data(), 1, MPI_INT,
+                     upd_recv_counts.data(), 1, MPI_INT, MPI_COMM_WORLD);
+
+        vector<int> upd_sdispls(nprocs, 0), upd_rdispls(nprocs, 0);
+        int upd_stotal = 0, upd_rtotal = 0;
+        for (int r = 0; r < nprocs; ++r) { upd_sdispls[r] = upd_stotal; upd_stotal += upd_send_counts[r]; }
+        for (int r = 0; r < nprocs; ++r) { upd_rdispls[r] = upd_rtotal; upd_rtotal += upd_recv_counts[r]; }
+
+        vector<int> upd_sendbuf(upd_stotal), upd_recvbuf(upd_rtotal);
+        for (int r = 0, idx = 0; r < nprocs; ++r)
+            for (int x : label_updates_per_rank[r]) upd_sendbuf[idx++] = x;
+
+        MPI_Alltoallv(upd_sendbuf.data(), upd_send_counts.data(), upd_sdispls.data(), MPI_INT,
+                      upd_recvbuf.data(), upd_recv_counts.data(), upd_rdispls.data(), MPI_INT,
+                      MPI_COMM_WORLD);
+
+        // === (H) [요청자] 수신 → 고스트 캐시 라벨 갱신 ===
+        for (int i = 0; i < upd_rtotal; ) {
+            int v      = upd_recvbuf[i++];
+            int winner = upd_recvbuf[i++];
+            if (!local_adj.count(v)) {
+                auto &ge = ghost_nodes[v]; // 없으면 default 생성
+                ge.label = winner;
+                // ge.nbrs는 필요 시 fetch 때 이미 채워짐
+            }
+        }
+
+
+        local_labeled = 0;
+        for (const auto &[gid, lbl] : node_label)
+            if (lbl != -1) ++local_labeled;
+        MPI_Allreduce(&local_labeled, &total_labeled, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+        
+        MPI_Barrier(MPI_COMM_WORLD);
+        
+        ++round;
     }
+        // =========================
+    // 내부 변환 함수(lambda) 추가
+    // =========================
+    auto build_partition_graphs_and_ghosts = [&]() {
+        // owner 판별 람다
+        auto owner_of = [&](int gid) { return gid % nprocs; };
+
+        // 출력 컨테이너 초기화
+        for (int p = 0; p < numParts; ++p) {
+            local_partition_graphs[p].clear();
+            local_partition_ghosts[p].clear();
+        }
+
+        // 파티션별 로컬 정점 수집
+        unordered_map<int, vector<int>> part_vertices;
+        part_vertices.reserve(numParts);
+        for (const auto &kv : local_adj) {
+            int u = kv.first;
+            auto it = node_label.find(u);
+            if (it == node_label.end() || it->second < 0) continue;
+            int p = it->second;
+            part_vertices[p].push_back(u);
+        }
+
+        // 각 파티션에 대해 Graph/GhostNodes 구성
+        for (int p = 0; p < numParts; ++p) {
+            auto itv = part_vertices.find(p);
+            if (itv == part_vertices.end() || itv->second.empty()) continue;
+
+            vector<int> locals = itv->second;
+            sort(locals.begin(), locals.end());
+
+            Graph &G = local_partition_graphs[p];
+            GhostNodes &GN = local_partition_ghosts[p];
+
+            // Graph 기본 필드
+            G.num_vertices = (int)locals.size();
+            G.global_ids   = locals;
+            G.vertex_labels.assign(G.num_vertices, p);
+            G.row_ptr.assign(G.num_vertices + 1, 0);
+            G.col_indices.clear();
+            G.num_edges = 0;
+
+            // 고스트 등록 헬퍼
+            auto ensure_ghost = [&](int gid) {
+                if (GN.global_to_local.find(gid) != GN.global_to_local.end()) return;
+                int idx = (int)GN.global_ids.size();
+                GN.global_ids.push_back(gid);
+                int glabel = -1;
+                auto git = ghost_nodes.find(gid);
+                if (git != ghost_nodes.end()) glabel = git->second.label;
+                GN.ghost_labels.push_back(glabel);
+                GN.global_to_local.emplace(gid, idx);
+            };
+
+            // CSR 채우기 (col_indices는 글로벌 ID 저장)
+            for (int i = 0; i < G.num_vertices; ++i) {
+                int u = G.global_ids[i];
+                const auto &nbrs = local_adj.at(u);
+                for (int v : nbrs) {
+                    G.col_indices.push_back(v);
+                    ++G.num_edges;
+                    if (owner_of(v) != procId) ensure_ghost(v);
+                }
+                G.row_ptr[i + 1] = (int)G.col_indices.size();
+            }
+        }
+    };
+
+    // 내부 함수 호출
+    build_partition_graphs_and_ghosts();
 }

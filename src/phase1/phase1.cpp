@@ -126,7 +126,7 @@ Phase1Metrics run_phase1(
 
     std::unordered_map<int, Graph> tmp_graph;
     std::unordered_map<int, GhostNodes> tmp_ghost;
-    partition_expansion(mpi_rank, mpi_size, num_parts, theta, seeds, global_degree, graph, partitions, tmp_graph, tmp_ghost);
+    partition_expansion(mpi_rank, mpi_size, num_parts, seeds, global_degree, graph, tmp_graph, tmp_ghost);
     
     auto distribute_end = std::chrono::high_resolution_clock::now();
     auto load_duration = std::chrono::duration_cast<std::chrono::milliseconds>(distribute_start - load_start);
