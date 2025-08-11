@@ -89,7 +89,7 @@ static PartitionStats computePartitionStats(const Graph &g, const std::vector<in
         }
     }
 
-    // 💡 최적화: 단일 MPI 호출로 통합 (vertex + edge counts 동시 전송)
+    // 최적화: 단일 MPI 호출로 통합 (vertex + edge counts 동시 전송)
     std::vector<int> send_buffer(2 * num_partitions);
     std::vector<int> recv_buffer(2 * num_partitions);
     
