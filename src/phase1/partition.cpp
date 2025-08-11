@@ -13,7 +13,7 @@
 
 using namespace std;
 
-// ======== Ghost 캐시 구조 확장: 이웃 + 현재 라벨 ========
+// ======== Ghost 캐시 구조(이웃 + 현재 라벨) ========
 struct GhostEntry {
     std::vector<int> nbrs; // 이웃 목록
     int label = -1;        // 소유 랭크가 알고 있는 현재 라벨 (-1: 미라벨)
@@ -35,6 +35,31 @@ static inline bool is_unlabeled(const unordered_map<int,int>& node_label,
     return (it->second.label == -1);
 }
 
+// 라운드 종료 시에만 전역 파티션 크기 스냅샷 갱신(로컬 소유 노드 기준 합산)
+static void recompute_partition_sizes(
+    int numParts,
+    const std::unordered_map<int, std::vector<int>>& local_adj,
+    const std::unordered_map<int, int>& node_label,
+    std::vector<int>& part_size_global,
+    MPI_Comm comm = MPI_COMM_WORLD
+) {
+    if ((int)part_size_global.size() != numParts) {
+        part_size_global.assign(numParts, 0);
+    }
+    std::vector<int> local_count(numParts, 0);
+    for (const auto& kv : local_adj) {
+        int u = kv.first;
+        auto it = node_label.find(u);
+        if (it != node_label.end() && it->second >= 0) {
+            int p = it->second;
+            if (0 <= p && p < numParts) ++local_count[p];
+        }
+    }
+    MPI_Allreduce(local_count.data(), part_size_global.data(),
+                  numParts, MPI_INT, MPI_SUM, comm);
+}
+
+// 고스트 정보(이웃 + 현재 라벨) 가져오기
 static void fetch_ghost_nodes(
     const unordered_set<int> &to_request_ghosts,
     const unordered_map<int, vector<int>> &local_adj,
@@ -43,10 +68,12 @@ static void fetch_ghost_nodes(
     int nprocs,
     unordered_map<int, GhostEntry> &ghost_nodes  // [출력] ghost_id → {nbrs, label}
 ) {
-    // 1) 각 소유 랭크별 요청 목록 구성
+    auto owner_of = [&](int gid){ return gid % nprocs; };
+
+    // 1) 각 소유 랭크별 요청 목록
     vector<vector<int>> requests_per_rank(nprocs);
     for (int ghost : to_request_ghosts) {
-        int owner = ghost % nprocs; // 예시: owner = gid % nprocs
+        int owner = owner_of(ghost);
         requests_per_rank[owner].push_back(ghost);
     }
 
@@ -58,10 +85,9 @@ static void fetch_ghost_nodes(
     // 3) 요청 버퍼 플래튼
     vector<int> sdispls(nprocs, 0), rdispls(nprocs, 0);
     int s_total = 0, r_total = 0;
-    for (int r = 0; r < nprocs; ++r) {
-        sdispls[r] = s_total; s_total += send_counts[r];
-        rdispls[r] = r_total; r_total += recv_counts[r];
-    }
+    for (int r = 0; r < nprocs; ++r) { sdispls[r] = s_total; s_total += send_counts[r]; }
+    for (int r = 0; r < nprocs; ++r) { rdispls[r] = r_total; r_total += recv_counts[r]; }
+
     vector<int> sendbuf(s_total), recvbuf(r_total);
     for (int r = 0, idx = 0; r < nprocs; ++r)
         for (int g : requests_per_rank[r]) sendbuf[idx++] = g;
@@ -80,7 +106,6 @@ static void fetch_ghost_nodes(
         for (int j = 0; j < recv_counts[r]; ++j) {
             int nid = recvbuf[rdispls[r] + j];
 
-            // 기본값
             int label = -1;
             int degree = 0;
             const vector<int>* nbrs_ptr = nullptr;
@@ -96,9 +121,7 @@ static void fetch_ghost_nodes(
             out.push_back(nid);
             out.push_back(degree);
             out.push_back(label);
-            if (degree && nbrs_ptr) {
-                for (int v : *nbrs_ptr) out.push_back(v);
-            }
+            if (degree && nbrs_ptr) for (int v : *nbrs_ptr) out.push_back(v);
         }
         send_reply_counts[r] = (int)out.size();
     }
@@ -116,7 +139,6 @@ static void fetch_ghost_nodes(
         recv_reply_displs[r] = recv_reply_total; recv_reply_total += recv_reply_counts[r];
     }
     vector<int> send_reply(reply_total), recv_reply(recv_reply_total);
-
     for (int r = 0, idx = 0; r < nprocs; ++r)
         for (int v : send_reply_per_rank[r]) send_reply[idx++] = v;
 
@@ -138,322 +160,332 @@ static void fetch_ghost_nodes(
     }
 }
 
+// ======== 메인 알고리즘 ========
+// - 로컬에서 선경합하지 않고, 모든 경합 요청을 소유자에게 모아 일괄 판정
+// - partition_verts에는 "내가 담당하는 파티션(p % nprocs == procId)만" 저장
+// - 라운드 종료 시 전역 파티션 크기 스냅샷 갱신
+// - 다음 라운드 프론티어는 "이번 라운드에 새로 라벨 확정된 (로컬+고스트)"로 재등록
+// - 최종 CSR: "내 파티션의 노드들"을 행으로 생성(이웃은 로컬/고스트 모두 사용)
 void partition_expansion(
-    int procId, 
-    int nprocs, 
-    int numParts, 
-    const vector<int> &seeds, 
-    const unordered_map<int, int> &global_degree,
-    const unordered_map<int, vector<int>> &local_adj, 
-    unordered_map<int, Graph> &local_partition_graphs, 
-    unordered_map<int, GhostNodes> &local_partition_ghosts
+    int procId,
+    int nprocs,
+    int numParts,
+    const std::vector<int> &seeds,
+    const std::unordered_map<int, int> &global_degree,
+    const std::unordered_map<int, std::vector<int>> &local_adj,
+    Graph &local_partition_graphs,
+    GhostNodes &local_partition_ghosts
 ) {
-    int total_num = global_degree.size();
-    vector<vector<int>> partition_verts(numParts);
-    vector<queue<int>> frontiers(numParts);
+    const bool verbose = true;
+    std::cout << ">>> ENTER partition_expansion v2 (rank=" << procId << ")\n";
 
-    unordered_map<int, int> node_label;
-    unordered_map<int, GhostEntry> ghost_nodes;
+    auto owner_of       = [&](int gid){ return gid % nprocs; };
+    auto is_my_partition= [&](int p)  { return (p % nprocs) == procId; };
 
-    vector<int> my_partitions;
+    // 상태
+    std::vector<std::vector<int>> partition_verts(numParts);    // 내 파티션만 저장
+    std::vector<int> part_size_global(numParts, 0);             // 라운드 말 스냅샷(전역)
+    std::vector<std::queue<int>> frontiers(numParts);
 
-    for (const auto &kv : local_adj) node_label[kv.first] = -1;
+    std::unordered_map<int,int> node_label;                     // 로컬 소유 노드 라벨
+    std::unordered_map<int, GhostEntry> ghost_nodes;            // 고스트(이웃 + 라벨)
 
-    unordered_set<int> initial_ghost_seed;
-    for (int p = 0; p < numParts; ++p) {
+    std::vector<int> my_parts;
+    for (auto &kv : local_adj) node_label[kv.first] = -1;
+
+    // 시드 배치(+ 프론티어 준비)
+    std::unordered_set<int> initial_ghost_seed;
+    for (int p=0; p<numParts; ++p) {
         int seed = seeds[p];
-        if (p % nprocs == procId) {
+        if (is_my_partition(p)) {
+            my_parts.push_back(p);
+            frontiers[p].push(seed);
             if (local_adj.count(seed)) {
                 node_label[seed] = p;
-                partition_verts[p].push_back(seed);
+                if (is_my_partition(p)) partition_verts[p].push_back(seed); // 내 파티션만 저장
+                if (verbose) std::cout << "[R" << procId << "] seed local P" << p << " <- " << seed << "\n";
             } else {
                 initial_ghost_seed.insert(seed);
+                if (verbose) std::cout << "[R" << procId << "] seed ghost P" << p << " <- " << seed << "\n";
             }
-            frontiers[p].push(seed);
-            my_partitions.push_back(p);
         }
     }
-    fetch_ghost_nodes(initial_ghost_seed, local_adj, node_label, procId, nprocs, ghost_nodes);
 
-    int local_labeled = 0;
-    for (const auto &[gid, lbl] : node_label) if (lbl != -1) ++local_labeled;
-    int total_labeled = 0;
+    // 초기 고스트 페치 + 스냅샷
+    fetch_ghost_nodes(initial_ghost_seed, local_adj, node_label, procId, nprocs, ghost_nodes);
+    recompute_partition_sizes(numParts, local_adj, node_label, part_size_global);
+
+    // 종료 조건(전역)
+    int total_num = (int)global_degree.size();
+    auto count_local_labeled = [&](){
+        int c=0; for (auto &kv: node_label) if (kv.second>=0) ++c; return c;
+    };
+    int total_labeled=0, local_labeled=count_local_labeled();
     MPI_Allreduce(&local_labeled, &total_labeled, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
 
     int round = 0;
     while (total_labeled < total_num) {
+        if (verbose) std::cout << "[R" << procId << "] ===== Round " << round << " =====\n";
 
+        // 이번 라운드에 새로 라벨 확정된 노드(다음 프론티어 재등록용)
+        std::vector<std::vector<int>> newly_labeled_local(numParts), newly_labeled_ghost(numParts);
+
+        // 프론티어 비었으면 로컬 미라벨 균형 배분(옵션)
         bool all_empty = true;
-
-        cout << all_empty << endl;
-        //프론티어 없는데 남는게 있는지 검사
+        for (int p: my_parts) if (!frontiers[p].empty()) { all_empty=false; break; }
         if (all_empty) {
-            for (const auto &[v, _] : local_adj) {
-                if (node_label.count(v) == 0 || node_label[v] == -1) {
-                    int best_p = my_partitions[0];
-                    for (int p : my_partitions) {
-                        if (partition_verts[p].size() < partition_verts[best_p].size()) best_p = p;
+            for (auto &kv : local_adj) {
+                int v = kv.first;
+                auto it = node_label.find(v);
+                if (it==node_label.end() || it->second<0) {
+                    int best = my_parts[0];
+                    for (int p: my_parts) {
+                        if (part_size_global[p] < part_size_global[best] ||
+                           (part_size_global[p]==part_size_global[best] && p<best)) best=p;
                     }
-                    node_label[v] = best_p;
-                    partition_verts[best_p].push_back(v);
-                    frontiers[best_p].push(v);
-                }
-            }
-        }
-
-        unordered_set<int> to_request_ghosts;
-        for (int p : my_partitions) {
-            queue<int> q = frontiers[p];
-            while (!q.empty()) {
-                int u = q.front(); q.pop();
-
-                const vector<int>* nbrs_ptr = nullptr;
-                if (local_adj.count(u)) nbrs_ptr = &local_adj.at(u);
-                else if (ghost_nodes.count(u)) nbrs_ptr = &ghost_nodes[u].nbrs;
-                if (!nbrs_ptr) continue;
-
-                for (int v : *nbrs_ptr) {
-                    if ((is_unlabeled(node_label, ghost_nodes, local_adj, v)) &&
-                        !local_adj.count(v) && !ghost_nodes.count(v)) {
-                        to_request_ghosts.insert(v);
+                    node_label[v]=best;
+                    if (is_my_partition(best)) {
+                        partition_verts[best].push_back(v);
+                        frontiers[best].push(v);
                     }
                 }
             }
         }
-        fetch_ghost_nodes(to_request_ghosts, local_adj, node_label, procId, nprocs, ghost_nodes);
 
-        vector<queue<int>> next_frontiers(numParts);
-        unordered_set<int> visited_this_round;
-        for (int p : my_partitions) {
-            queue<int> q = frontiers[p];
+        // 프론티어 크기 로그
+        size_t frontier_total = 0;
+        for (int p : my_parts) frontier_total += frontiers[p].size();
+        if (verbose) std::cout << "[R" << procId << "] round " << round << " frontier_total=" << frontier_total << "\n";
+
+        // 프론티어 확장 → 다음 후보 수집 + 고스트 프리페치
+        std::unordered_set<int> to_request_ghosts;
+        std::unordered_set<int> visited; // 라운드 내 v 중복 방지
+        std::vector<std::queue<int>> next_frontiers(numParts);
+
+        for (int p : my_parts) {
+            std::queue<int> q = frontiers[p];
             while (!q.empty()) {
                 int u = q.front(); q.pop();
+                const std::vector<int>* nbrs = nullptr;
+                if (local_adj.count(u)) nbrs=&local_adj.at(u);
+                else if (ghost_nodes.count(u)) nbrs=&ghost_nodes[u].nbrs;
+                if (!nbrs) continue;
 
-                const vector<int>* nbrs_ptr = nullptr;
-                if (local_adj.count(u)) nbrs_ptr = &local_adj.at(u);
-                else if (ghost_nodes.count(u)) nbrs_ptr = &ghost_nodes[u].nbrs;
-                if (!nbrs_ptr) continue;
-
-                for (int v : *nbrs_ptr) {
-                    if (is_unlabeled(node_label, ghost_nodes, local_adj, v) &&
-                        visited_this_round.insert(v).second) {
+                for (int v : *nbrs) {
+                    // 고스트 프리페치(캐시 없음 또는 라벨 미정)
+                    if (!local_adj.count(v)) {
+                        auto git = ghost_nodes.find(v);
+                        if (git==ghost_nodes.end() || git->second.label==-1) to_request_ghosts.insert(v);
+                    }
+                    // 미라벨이면 후보로
+                    if (is_unlabeled(node_label, ghost_nodes, local_adj, v) && visited.insert(v).second) {
                         next_frontiers[p].push(v);
                     }
                 }
             }
         }
+        if (verbose) std::cout << "[R" << procId << "] round " << round << " to_request_ghosts=" << to_request_ghosts.size() << "\n";
 
+        fetch_ghost_nodes(to_request_ghosts, local_adj, node_label, procId, nprocs, ghost_nodes);
 
-        for (int p = 0; p < numParts; ++p) {
-            frontiers[p] = queue<int>();
-        }
-
-        unordered_map<int, vector<int>> node_partition_candidates;
-        for (int p = 0; p < numParts; ++p) {
+        // 경합 요청 생성: 로컬 후보도 포함하여 소유자에게 모두 보냄
+        // 형식: [v, |plist|, plist...]
+        std::vector<std::vector<int>> req_per_owner(nprocs);
+        for (int p=0; p<numParts; ++p) {
             while (!next_frontiers[p].empty()) {
                 int v = next_frontiers[p].front(); next_frontiers[p].pop();
-                frontiers[p].push(v);
-                node_partition_candidates[v].push_back(p);
+                if (!is_unlabeled(node_label, ghost_nodes, local_adj, v)) continue;
+                int ow = owner_of(v);
+                req_per_owner[ow].push_back(v);
+                req_per_owner[ow].push_back(1);
+                req_per_owner[ow].push_back(p);
             }
         }
 
-        unordered_map<int, vector<pair<int, vector<int>>>> ghost_requests_per_rank;
-        for (const auto &[v, plist] : node_partition_candidates) {
-            if (!is_unlabeled(node_label, ghost_nodes, local_adj, v)) continue;
+        // Alltoallv: 경합 요청 송수신
+        std::vector<int> send_counts(nprocs,0), recv_counts(nprocs,0);
+        for (int r=0;r<nprocs;++r) send_counts[r] = (int)req_per_owner[r].size();
+        MPI_Alltoall(send_counts.data(),1,MPI_INT, recv_counts.data(),1,MPI_INT, MPI_COMM_WORLD);
 
-            if (local_adj.count(v)) {
-                int winner = plist[0];
-                for (int p : plist) {
-                    if (partition_verts[p].size() < partition_verts[winner].size()) winner = p;
-                    else if (partition_verts[p].size() == partition_verts[winner].size() && p < winner) winner = p;
-                }
-                node_label[v] = winner;
-                partition_verts[winner].push_back(v);
-            } else {
-                int owner = v % nprocs;
-                ghost_requests_per_rank[owner].emplace_back(v, plist);
-            }
-        }
+        int recv_req_total = 0; for (int r=0;r<nprocs;++r) recv_req_total += recv_counts[r];
+        if (verbose) std::cout << "[R" << procId << "] round " << round << " recv_counts(req)_sum=" << recv_req_total << "\n";
 
-        vector<int> send_counts(nprocs), recv_counts(nprocs);
-        vector<vector<int>> sendbufs(nprocs);
+        std::vector<int> sdis(nprocs,0), rdis(nprocs,0);
+        int st=0, rt=0;
+        for (int r=0;r<nprocs;++r){ sdis[r]=st; st+=send_counts[r]; }
+        for (int r=0;r<nprocs;++r){ rdis[r]=rt; rt+=recv_counts[r]; }
+        std::vector<int> sendbuf(st), recvbuf(rt);
+        for (int r=0, idx=0; r<nprocs; ++r) for (int x: req_per_owner[r]) sendbuf[idx++]=x;
 
-        for (int r = 0; r < nprocs; ++r) {
-            for (const auto &[v, plist] : ghost_requests_per_rank[r]) {
-                sendbufs[r].push_back(v);
-                sendbufs[r].push_back(plist.size());
-                for (int p : plist) sendbufs[r].push_back(p);
-            }
-            send_counts[r] = sendbufs[r].size();
-        }
+        MPI_Alltoallv(sendbuf.data(), send_counts.data(), sdis.data(), MPI_INT,
+                      recvbuf.data(), recv_counts.data(), rdis.data(), MPI_INT, MPI_COMM_WORLD);
 
-        MPI_Alltoall(send_counts.data(), 1, MPI_INT,
-                     recv_counts.data(), 1, MPI_INT, MPI_COMM_WORLD);
-                     
-        MPI_Barrier(MPI_COMM_WORLD);
-
-        vector<int> sdispls(nprocs), rdispls(nprocs);
-        int s_total = 0, r_total = 0;
-        for (int r = 0; r < nprocs; ++r) {
-            sdispls[r] = s_total; s_total += send_counts[r];
-            rdispls[r] = r_total; r_total += recv_counts[r];
-        }
-        vector<int> sendbuf(s_total), recvbuf(r_total);
-        for (int r = 0, idx = 0; r < nprocs; ++r) {
-            for (int v : sendbufs[r]) sendbuf[idx++] = v;
-        }
-
-        MPI_Alltoallv(sendbuf.data(), send_counts.data(), sdispls.data(), MPI_INT,
-                      recvbuf.data(), recv_counts.data(), rdispls.data(), MPI_INT,
-                      MPI_COMM_WORLD);
-
-        MPI_Barrier(MPI_COMM_WORLD);
-        int i = 0;
-        while (i < recvbuf.size()) {
-            int v = recvbuf[i++];
-            int len = recvbuf[i++];
-            vector<int> plist;
-            for (int j = 0; j < len; ++j) plist.push_back(recvbuf[i++]);
-
-            if (!local_adj.count(v)) continue;
-
-            int winner = plist[0];
-            for (int p : plist) {
-                if (partition_verts[p].size() < partition_verts[winner].size()) winner = p;
-                else if (partition_verts[p].size() == partition_verts[winner].size() && p < winner) winner = p;
-            }
-            node_label[v] = winner;
-            partition_verts[winner].push_back(v);
-        }
-
-        vector<vector<int>> label_updates_per_rank(nprocs);
-        vector<int> upd_send_counts(nprocs, 0);
-
-        for (int r = 0; r < nprocs; ++r) {
-            int start = rdispls[r];
-            int end   = rdispls[r] + recv_counts[r];
-            auto &ub  = label_updates_per_rank[r];
-            for (int i = start; i < end; ) {
+        // 소유자에서 일괄 판정
+        std::unordered_map<int, std::vector<int>> plist_by_v;      // v -> 후보 파티션들
+        std::unordered_map<int, std::vector<int>> requesters_by_v; // v -> 요청자 랭크들
+        for (int r=0; r<nprocs; ++r) {
+            int start = rdis[r], end = rdis[r]+recv_counts[r];
+            for (int i=start; i<end; ) {
                 int v   = recvbuf[i++];
                 int len = recvbuf[i++];
-                i += len;
-                
-                auto it = node_label.find(v);
-                int winner = (it != node_label.end() ? it->second : -1);
-
-                ub.push_back(v);
-                ub.push_back(winner);
+                if (owner_of(v) != procId) { i += len; continue; }
+                auto &plist = plist_by_v[v];
+                auto &rq    = requesters_by_v[v];
+                for (int k=0; k<len; ++k) {
+                    int p = recvbuf[i++];
+                    plist.push_back(p);
+                    rq.push_back(r);
+                }
             }
-            upd_send_counts[r] = (int)label_updates_per_rank[r].size();
         }
 
-        vector<int> upd_recv_counts(nprocs, 0);
-        MPI_Alltoall(upd_send_counts.data(), 1, MPI_INT,
-                     upd_recv_counts.data(), 1, MPI_INT, MPI_COMM_WORLD);
+        std::vector<std::vector<int>> upd_per_rank(nprocs); // 결과 통지용 [v,winner] 쌍
+        int owned_claims = 0;
+        for (auto &kv : plist_by_v) {
+            int v = kv.first;
+            auto &plist = kv.second;
+            if (!local_adj.count(v)) continue; // 소유자는 반드시 로컬
+            int winner = plist[0];
+            for (int p : plist) {
+                if (part_size_global[p] < part_size_global[winner] ||
+                   (part_size_global[p]==part_size_global[winner] && p < winner)) winner = p;
+            }
+            // 소유자 측 반영(내 파티션일 때만 저장)
+            node_label[v] = winner;
+            if (is_my_partition(winner)) {
+                partition_verts[winner].push_back(v);
+                newly_labeled_local[winner].push_back(v);
+            }
+            // 모든 요청자 + 자신에게 결과 통지
+            auto &rq = requesters_by_v[v];
+            for (int rr : rq) { upd_per_rank[rr].push_back(v); upd_per_rank[rr].push_back(winner); }
+            upd_per_rank[procId].push_back(v); upd_per_rank[procId].push_back(winner);
+            ++owned_claims;
+        }
 
-        vector<int> upd_sdispls(nprocs, 0), upd_rdispls(nprocs, 0);
-        int upd_stotal = 0, upd_rtotal = 0;
-        for (int r = 0; r < nprocs; ++r) { upd_sdispls[r] = upd_stotal; upd_stotal += upd_send_counts[r]; }
-        for (int r = 0; r < nprocs; ++r) { upd_rdispls[r] = upd_rtotal; upd_rtotal += upd_recv_counts[r]; }
+        // 결과 통지 송수신
+        std::vector<int> u_send_counts(nprocs,0), u_recv_counts(nprocs,0);
+        for (int r=0;r<nprocs;++r) u_send_counts[r]=(int)upd_per_rank[r].size();
+        MPI_Alltoall(u_send_counts.data(),1,MPI_INT, u_recv_counts.data(),1,MPI_INT, MPI_COMM_WORLD);
 
-        vector<int> upd_sendbuf(upd_stotal), upd_recvbuf(upd_rtotal);
-        for (int r = 0, idx = 0; r < nprocs; ++r)
-            for (int x : label_updates_per_rank[r]) upd_sendbuf[idx++] = x;
+        std::vector<int> u_sdis(nprocs,0), u_rdis(nprocs,0);
+        int ust=0, urt=0;
+        for (int r=0;r<nprocs;++r){ u_sdis[r]=ust; ust+=u_send_counts[r]; }
+        for (int r=0;r<nprocs;++r){ u_rdis[r]=urt; urt+=u_recv_counts[r]; }
+        std::vector<int> u_sendbuf(ust), u_recvbuf(urt);
+        for (int r=0, idx=0; r<nprocs; ++r) for (int x: upd_per_rank[r]) u_sendbuf[idx++]=x;
 
-        MPI_Alltoallv(upd_sendbuf.data(), upd_send_counts.data(), upd_sdispls.data(), MPI_INT,
-                      upd_recvbuf.data(), upd_recv_counts.data(), upd_rdispls.data(), MPI_INT,
-                      MPI_COMM_WORLD);
+        MPI_Alltoallv(u_sendbuf.data(), u_send_counts.data(), u_sdis.data(), MPI_INT,
+                      u_recvbuf.data(), u_recv_counts.data(), u_rdis.data(), MPI_INT, MPI_COMM_WORLD);
 
-        // === (H) [요청자] 수신 → 고스트 캐시 라벨 갱신 ===
-        for (int i = 0; i < upd_rtotal; ) {
-            int v      = upd_recvbuf[i++];
-            int winner = upd_recvbuf[i++];
+        int upd_recv_pairs = urt / 2;
+
+        // 요청자 측 반영(고스트 포함, 단 내 파티션만 저장)
+        for (int i=0; i<urt; ) {
+            int v      = u_recvbuf[i++];
+            int winner = u_recvbuf[i++];
             if (!local_adj.count(v)) {
-                auto &ge = ghost_nodes[v]; // 없으면 default 생성
+                auto &ge = ghost_nodes[v]; // default 생성
                 ge.label = winner;
-                // ge.nbrs는 필요 시 fetch 때 이미 채워짐
+                if (is_my_partition(winner)) {
+                    partition_verts[winner].push_back(v);
+                    newly_labeled_ghost[winner].push_back(v);
+                }
             }
         }
 
+        if (verbose) {
+            std::cout << "[R" << procId << "] round " << round
+                      << " owned_claims=" << owned_claims
+                      << " upd_recv=" << upd_recv_pairs << "\n";
+        }
 
-        local_labeled = 0;
-        for (const auto &[gid, lbl] : node_label)
-            if (lbl != -1) ++local_labeled;
+        // 종료 검사
+        local_labeled = count_local_labeled();
         MPI_Allreduce(&local_labeled, &total_labeled, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
-        
-        MPI_Barrier(MPI_COMM_WORLD);
-        
+
+        // 스냅샷 갱신 + 다음 라운드 프론티어 구성(이번 라운드 확정분)
+        recompute_partition_sizes(numParts, local_adj, node_label, part_size_global);
+
+        for (int p=0; p<numParts; ++p) {
+            std::queue<int> q;
+            for (int u : newly_labeled_local[p])  q.push(u);
+            for (int u : newly_labeled_ghost[p])  q.push(u);
+            frontiers[p].swap(q);
+        }
+        size_t next_frontier_total = 0;
+        for (int p=0; p<numParts; ++p) next_frontier_total += frontiers[p].size();
+        if (verbose) std::cout << "[R" << procId << "] round " << round
+                               << " next_frontier_total=" << next_frontier_total << "\n";
+
         ++round;
     }
-        // =========================
-    // 내부 변환 함수(lambda) 추가
-    // =========================
-    auto build_partition_graphs_and_ghosts = [&]() {
-        // owner 판별 람다
-        auto owner_of = [&](int gid) { return gid % nprocs; };
 
-        // 출력 컨테이너 초기화
-        for (int p = 0; p < numParts; ++p) {
-            local_partition_graphs[p].clear();
-            local_partition_ghosts[p].clear();
-        }
+    // 최종 partition_verts 요약(내 파티션만 출력)
+    std::cout << "[Rank " << procId << "] partition_verts summary:\n";
+    for (int p = 0; p < (int)partition_verts.size(); ++p) {
+        if (!is_my_partition(p)) continue;
+        std::cout << "  Partition " << p << " (count=" << partition_verts[p].size() << "): ";
+        std::cout << "\n";
+    }
 
-        // 파티션별 로컬 정점 수집
-        unordered_map<int, vector<int>> part_vertices;
-        part_vertices.reserve(numParts);
-        for (const auto &kv : local_adj) {
-            int u = kv.first;
-            auto it = node_label.find(u);
-            if (it == node_label.end() || it->second < 0) continue;
-            int p = it->second;
-            part_vertices[p].push_back(u);
-        }
+    // ===== 글로벌 CSR 구성(행은 '내 파티션'에 속한 노드만 포함; 이웃은 로컬/고스트 모두 사용) =====
+    local_partition_graphs.num_vertices = 0;
+    local_partition_graphs.num_edges = 0;
+    local_partition_graphs.global_ids.clear();
+    local_partition_graphs.vertex_labels.clear();
+    local_partition_graphs.col_indices.clear();
+    local_partition_graphs.row_ptr.clear();
+    local_partition_graphs.row_ptr.push_back(0);
 
-        // 각 파티션에 대해 Graph/GhostNodes 구성
-        for (int p = 0; p < numParts; ++p) {
-            auto itv = part_vertices.find(p);
-            if (itv == part_vertices.end() || itv->second.empty()) continue;
-
-            vector<int> locals = itv->second;
-            sort(locals.begin(), locals.end());
-
-            Graph &G = local_partition_graphs[p];
-            GhostNodes &GN = local_partition_ghosts[p];
-
-            // Graph 기본 필드
-            G.num_vertices = (int)locals.size();
-            G.global_ids   = locals;
-            G.vertex_labels.assign(G.num_vertices, p);
-            G.row_ptr.assign(G.num_vertices + 1, 0);
-            G.col_indices.clear();
-            G.num_edges = 0;
-
-            // 고스트 등록 헬퍼
-            auto ensure_ghost = [&](int gid) {
-                if (GN.global_to_local.find(gid) != GN.global_to_local.end()) return;
-                int idx = (int)GN.global_ids.size();
-                GN.global_ids.push_back(gid);
-                int glabel = -1;
-                auto git = ghost_nodes.find(gid);
-                if (git != ghost_nodes.end()) glabel = git->second.label;
-                GN.ghost_labels.push_back(glabel);
-                GN.global_to_local.emplace(gid, idx);
-            };
-
-            // CSR 채우기 (col_indices는 글로벌 ID 저장)
-            for (int i = 0; i < G.num_vertices; ++i) {
-                int u = G.global_ids[i];
-                const auto &nbrs = local_adj.at(u);
-                for (int v : nbrs) {
-                    G.col_indices.push_back(v);
-                    ++G.num_edges;
-                    if (owner_of(v) != procId) ensure_ghost(v);
-                }
-                G.row_ptr[i + 1] = (int)G.col_indices.size();
-            }
-        }
+    auto ensure_ghost = [&](int gid) {
+        if (local_partition_ghosts.global_to_local.count(gid)) return;
+        int idx = (int)local_partition_ghosts.global_ids.size();
+        local_partition_ghosts.global_ids.push_back(gid);
+        int glabel = -1;
+        if (auto itg = ghost_nodes.find(gid); itg != ghost_nodes.end()) glabel = itg->second.label;
+        local_partition_ghosts.ghost_labels.push_back(glabel);
+        local_partition_ghosts.global_to_local.emplace(gid, idx);
     };
 
-    // 내부 함수 호출
-    build_partition_graphs_and_ghosts();
+    for (int p = 0; p < numParts; ++p) {
+        if (!is_my_partition(p)) continue; // 내 파티션만 행 생성
+        const auto &verts_in_p = partition_verts[p];
+        for (int u : verts_in_p) {
+            // 라벨
+            int lab = -1;
+            if (auto it = node_label.find(u); it != node_label.end()) lab = it->second;
+            else if (auto git = ghost_nodes.find(u); git != ghost_nodes.end()) lab = git->second.label;
+
+            // 행 등록
+            local_partition_graphs.global_ids.push_back(u);
+            local_partition_graphs.vertex_labels.push_back(lab);
+
+            // 이웃: 로컬이면 local_adj, 고스트이면 ghost_nodes[u].nbrs
+            const std::vector<int>* nbrs = nullptr;
+            if (auto ia = local_adj.find(u); ia != local_adj.end())      nbrs = &ia->second;
+            else if (auto ig = ghost_nodes.find(u); ig != ghost_nodes.end()) nbrs = &ig->second.nbrs;
+
+            if (nbrs) {
+                for (int v : *nbrs) {
+                    local_partition_graphs.col_indices.push_back(v);
+                    if (!local_adj.count(v)) ensure_ghost(v);
+                }
+            }
+
+            local_partition_graphs.row_ptr.push_back(
+                (int)local_partition_graphs.col_indices.size()
+            );
+        }
+    }
+
+    local_partition_graphs.num_vertices = (int)local_partition_graphs.global_ids.size();
+    local_partition_graphs.num_edges    = (int)local_partition_graphs.col_indices.size();
+
+    if (verbose) {
+        std::cout << "=== [Rank " << procId << "] CSR Summary ===\n";
+        std::cout << "Vertices: " << local_partition_graphs.num_vertices << "\n";
+        std::cout << "Edges:    " << local_partition_graphs.num_edges << "\n";
+        std::cout << "Ghosts:   " << local_partition_ghosts.global_ids.size() << "\n";
+    }
 }
