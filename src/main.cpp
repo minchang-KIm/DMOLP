@@ -38,32 +38,21 @@ int allocateGPU(int mpi_rank, int mpi_size) {
         return -1; // 실패
     }
     
-    // 현재 호스트에서 몇 번째 rank인지 계산 (GPU ID로 사용)
-    int local_rank_on_host = 0;
-    for (int i = 0; i < mpi_rank; i++) {
-        if (strcmp(hostname, all_hostnames[i]) == 0) {
-            local_rank_on_host++;
-        }
-    }
-    
-    // 현재 호스트의 총 rank 수 계산
-    int total_ranks_on_host = 0;
-    for (int i = 0; i < mpi_size; i++) {
-        if (strcmp(hostname, all_hostnames[i]) == 0) {
-            total_ranks_on_host++;
-        }
-    }
+    // 노드 내 로컬 랭크/크기 계산 (Hydra/hostfile 슬롯 없이도 안정적)
+    MPI_Comm local_comm; 
+    MPI_Comm_split_type(MPI_COMM_WORLD, MPI_COMM_TYPE_SHARED, 0, MPI_INFO_NULL, &local_comm);
+    int local_rank_on_host = 0, total_ranks_on_host = 0;
+    MPI_Comm_rank(local_comm, &local_rank_on_host);
+    MPI_Comm_size(local_comm, &total_ranks_on_host);
 
     // GPU 할당: 각 서버별로 로컬 rank에 따라 GPU 할당
     int gpu_id = local_rank_on_host;
     
-    // 사용 가능한 GPU 수 확인
+    // 사용 가능한 GPU 수 확인 (랭크별)
     int gpu_count;
     cudaGetDeviceCount(&gpu_count);
     
-    if (gpu_id >= gpu_count) {
-        gpu_id = gpu_id % gpu_count;  // GPU 수로 나눈 나머지 사용
-    }
+    if (gpu_count > 0) gpu_id = gpu_id % gpu_count;  // GPU 수로 나눈 나머지 사용
     
     // CUDA 디바이스 설정
     cudaError_t cuda_result = cudaSetDevice(gpu_id);
@@ -80,7 +69,12 @@ int allocateGPU(int mpi_rank, int mpi_size) {
               << " (메모리: " << prop.totalGlobalMem / (1024*1024) << "MB, "
               << "컴퓨트 능력: " << prop.major << "." << prop.minor << ")" << std::endl;
     
-    // 전체 클러스터의 GPU 배치 정보 출력 (Rank 0에서만)
+    // 각 랭크의 GPU 개수 및 실제 할당 GPU ID를 수집
+    std::vector<int> all_gpu_counts(mpi_size);
+    MPI_Allgather(&gpu_count, 1, MPI_INT, all_gpu_counts.data(), 1, MPI_INT, MPI_COMM_WORLD);
+    std::vector<int> all_assigned_gpu(mpi_size);
+    MPI_Allgather(&gpu_id, 1, MPI_INT, all_assigned_gpu.data(), 1, MPI_INT, MPI_COMM_WORLD);
+
     if (mpi_rank == 0) {
         std::cout << "\n=== GPU 배치 정보 ===" << std::endl;
         std::map<std::string, std::vector<int>> host_to_ranks;
@@ -100,14 +94,17 @@ int allocateGPU(int mpi_rank, int mpi_size) {
                         local_rank_calc++;
                     }
                 }
-                // 각 서버별로 독립적인 GPU 할당
-                int assigned_gpu = local_rank_calc;
+                // 각 서버별 GPU 개수에 따라 모듈러 적용해 표시
+                int host_gpu_count = all_gpu_counts[rank] > 0 ? all_gpu_counts[rank] : 1;
+                int assigned_gpu = all_assigned_gpu[rank];
                 std::cout << "Rank" << rank << "(GPU" << assigned_gpu << ") ";
             }
             std::cout << std::endl;
         }
         std::cout << "=====================" << std::endl;
     }
+    
+    MPI_Comm_free(&local_comm);
     
     // 모든 프로세스 동기화
     MPI_Barrier(MPI_COMM_WORLD);
