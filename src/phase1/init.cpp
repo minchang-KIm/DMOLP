@@ -1,63 +1,103 @@
 #include <mpi.h>
-#include <omp.h>
-#include <fstream>
-#include <sstream>
 #include <iostream>
 #include <vector>
 #include <string>
 #include <unordered_map>
 #include <algorithm>
+#include <cstdio>
+#include <cstdlib>
 #include <cmath>
 
 #include "phase1/init.hpp"
 
 using namespace std;
 
+inline int fast_atoi(const char* &p) {
+    int x = 0;
+    while (*p >= '0' && *p <= '9') {
+        x = x * 10 + (*p - '0');
+        ++p;
+    }
+    while (*p && (*p < '0' || *p > '9')) ++p;
+    return x;
+}
+
 void load_graph(const char *filename, int procId, int nprocs, unordered_map<int, vector<int>> &adj, unordered_map<int, int> &local_degree, int &V, int &E) {
-    ifstream infile(filename);
-    if (!infile.is_open()) {
+    FILE* fp = fopen(filename, "r");
+    if (!fp) {
         fprintf(stderr, "Process %d: Error opening file: %s\n", procId, filename);
         MPI_Abort(MPI_COMM_WORLD, 1);
     }
 
-    ios::sync_with_stdio(false);
-    string line;
-    
-    getline(infile, line);
-    V = stoi(line);
-    
-    int source = 0;
-    while (getline(infile, line) && source < V) {
-        const char *ptr = line.c_str();
-        char *end;
-        vector<int> source_neighbors;
+    const size_t BUF_SIZE = 128 * 1024 * 1024;
+    char *buf = (char*)malloc(BUF_SIZE);
+    setvbuf(fp, buf, _IOFBF, BUF_SIZE);
 
-        while (*ptr) {
-            int neighbor = strtol(ptr, &end, 10);
-            if (ptr == end) break;
-            ptr = end;
-
-            if (source % nprocs == procId) adj[source].push_back(neighbor);
-            if (neighbor % nprocs == procId) adj[neighbor].push_back(source);
-        }
-
-        ++source;
+    char line[64];
+    if (!fgets(line, sizeof(line), fp)) {
+        cerr << "[proc " << procId << "] Error opening file: " << filename << endl;
+        MPI_Abort(MPI_COMM_WORLD, 1);
     }
-    
-    infile.close();
+    V = atoi(line);
+
+    adj.reserve(V / nprocs * 2);
+    local_degree.reserve(V / nprocs * 2);
+
+    string l;
+    l.reserve(1024);
+    int source = 0;
+    char* readBuf = (char*)malloc(BUF_SIZE);
+    size_t len;
+    string partial;
+
+    while ((len = fread(readBuf, 1, BUF_SIZE, fp)) > 0) {
+        size_t start = 0;
+        for (size_t i = 0; i < len; ++i) {
+            if (readBuf[i] == '\n') {
+                size_t segLen = i - start;
+                if (!partial.empty()) {
+                    partial.append(readBuf + start, segLen);
+                    l.swap(partial);
+                    partial.clear();
+                } else {
+                    l.assign(readBuf + start, segLen);
+                }
+
+                const char* p = l.c_str();
+                if (source % nprocs == procId) {
+                    auto &nbrs = adj[source];
+                    while (*p) {
+                        int neighbor = fast_atoi(p);
+                        nbrs.push_back(neighbor);
+                    }
+                } else {
+                    while (*p) fast_atoi(p);
+                }
+                ++source;
+
+                start = i + 1;
+            }
+        }
+        if (start < len) partial.assign(readBuf + start, len - start);
+    }
+
+    free(readBuf);
+    fclose(fp);
 
     int local_V = adj.size();
     int local_E = 0;
 
-    for (auto &[vertex, neighbors] : adj) {
+    for (auto &kv : adj) {
+        auto &neighbors = kv.second;
         sort(neighbors.begin(), neighbors.end());
         neighbors.erase(unique(neighbors.begin(), neighbors.end()), neighbors.end());
-        local_degree[vertex] = neighbors.size();
-        local_E += neighbors.size();
+        local_degree[kv.first] = (int)neighbors.size();
+        local_E += (int)neighbors.size();
     }
 
     MPI_Allreduce(&local_E, &E, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
     MPI_Allreduce(&local_V, &V, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+    free(buf);
 }
 
 void gather_degrees(unordered_map<int, int> &local_degree, unordered_map<int, int> &global_degree, int procId, int nprocs) {
