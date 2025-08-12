@@ -29,7 +29,7 @@ void load_graph(const char *filename, int procId, int nprocs, unordered_map<int,
         MPI_Abort(MPI_COMM_WORLD, 1);
     }
 
-    const size_t BUF_SIZE = 128 * 1024 * 1024;
+    const size_t BUF_SIZE = 512 * 1024 * 1024;
     char *buf = (char*)malloc(BUF_SIZE);
     setvbuf(fp, buf, _IOFBF, BUF_SIZE);
 
