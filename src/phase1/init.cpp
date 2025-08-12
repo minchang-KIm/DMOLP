@@ -102,12 +102,13 @@ void load_graph(const char *filename, int procId, int nprocs, unordered_map<int,
 
 void gather_degrees(unordered_map<int, int> &local_degree, unordered_map<int, int> &global_degree, int procId, int nprocs) {
     vector<int> sendbuf;
+    sendbuf.reserve(local_degree.size() * 2);
     for (auto &[node, deg] : local_degree) {
         sendbuf.push_back(node);
         sendbuf.push_back(deg);
     }
 
-    int send_size = sendbuf.size();
+    int send_size = static_cast<int>(sendbuf.size());
 
     vector<int> recv_size(nprocs);
     MPI_Allgather(&send_size, 1, MPI_INT, recv_size.data(), 1, MPI_INT, MPI_COMM_WORLD);
@@ -121,12 +122,14 @@ void gather_degrees(unordered_map<int, int> &local_degree, unordered_map<int, in
     MPI_Allgatherv(sendbuf.data(), send_size, MPI_INT, recvbuf.data(), recv_size.data(), displacement.data(), MPI_INT, MPI_COMM_WORLD);
 
     global_degree.clear();
+    global_degree.reserve(total_recv / 2);
+    
     for (int p = 0; p < nprocs; ++p) {
         int start = displacement[p];
         int size = recv_size[p];
         int total = start + size;
 
-        for (int i = 0; i < total; i+=2) {
+        for (int i = start; i < total; i+=2) {
             int node = recvbuf[i];
             int deg = recvbuf[i + 1];
             global_degree[node] = deg;
