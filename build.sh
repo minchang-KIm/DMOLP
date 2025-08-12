@@ -135,39 +135,57 @@ if [ "$TEST_MODE" = true ]; then
         MPI_CMD="mpiexec"
         echo "[INFO] Intel MPI 실행 명령어 사용 (mpiexec)"
         
-        # Intel MPI용 hostfile 생성 (slots= 제거)
+        # Intel MPI용 hostfile 생성 (OpenMPI 형식의 slots=X를 :ppn=X로 변환)
         intel_hostfile="./hostfile_intel"
         echo "[INFO] Intel MPI용 hostfile 생성: $intel_hostfile"
-        sed 's/ slots=[0-9]*//' ./hostfile > "$intel_hostfile"
+        sed -E 's/[[:space:]]+slots=([0-9]+)/:ppn=\1/' ./hostfile > "$intel_hostfile"
         HOSTFILE_ARG="$intel_hostfile"
+        HOSTFILE_FLAG="-f"
         
     elif command -v mpiexec.hydra >/dev/null 2>&1; then
         MPI_CMD="mpiexec.hydra"
         echo "[INFO] Intel MPI 실행 명령어 사용 (mpiexec.hydra)"
         
-        # Intel MPI용 hostfile 생성 (slots= 제거)
+        # Intel MPI용 hostfile 생성 (OpenMPI 형식의 slots=X를 :ppn=X로 변환)
         intel_hostfile="./hostfile_intel"
         echo "[INFO] Intel MPI용 hostfile 생성: $intel_hostfile"
-        sed 's/ slots=[0-9]*//' ./hostfile > "$intel_hostfile"
+        sed -E 's/[[:space:]]+slots=([0-9]+)/:ppn=\1/' ./hostfile > "$intel_hostfile"
         HOSTFILE_ARG="$intel_hostfile"
+        HOSTFILE_FLAG="-f"
         
     elif command -v mpirun >/dev/null 2>&1; then
         MPI_CMD="mpirun"
         echo "[INFO] OpenMPI 실행 명령어 사용"
         HOSTFILE_ARG="./hostfile"
+        HOSTFILE_FLAG="--hostfile"
     else
         echo "[ERROR] MPI 실행 명령어를 찾을 수 없습니다"
         exit 1
     fi
     
     echo "[INFO] 실행 시작..."
-    echo "명령어: $MPI_CMD --hostfile $HOSTFILE_ARG -np 4 $binfile ./dataset/copter2.graph 4 5000"
     echo ""
     
-    # 실제 실행 (메모리 누수 테스트를 위해 중간 크기 그래프 사용)
-    $MPI_CMD --hostfile "$HOSTFILE_ARG" -np 4 "$binfile" ./dataset/copter2.graph 4 5000
-    #$MPI_CMD --hostfile "$HOSTFILE_ARG" -np 4 "$binfile" ./dataset/ljournal-2008.adj.graph-txt 4 50000
-    #$MPI_CMD --hostfile "$HOSTFILE_ARG" -np 4 "$binfile" ./dataset/test.graph 4 5
+    # 1. 실행할 데이터셋 경로를 변수로 지정
+    DATASET_PATH="./dataset/ljournal-2008.adj.graph-txt"
+    #DATASET_PATH="./dataset/copter2.graph"
+
+    # 2. 데이터셋 파일명에서 디렉토리와 확장자를 제외한 기본 이름 추출 (예: ljournal-2008)
+    FILENAME=$(basename "$DATASET_PATH")
+    DATASET_NAME=${FILENAME%%.*}
+    
+    # 3. 현재 시간으로 타임스탬프 생성 (형식: YYYYMMDD_HHMMSS)
+    TIMESTAMP=$(date "+%Y%m%d_%H%M%S")
+    
+    # 4. 최종 로그 파일명 조합
+    LOG_FILE="${DATASET_NAME}_${TIMESTAMP}.log"
+
+    echo "[INFO] 로그가 다음 파일에 기록됩니다: $LOG_FILE"
+    echo "명령어: $MPI_CMD $HOSTFILE_FLAG $HOSTFILE_ARG -np 4 $binfile $DATASET_PATH 4 50000"
+    echo ""
+    
+    # 5. 동적으로 생성된 로그 파일에 실행 결과 기록(>>
+    $MPI_CMD $HOSTFILE_FLAG "$HOSTFILE_ARG" -np 4 "$binfile" "$DATASET_PATH" 4 50000 >> "$LOG_FILE"
     
     echo ""
     echo "=========================================="

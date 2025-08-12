@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.18)
 # ─────────────────────────────────────────────────────────────
 # (권장) NVCC 11.5 + GCC 11 조합 이슈 회피: GCC 10 고정
 # 가능하다면 아래 주석 해제 후 사용하십시오.
-# set(CMAKE_CUDA_HOST_COMPILER /usr/bin/g++-10)
+set(CMAKE_CUDA_HOST_COMPILER /usr/bin/g++-10)
 # ─────────────────────────────────────────────────────────────
 
 project(HPCPartitioning LANGUAGES CXX CUDA)
@@ -21,7 +21,7 @@ message(STATUS "OpenMP version: ${OpenMP_CXX_VERSION}")
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(CMAKE_CUDA_STANDARD 17)
+set(CMAKE_CUDA_STANDARD 14)
 set(CMAKE_CUDA_STANDARD_REQUIRED ON)
 
 # 기본 빌드 타입
@@ -52,7 +52,6 @@ add_executable(hpc_partitioning
   src/phase1/seed.cpp
   src/phase2/phase2.cpp
   src/phase2/gpu_lp_boundary.cu
-  src/phase2/gpu_memory_optimized.cu
 )
 
 # include 디렉토리
