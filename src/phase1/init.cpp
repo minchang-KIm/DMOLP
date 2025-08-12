@@ -14,11 +14,11 @@ using namespace std;
 
 inline int fast_atoi(const char* &p) {
     int x = 0;
-    while (*p >= '0' && *p <= '9') {
+    while (unsigned(*p - '0') <= 9) {
         x = x * 10 + (*p - '0');
         ++p;
     }
-    while (*p && (*p < '0' || *p > '9')) ++p;
+    while (*p && unsigned(*p - '0') > 9) ++p;
     return x;
 }
 
