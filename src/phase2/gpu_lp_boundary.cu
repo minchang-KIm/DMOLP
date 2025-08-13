@@ -40,7 +40,7 @@ BoundarySubgraph createBoundarySubgraphUnified(
     std::vector<bool> node_included(total_nodes, false);
     
     // 바운더리 노드들 먼저 마킹
-    #pragma omp parallel for
+    #pragma omp parallel for schedule(static)
     for (size_t i = 0; i < boundary_nodes.size(); i++) {
         int boundary_node = boundary_nodes[i];
         if (boundary_node >= 0 && boundary_node < total_nodes) {
@@ -49,7 +49,7 @@ BoundarySubgraph createBoundarySubgraphUnified(
     }
     
     // 각 바운더리 노드의 1-hop 이웃 추가 - 병렬화
-    #pragma omp parallel for
+    #pragma omp parallel for schedule(dynamic, 10)
     for (size_t i = 0; i < boundary_nodes.size(); i++) {
         int boundary_node = boundary_nodes[i];
         if (boundary_node >= 0 && boundary_node < (int)row_ptr.size() - 1) {
@@ -64,7 +64,10 @@ BoundarySubgraph createBoundarySubgraphUnified(
     
     // 2단계: 포함된 노드들을 벡터로 변환 (병렬 압축)
     std::vector<int> subgraph_nodes;
-    subgraph_nodes.reserve(total_nodes / 4); // 추정값으로 예약
+    
+    // 더 정확한 예약: 바운더리 노드 수 + 평균 degree 추정
+    size_t estimated_size = boundary_nodes.size() * 2; // 바운더리 + 1-hop 이웃 추정
+    subgraph_nodes.reserve(std::min(estimated_size, static_cast<size_t>(total_nodes)));
     
     for (int i = 0; i < total_nodes; i++) {
         if (node_included[i]) {
@@ -105,10 +108,10 @@ BoundarySubgraph createBoundarySubgraphUnified(
     // 3단계: 서브그래프 CSR 구성 - 메모리 효율적 방식
     subgraph.row_ptr.resize(subgraph.num_nodes + 1, 0);
     
-    // 먼저 각 노드의 이웃 수 계산 (병렬)
+    // 먼저 각 노드의 이웃 수 계산 (병렬 + 캐시 친화적)
     std::vector<int> neighbor_counts(subgraph.num_nodes, 0);
     
-    #pragma omp parallel for
+    #pragma omp parallel for schedule(static, 64) // 캐시 라인 크기 고려
     for (int i = 0; i < subgraph.num_nodes; i++) {
         int orig_node = subgraph.node_mapping[i];
         if (orig_node < (int)row_ptr.size() - 1) {
@@ -130,10 +133,10 @@ BoundarySubgraph createBoundarySubgraphUnified(
     subgraph.row_ptr[subgraph.num_nodes] = edge_count;
     subgraph.num_edges = edge_count;
     
-    // 이웃 노드 수집 (병렬)
+    // 이웃 노드 수집 (병렬 + 메모리 지역성 최적화)
     subgraph.col_idx.resize(edge_count);
     
-    #pragma omp parallel for
+    #pragma omp parallel for schedule(static, 32)
     for (int i = 0; i < subgraph.num_nodes; i++) {
         int orig_node = subgraph.node_mapping[i];
         int start_idx = subgraph.row_ptr[i];
