@@ -416,16 +416,20 @@ void partition_expansion(
                       return a.u < b.u;
                   });
 
-        int budget = max(0, theta);
-        int K = min((int)expandables.size(), budget);
-
         vector<queue<int>> carry_frontiers(numParts);
         unordered_map<int, unordered_set<int>> selected_by_part;
         selected_by_part.reserve(my_parts.size());
 
-        for (int i = 0; i < K; ++i) {
-            selected_by_part[expandables[i].p].insert(expandables[i].u);
+        unordered_map<int, int> picked_per_part;
+        for (int p : my_parts) picked_per_part[p] = 0;
+
+        for (const auto& e : expandables) {
+            if (picked_per_part[e.p] < theta) {
+                selected_by_part[e.p].insert(e.u);
+                ++picked_per_part[e.p];
+            }
         }
+
         for (int p : my_parts) {
             queue<int> q = frontiers[p];
             while (!q.empty()) {
@@ -435,10 +439,13 @@ void partition_expansion(
                 }
             }
         }
+
         if (verbose) {
+            int K_total = 0;
+            for (auto &kv : selected_by_part) K_total += (int)kv.second.size();
             cout << "[Rank " << procId << "] round " << round
-                      << " expand_selected=" << K
-                      << " (theta=" << theta << ")\n";
+                 << " expand_selected_total=" << K_total
+                 << " (theta_per_part=" << theta << ")\n";
         }
 
         unordered_set<int> to_request_ghosts;
@@ -449,6 +456,8 @@ void partition_expansion(
             queue<int> q = frontiers[p];
             while (!q.empty()) {
                 int u = q.front(); q.pop();
+                if (selected_by_part[p].count(u) == 0) continue;
+
                 const vector<int>* nbrs = nullptr;
                 if (local_adj.count(u)) nbrs=&local_adj.at(u);
                 else if (ghost_nodes.count(u)) nbrs=&ghost_nodes[u].nbrs;
