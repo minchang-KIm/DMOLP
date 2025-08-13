@@ -89,8 +89,6 @@ void load_graph(const char *filename, int procId, int nprocs, unordered_map<int,
 
     for (auto &kv : adj) {
         auto &neighbors = kv.second;
-        sort(neighbors.begin(), neighbors.end());
-        neighbors.erase(unique(neighbors.begin(), neighbors.end()), neighbors.end());
         local_degree[kv.first] = (int)neighbors.size();
         local_E += (uint64_t)neighbors.size();
     }
@@ -98,6 +96,8 @@ void load_graph(const char *filename, int procId, int nprocs, unordered_map<int,
     MPI_Allreduce(&local_E, &E, 1, MPI_UINT64_T, MPI_SUM, MPI_COMM_WORLD);
     MPI_Allreduce(&local_V, &V, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
     free(buf);
+
+    E /= 2;
 }
 
 void gather_degrees(unordered_map<int, int> &local_degree, unordered_map<int, int> &global_degree, int procId, int nprocs) {
