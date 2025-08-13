@@ -55,7 +55,7 @@ Phase1Metrics run_phase1(
 
     sync_vector(mpi_rank, 0, seeds);
 
-    partition_expansion(mpi_rank, mpi_size, num_parts, seeds, global_degree, graph, local_graph, ghost_nodes);
+    partition_expansion(mpi_rank, mpi_size, num_parts, theta, seeds, global_degree, graph, local_graph, ghost_nodes, true);
     
     auto distribute_end = std::chrono::high_resolution_clock::now();
     auto load_duration = std::chrono::duration_cast<std::chrono::milliseconds>(distribute_start - load_start);
