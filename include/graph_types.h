@@ -235,7 +235,7 @@ struct PartitionStats {
     std::vector<int> global_vertex_counts;
     std::vector<int> global_edge_counts;
     int total_vertices;
-    int total_edges;
+    uint64_t total_edges;
     double expected_vertices;
     double expected_edges;
 
@@ -280,7 +280,7 @@ struct Phase1Metrics {
     long loading_time_ms = 0;
     long distribution_time_ms = 0;
     int total_vertices = 0;
-    int total_edges = 0;
+    uint64_t total_edges = 0;
     std::vector<int> partition_vertex_counts;
     std::vector<int> partition_edge_counts;
 
@@ -317,7 +317,7 @@ struct PartitioningMetrics {
     long distribution_time_ms = 0;
     int num_partitions = 0;
     int total_vertices = 0;
-    int total_edges = 0;
+    uint64_t total_edges = 0;
 
     PartitioningMetrics() = default;
     PartitioningMetrics(const Phase1Metrics& m, int num_parts) {

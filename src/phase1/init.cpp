@@ -22,7 +22,7 @@ inline int fast_atoi(const char* &p) {
     return x;
 }
 
-void load_graph(const char *filename, int procId, int nprocs, unordered_map<int, vector<int>> &adj, unordered_map<int, int> &local_degree, int &V, int &E) {
+void load_graph(const char *filename, int procId, int nprocs, unordered_map<int, vector<int>> &adj, unordered_map<int, int> &local_degree, int &V, uint64_t &E) {
     FILE* fp = fopen(filename, "r");
     if (!fp) {
         fprintf(stderr, "Process %d: Error opening file: %s\n", procId, filename);
@@ -85,17 +85,17 @@ void load_graph(const char *filename, int procId, int nprocs, unordered_map<int,
     fclose(fp);
 
     int local_V = adj.size();
-    int local_E = 0;
+    uint64_t local_E = 0;
 
     for (auto &kv : adj) {
         auto &neighbors = kv.second;
         sort(neighbors.begin(), neighbors.end());
         neighbors.erase(unique(neighbors.begin(), neighbors.end()), neighbors.end());
         local_degree[kv.first] = (int)neighbors.size();
-        local_E += (int)neighbors.size();
+        local_E += (uint64_t)neighbors.size();
     }
 
-    MPI_Allreduce(&local_E, &E, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(&local_E, &E, 1, MPI_UINT64_T, MPI_SUM, MPI_COMM_WORLD);
     MPI_Allreduce(&local_V, &V, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
     free(buf);
 }

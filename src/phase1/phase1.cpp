@@ -3,6 +3,7 @@
 #include <vector>
 #include <unordered_map>
 #include <algorithm>
+#include <cstdint>
 #include <chrono>
 
 #include "phase1/phase1.h"
@@ -33,7 +34,7 @@ Phase1Metrics run_phase1(
     std::vector<int> seeds;
     std::vector<std::vector<int>> partitions;
     int V;
-    int E;
+    uint64_t E;
 
     auto load_start = std::chrono::high_resolution_clock::now();
 
