@@ -148,7 +148,6 @@ static std::vector<Delta> allgatherDeltas(const std::vector<Delta> &local_deltas
 // === Penalty 계산 방식 선택 (실험용) ===
 // #define USE_MASTER_WORKER_PENALTY  // 이 줄을 주석 해제하면 Master-Worker 방식 사용
 
-#ifdef USE_MASTER_WORKER_PENALTY
 // Master-Worker 방식: Rank 0만 계산, 결과를 브로드캐스트
 std::vector<double> calculatePenalties(
     const PartitionStats &stats,
@@ -212,67 +211,6 @@ std::vector<double> calculatePenalties(
     
     return penalties;
 }
-
-#else
-// 기존 방식: 모든 프로세서가 동일한 계산 수행
-std::vector<double> calculatePenalties(
-    const PartitionStats &stats,
-    int num_partitions,
-    int mpi_rank = 0)
-{
-    // RV, RE 비율 계산
-    std::vector<double> RV(num_partitions), RE(num_partitions);
-    for (int i = 0; i < num_partitions; i++) {
-        RV[i] = (stats.expected_vertices > 0) ? static_cast<double>(stats.global_vertex_counts[i]) / stats.expected_vertices : 1.0;
-        RE[i] = (stats.expected_edges > 0) ? static_cast<double>(stats.global_edge_counts[i]) / stats.expected_edges : 1.0;
-    }
-    
-    // 디버깅 출력 (Rank 0만)
-    if (mpi_rank == 0) {
-        printf("\n=== Label Statistics (기존 방식) ===\n");
-        printf("Total: %d vertices, %d edges\n", stats.total_vertices, stats.total_edges);
-        printf("Expected per label: %.1f vertices, %.1f edges\n", stats.expected_vertices, stats.expected_edges);
-        
-        for (int i = 0; i < num_partitions; i++) {
-            printf("Label %d: %d vertices (%.3f), %d edges (%.3f)\n", 
-                   i, stats.global_vertex_counts[i], RV[i], 
-                   stats.global_edge_counts[i], RE[i]);
-        }
-        printf("========================\n\n");
-    }
-
-    // Penalty 직접 계산
-    double rv_mean = 0.0, re_mean = 0.0;
-    for (int i = 0; i < num_partitions; i++) {
-        rv_mean += RV[i];
-        re_mean += RE[i];
-    }
-    rv_mean /= num_partitions;
-    re_mean /= num_partitions;
-
-    double rv_var = 0.0, re_var = 0.0;
-    for (int i = 0; i < num_partitions; i++) {
-        rv_var += (RV[i] - rv_mean) * (RV[i] - rv_mean);
-        re_var += (RE[i] - re_mean) * (RE[i] - re_mean);
-    }
-    rv_var /= num_partitions;
-    re_var /= num_partitions;
-
-    double total_var = rv_var + re_var;
-    double imb_rv = (total_var > 0) ? rv_var / total_var : 0.0;
-    double imb_re = (total_var > 0) ? re_var / total_var : 0.0;
-
-    // Penalty 배열 직접 생성
-    std::vector<double> penalties(num_partitions);
-    for (int i = 0; i < num_partitions; i++) {
-        double G_RV = (1.0 - RV[i]) / num_partitions;
-        double G_RE = (1.0 - RE[i]) / num_partitions;
-        penalties[i] = imb_rv * G_RV + imb_re * G_RE;
-    }
-
-    return penalties;
-}
-#endif
 
 // 경계 노드를 찾는 함수 (최적화된 버전) - OpenMP 병렬화
 static std::vector<int> extractBoundaryLocalIDs(const Graph &local_graph, const GhostNodes &ghost_nodes)
