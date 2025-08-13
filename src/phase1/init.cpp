@@ -69,8 +69,6 @@ void load_graph(const char *filename, int procId, int nprocs, unordered_map<int,
                     while (*p) {
                         int neighbor = fast_atoi(p);
                         nbrs.push_back(neighbor);
-
-                        if (neighbor % nprocs == procId) adj[neighbor].push_back(source);
                     }
                 } else {
                     while (*p) fast_atoi(p);
