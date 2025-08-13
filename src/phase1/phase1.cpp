@@ -61,13 +61,31 @@ Phase1Metrics run_phase1(
     auto load_duration = std::chrono::duration_cast<std::chrono::milliseconds>(distribute_start - load_start);
     auto distribution_duration = std::chrono::duration_cast<std::chrono::milliseconds>(distribute_end - distribute_start);
 
+    // Ghost 노드 라벨 안전하게 가져오는 헬퍼 함수 (Phase2와 동일)
+    auto getNodeLabel = [&](int node_id) -> int {
+        if (node_id < local_graph.num_vertices) {
+            return local_graph.vertex_labels[node_id];
+        } else {
+            int ghost_idx = node_id - local_graph.num_vertices;
+            return (ghost_idx >= 0 && ghost_idx < (int)ghost_nodes.ghost_labels.size()) 
+                   ? ghost_nodes.ghost_labels[ghost_idx] : -1;
+        }
+    };
+
+    // Edge-cut 계산 (Phase2와 동일한 방식: owned 노드만 카운트하여 중복 방지)
     int local_edge_cut = 0;
-    for (int u = 0; u < (int)local_graph.global_ids.size(); u++) {
+    for (int u = 0; u < local_graph.num_vertices; u++) {  // owned 노드만
         int u_label = local_graph.vertex_labels[u];
         for (int e = local_graph.row_ptr[u]; e < local_graph.row_ptr[u + 1]; e++) {
-            int v_local = local_graph.col_indices[e];
-            int v_label = local_graph.vertex_labels[v_local];
-            if (u_label != v_label) local_edge_cut++;
+            int v = local_graph.col_indices[e];
+            
+            // v의 라벨 결정 (ghost 노드 처리)
+            int v_label = getNodeLabel(v);
+            
+            // 다른 파티션 간 간선이면 edge-cut에 포함
+            if (u_label != -1 && v_label != -1 && u_label != v_label) {
+                local_edge_cut++;
+            }
         }
     }
     MPI_Allreduce(&local_edge_cut, &metrics.initial_edge_cut, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);

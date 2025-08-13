@@ -472,6 +472,9 @@ PartitioningMetrics run_phase2(
             break;
         }
 
+        // Step5.5: 라벨 변경 후 통계 업데이트 (중요!)
+        current_stats = computePartitionStats(local_graph, local_graph.vertex_labels, ghost_nodes, num_partitions);
+
         // Step6: Edge-cut 변화율 검사
         int curr_edge_cut = computeEdgeCut(local_graph, local_graph.vertex_labels, ghost_nodes);
         double delta = (prev_edge_cut > 0)
