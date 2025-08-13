@@ -14,28 +14,32 @@
 
 #include "phase2/gpu_lp_boundary.h"
 
-// ==================== 바운더리 서브그래프 생성 ====================
+// ==================== 바운더리 서브그래프 생성 (로컬+고스트 통합) ====================
 
 /**
- * 바운더리 노드 + 1-hop 이웃으로 구성된 서브그래프 생성
- * - 중복 제거 및 효율적인 CSR 구성
- * - 원본 노드 ID와 서브그래프 인덱스 간 매핑 제공
+ * 바운더리 노드 + 1-hop 이웃으로 구성된 통합 서브그래프 생성
+ * - 로컬 노드와 고스트 노드의 라벨을 통합하여 GPU에 전달
+ * - 로컬 노드만 업데이트 대상으로 표시
+ * - GPU 메모리 지역성 최적화
  */
-BoundarySubgraph createBoundarySubgraph(
+BoundarySubgraph createBoundarySubgraphUnified(
     const std::vector<int>& row_ptr,
     const std::vector<int>& col_idx,
     const std::vector<int>& boundary_nodes,
-    const std::vector<int>& labels,
-    int labels_count)
+    const std::vector<int>& local_labels,
+    const std::vector<int>& ghost_labels,
+    const std::vector<int>& global_ids,
+    int num_local_nodes)
 {
     BoundarySubgraph subgraph;
+    subgraph.num_local_nodes = num_local_nodes;
     
     // 1단계: 서브그래프에 포함될 모든 노드 수집 (바운더리 + 1-hop 이웃)
     std::unordered_set<int> subgraph_nodes_set;
     
     // 바운더리 노드들 추가
     for (int boundary_node : boundary_nodes) {
-        if (boundary_node >= 0 && boundary_node < labels_count) {
+        if (boundary_node >= 0 && boundary_node < (int)(local_labels.size() + ghost_labels.size())) {
             subgraph_nodes_set.insert(boundary_node);
         }
     }
@@ -45,7 +49,7 @@ BoundarySubgraph createBoundarySubgraph(
         if (boundary_node >= 0 && boundary_node < (int)row_ptr.size() - 1) {
             for (int edge_idx = row_ptr[boundary_node]; edge_idx < row_ptr[boundary_node + 1]; edge_idx++) {
                 int neighbor = col_idx[edge_idx];
-                if (neighbor >= 0 && neighbor < labels_count) {
+                if (neighbor >= 0 && neighbor < (int)(local_labels.size() + ghost_labels.size())) {
                     subgraph_nodes_set.insert(neighbor);
                 }
             }
@@ -58,10 +62,31 @@ BoundarySubgraph createBoundarySubgraph(
     
     subgraph.num_nodes = subgraph_nodes.size();
     subgraph.node_mapping = subgraph_nodes;
-    subgraph.reverse_mapping.resize(labels_count, -1);
+    subgraph.reverse_mapping.resize(local_labels.size() + ghost_labels.size(), -1);
+    
+    // 통합 라벨 배열 및 로컬 노드 플래그 구성
+    subgraph.labels.resize(subgraph.num_nodes);
+    subgraph.local_node_flags.resize(subgraph.num_nodes);
     
     for (int i = 0; i < subgraph.num_nodes; i++) {
-        subgraph.reverse_mapping[subgraph_nodes[i]] = i;
+        int orig_node = subgraph_nodes[i];
+        subgraph.reverse_mapping[orig_node] = i;
+        
+        // 라벨 설정 (로컬 또는 고스트)
+        if (orig_node < num_local_nodes) {
+            // 로컬 노드
+            subgraph.labels[i] = local_labels[orig_node];
+            subgraph.local_node_flags[i] = 1;
+        } else {
+            // 고스트 노드
+            int ghost_idx = orig_node - num_local_nodes;
+            if (ghost_idx >= 0 && ghost_idx < (int)ghost_labels.size()) {
+                subgraph.labels[i] = ghost_labels[ghost_idx];
+            } else {
+                subgraph.labels[i] = -1; // 유효하지 않은 라벨
+            }
+            subgraph.local_node_flags[i] = 0;
+        }
     }
     
     // 3단계: 서브그래프 CSR 구성
@@ -74,7 +99,7 @@ BoundarySubgraph createBoundarySubgraph(
         if (orig_node < (int)row_ptr.size() - 1) {
             for (int edge_idx = row_ptr[orig_node]; edge_idx < row_ptr[orig_node + 1]; edge_idx++) {
                 int neighbor = col_idx[edge_idx];
-                if (neighbor >= 0 && neighbor < labels_count) {
+                if (neighbor >= 0 && neighbor < (int)(local_labels.size() + ghost_labels.size())) {
                     int neighbor_subgraph_idx = subgraph.reverse_mapping[neighbor];
                     if (neighbor_subgraph_idx != -1) {
                         adj_list[i].push_back(neighbor_subgraph_idx);
@@ -101,17 +126,23 @@ BoundarySubgraph createBoundarySubgraph(
         }
     }
     
-    // 4단계: 서브그래프 내 실제 바운더리 노드 인덱스 찾기
+    // 4단계: 서브그래프 내 실제 바운더리 노드 인덱스 찾기 (로컬 노드만)
     std::unordered_set<int> boundary_set(boundary_nodes.begin(), boundary_nodes.end());
     for (int i = 0; i < subgraph.num_nodes; i++) {
         int orig_node = subgraph_nodes[i];
-        if (boundary_set.count(orig_node)) {
+        if (boundary_set.count(orig_node) && subgraph.local_node_flags[i] == 1) {
             subgraph.boundary_indices.push_back(i);
         }
     }
     
-    printf("[Subgraph] Created: %d nodes, %d edges, %zu boundary nodes\n", 
-           subgraph.num_nodes, subgraph.num_edges, subgraph.boundary_indices.size());
+    int local_count = 0;
+    for (int flag : subgraph.local_node_flags) {
+        if (flag == 1) local_count++;
+    }
+    
+    printf("[Subgraph-Unified] Created: %d nodes (%d local, %d ghost), %d edges, %zu boundary nodes\n", 
+           subgraph.num_nodes, local_count, subgraph.num_nodes - local_count, 
+           subgraph.num_edges, subgraph.boundary_indices.size());
     
     return subgraph;
 }
@@ -304,16 +335,19 @@ public:
 
 std::vector<PinnedMemoryPool::PinnedBuffer*> PinnedMemoryPool::buffer_pool;
 
-// ==================== 서브그래프 전용 커널 ====================
+// ==================== 서브그래프 전용 커널 (로컬 노드만 업데이트) ====================
 
 /**
- * 서브그래프 전용 최적화 커널 (더 효율적인 메모리 접근)
+ * 통합 서브그래프 전용 최적화 커널
+ * - 로컬+고스트 라벨을 모두 참조하지만 로컬 노드만 업데이트
+ * - 로컬 노드 플래그로 업데이트 대상 구분
  */
-__global__ void boundaryLPKernel_subgraph(
+__global__ void boundaryLPKernel_unified(
     const int* __restrict__ row_ptr, 
     const int* __restrict__ col_idx,
     const int* __restrict__ labels_old, 
     int* __restrict__ labels_new,
+    const int* __restrict__ local_node_flags,
     const double* __restrict__ penalty,
     const int* __restrict__ boundary_indices, 
     int boundary_count,
@@ -325,6 +359,9 @@ __global__ void boundaryLPKernel_subgraph(
 
     int subgraph_node_idx = boundary_indices[idx];
     if (subgraph_node_idx < 0 || subgraph_node_idx >= subgraph_size) return;
+    
+    // 로컬 노드가 아니면 스킵 (고스트 노드는 업데이트하지 않음)
+    if (local_node_flags[subgraph_node_idx] != 1) return;
     
     int my_label = labels_old[subgraph_node_idx];
 
@@ -340,7 +377,7 @@ __global__ void boundaryLPKernel_subgraph(
     double local_counts[32] = {0.0};
     int max_partitions = (num_partitions < 32 ? num_partitions : 32);
     
-    // 이웃 노드 순회 (서브그래프 내에서만)
+    // 이웃 노드 순회 (서브그래프 내에서 로컬+고스트 모두 참조)
     int start = row_ptr[subgraph_node_idx];
     int end = row_ptr[subgraph_node_idx + 1];
     
@@ -381,93 +418,25 @@ __global__ void boundaryLPKernel_subgraph(
         }
     }
     
-    // 결과 저장
+    // 결과 저장 (로컬 노드만)
     labels_new[subgraph_node_idx] = best_label;
 }
 
-// ==================== 스트리밍 처리 함수 ====================
+// ==================== 효율적인 GPU 처리 함수 ====================
 
 /**
- * 메모리 효율적인 스트리밍 방식 바운더리 LP
- * - 대용량 그래프를 청크 단위로 나누어 처리
- * - 비동기 데이터 전송과 GPU 처리 오버랩
+ * 효율적인 GPU 라벨 전파 (통합 서브그래프, 로컬만 업데이트)
+ * - 전체 그래프 대신 서브그래프만 GPU에 전달
+ * - 로컬+고스트 라벨 통합으로 GPU 메모리 지역성 최적화
+ * - 로컬 노드만 업데이트하여 정확성 보장
  */
-void runBoundaryLPOnGPU_Streaming(
-    const std::vector<int>& row_ptr,
-    const std::vector<int>& col_idx,
-    const std::vector<int>& labels_old,
-    std::vector<int>& labels_new,
-    const std::vector<double>& penalty,
-    const std::vector<int>& boundary_nodes,
-    int num_partitions,
-    size_t max_memory_mb)
-{
-    printf("[GPU-Streaming] Starting with %zu boundary nodes, memory limit: %zu MB\n", 
-           boundary_nodes.size(), max_memory_mb);
-    
-    // 1단계: 바운더리 서브그래프 생성
-    BoundarySubgraph subgraph = createBoundarySubgraph(row_ptr, col_idx, boundary_nodes, labels_old, labels_old.size());
-    
-    // 2단계: 메모리 사용량 계산 및 청킹 전략 결정
-    size_t subgraph_memory = (subgraph.row_ptr.size() + subgraph.col_idx.size()) * sizeof(int) +
-                            subgraph.num_nodes * sizeof(int) * 2 + // labels_old, labels_new
-                            penalty.size() * sizeof(double);
-    
-    size_t available_memory = max_memory_mb * 1024 * 1024;
-    
-    if (subgraph_memory <= available_memory) {
-        // 전체 서브그래프가 메모리에 들어가는 경우
-        printf("[GPU-Streaming] Processing entire subgraph (%zu bytes)\n", subgraph_memory);
-        runBoundaryLPOnGPU_SubgraphOptimized(subgraph, labels_old, labels_new, penalty, num_partitions);
-    } else {
-        // 청크 단위 처리 필요
-        size_t chunk_size = std::max(1UL, (available_memory * subgraph.boundary_indices.size()) / subgraph_memory);
-        size_t num_chunks = (subgraph.boundary_indices.size() + chunk_size - 1) / chunk_size;
-        
-        printf("[GPU-Streaming] Chunking into %zu pieces (chunk size: %zu)\n", num_chunks, chunk_size);
-        
-        // 멀티 스트림으로 파이프라인 처리
-        const int num_streams = 2;
-        cudaStream_t streams[num_streams];
-        for (int i = 0; i < num_streams; i++) {
-            cudaStreamCreate(&streams[i]);
-        }
-        
-        for (size_t chunk_id = 0; chunk_id < num_chunks; chunk_id++) {
-            size_t start_idx = chunk_id * chunk_size;
-            size_t end_idx = std::min(start_idx + chunk_size, subgraph.boundary_indices.size());
-            
-            // 현재 청크의 바운더리 인덱스들
-            std::vector<int> chunk_boundary_indices(
-                subgraph.boundary_indices.begin() + start_idx,
-                subgraph.boundary_indices.begin() + end_idx
-            );
-            
-            int stream_id = chunk_id % num_streams;
-            processSubgraphChunk(subgraph, chunk_boundary_indices, labels_old, labels_new, 
-                                penalty, num_partitions, streams[stream_id], chunk_id);
-        }
-        
-        // 모든 스트림 동기화
-        for (int i = 0; i < num_streams; i++) {
-            cudaStreamSynchronize(streams[i]);
-            cudaStreamDestroy(streams[i]);
-        }
-    }
-    
-    printf("[GPU-Streaming] Completed processing\n");
-}
-
-/**
- * 서브그래프 전체 처리 (메모리가 충분한 경우)
- */
-void runBoundaryLPOnGPU_SubgraphOptimized(
+GPULabelUpdateResult runBoundaryLPOnGPU_SubgraphUnified(
     const BoundarySubgraph& subgraph,
-    const std::vector<int>& labels_old,
-    std::vector<int>& labels_new,
     const std::vector<double>& penalty,
     int num_partitions)
 {
+    GPULabelUpdateResult result;
+    
     cudaEvent_t start, stop;
     cudaEventCreate(&start);
     cudaEventCreate(&stop);
@@ -476,53 +445,69 @@ void runBoundaryLPOnGPU_SubgraphOptimized(
     cudaStream_t stream;
     cudaStreamCreate(&stream);
     
-    // GPU 메모리 할당
-    int *d_row_ptr, *d_col_idx, *d_labels_old, *d_labels_new, *d_boundary_indices;
+    // GPU 메모리 할당 (서브그래프 크기만)
+    int *d_row_ptr, *d_col_idx, *d_labels_old, *d_labels_new;
+    int *d_local_flags, *d_boundary_indices;
     double *d_penalty;
     
     GPUMemoryManager::safeMalloc((void**)&d_row_ptr, subgraph.row_ptr.size() * sizeof(int));
     GPUMemoryManager::safeMalloc((void**)&d_col_idx, subgraph.col_idx.size() * sizeof(int));
     GPUMemoryManager::safeMalloc((void**)&d_labels_old, subgraph.num_nodes * sizeof(int));
     GPUMemoryManager::safeMalloc((void**)&d_labels_new, subgraph.num_nodes * sizeof(int));
+    GPUMemoryManager::safeMalloc((void**)&d_local_flags, subgraph.num_nodes * sizeof(int));
     GPUMemoryManager::safeMalloc((void**)&d_boundary_indices, subgraph.boundary_indices.size() * sizeof(int));
     GPUMemoryManager::safeMalloc((void**)&d_penalty, penalty.size() * sizeof(double));
-    
-    // 서브그래프 라벨 배열 구성
-    std::vector<int> subgraph_labels_old(subgraph.num_nodes);
-    std::vector<int> subgraph_labels_new(subgraph.num_nodes);
-    
-    for (int i = 0; i < subgraph.num_nodes; i++) {
-        int orig_node = subgraph.node_mapping[i];
-        subgraph_labels_old[i] = labels_old[orig_node];
-        subgraph_labels_new[i] = labels_new[orig_node];
-    }
     
     // 비동기 메모리 전송
     cudaMemcpyAsync(d_row_ptr, subgraph.row_ptr.data(), subgraph.row_ptr.size() * sizeof(int), cudaMemcpyHostToDevice, stream);
     cudaMemcpyAsync(d_col_idx, subgraph.col_idx.data(), subgraph.col_idx.size() * sizeof(int), cudaMemcpyHostToDevice, stream);
-    cudaMemcpyAsync(d_labels_old, subgraph_labels_old.data(), subgraph.num_nodes * sizeof(int), cudaMemcpyHostToDevice, stream);
-    cudaMemcpyAsync(d_labels_new, subgraph_labels_new.data(), subgraph.num_nodes * sizeof(int), cudaMemcpyHostToDevice, stream);
+    cudaMemcpyAsync(d_labels_old, subgraph.labels.data(), subgraph.num_nodes * sizeof(int), cudaMemcpyHostToDevice, stream);
+    cudaMemcpyAsync(d_labels_new, subgraph.labels.data(), subgraph.num_nodes * sizeof(int), cudaMemcpyHostToDevice, stream);
+    cudaMemcpyAsync(d_local_flags, subgraph.local_node_flags.data(), subgraph.num_nodes * sizeof(int), cudaMemcpyHostToDevice, stream);
     cudaMemcpyAsync(d_boundary_indices, subgraph.boundary_indices.data(), subgraph.boundary_indices.size() * sizeof(int), cudaMemcpyHostToDevice, stream);
     cudaMemcpyAsync(d_penalty, penalty.data(), penalty.size() * sizeof(double), cudaMemcpyHostToDevice, stream);
     
-    // 커널 실행
+    // 커널 실행 설정 (GPU 하드웨어 적응형)
     int threads = 256;
-    int blocks = (subgraph.boundary_indices.size() + threads - 1) / threads;
+    int boundary_count = subgraph.boundary_indices.size();
+    
+    // GPU 멀티프로세서 정보 가져오기
+    int device;
+    cudaGetDevice(&device);
+    cudaDeviceProp prop;
+    cudaGetDeviceProperties(&prop, device);
+    
+    // 최적 블록 개수 계산 (SM 개수와 바운더리 노드 개수 고려)
+    int max_blocks_per_sm = prop.maxThreadsPerMultiProcessor / threads;
+    int max_blocks = prop.multiProcessorCount * max_blocks_per_sm;
+    int min_blocks_needed = (boundary_count + threads - 1) / threads;
+    int blocks = std::min(max_blocks, min_blocks_needed);
+    
+    printf("[GPU] SM개수: %d, 최대블록: %d, 필요블록: %d, 사용블록: %d (바운더리: %d)\n",
+           prop.multiProcessorCount, max_blocks, min_blocks_needed, blocks, boundary_count);
+    
     size_t shared_mem = num_partitions * sizeof(double);
     
-    boundaryLPKernel_subgraph<<<blocks, threads, shared_mem, stream>>>(
-        d_row_ptr, d_col_idx, d_labels_old, d_labels_new, d_penalty,
+    boundaryLPKernel_unified<<<blocks, threads, shared_mem, stream>>>(
+        d_row_ptr, d_col_idx, d_labels_old, d_labels_new, d_local_flags, d_penalty,
         d_boundary_indices, subgraph.boundary_indices.size(),
         num_partitions, subgraph.num_nodes);
     
     // 결과 복사
-    cudaMemcpyAsync(subgraph_labels_new.data(), d_labels_new, subgraph.num_nodes * sizeof(int), cudaMemcpyDeviceToHost, stream);
+    std::vector<int> updated_labels(subgraph.num_nodes);
+    cudaMemcpyAsync(updated_labels.data(), d_labels_new, subgraph.num_nodes * sizeof(int), cudaMemcpyDeviceToHost, stream);
     cudaStreamSynchronize(stream);
     
-    // 원본 라벨 배열 업데이트
+    // 변경된 로컬 노드만 추출
     for (int i = 0; i < subgraph.num_nodes; i++) {
-        int orig_node = subgraph.node_mapping[i];
-        labels_new[orig_node] = subgraph_labels_new[i];
+        if (subgraph.local_node_flags[i] == 1) { // 로컬 노드만
+            if (subgraph.labels[i] != updated_labels[i]) { // 라벨이 변경된 경우
+                int orig_node_id = subgraph.node_mapping[i];
+                result.updated_nodes.push_back(orig_node_id);
+                result.updated_labels.push_back(updated_labels[i]);
+                result.change_count++;
+            }
+        }
     }
     
     // 정리
@@ -531,100 +516,182 @@ void runBoundaryLPOnGPU_SubgraphOptimized(
     float ms;
     cudaEventElapsedTime(&ms, start, stop);
     
-    printf("[GPU-Subgraph] Execution time: %.2f ms (%d nodes, %d boundary)\n", 
-           ms, subgraph.num_nodes, (int)subgraph.boundary_indices.size());
+    printf("[GPU-Unified] Execution time: %.2f ms (%d nodes, %d boundary, %d changes)\n", 
+           ms, subgraph.num_nodes, (int)subgraph.boundary_indices.size(), result.change_count);
     
     cudaStreamDestroy(stream);
     GPUMemoryManager::safeFree(d_row_ptr);
     GPUMemoryManager::safeFree(d_col_idx);
     GPUMemoryManager::safeFree(d_labels_old);
     GPUMemoryManager::safeFree(d_labels_new);
+    GPUMemoryManager::safeFree(d_local_flags);
     GPUMemoryManager::safeFree(d_boundary_indices);
     GPUMemoryManager::safeFree(d_penalty);
     
     cudaEventDestroy(start);
     cudaEventDestroy(stop);
+    
+    return result;
 }
 
 /**
- * 청크 단위 처리 (비동기)
+ * 스트리밍 방식 GPU 처리 (개선된 인터페이스)
  */
-void processSubgraphChunk(
+GPULabelUpdateResult runBoundaryLPOnGPU_Streaming(
+    const std::vector<int>& row_ptr,
+    const std::vector<int>& col_idx,
+    const std::vector<int>& boundary_nodes,
+    const std::vector<int>& local_labels,
+    const std::vector<int>& ghost_labels,
+    const std::vector<int>& global_ids,
+    const std::vector<double>& penalty,
+    int num_local_nodes,
+    int num_partitions,
+    size_t max_memory_mb)
+{
+    printf("[GPU-Streaming] Starting with %zu boundary nodes, memory limit: %zu MB\n", 
+           boundary_nodes.size(), max_memory_mb);
+    
+    // 통합 서브그래프 생성
+    BoundarySubgraph subgraph = createBoundarySubgraphUnified(
+        row_ptr, col_idx, boundary_nodes, local_labels, ghost_labels, global_ids, num_local_nodes);
+    
+    // 메모리 사용량 계산
+    size_t subgraph_memory = (subgraph.row_ptr.size() + subgraph.col_idx.size() + 
+                             subgraph.num_nodes * 4) * sizeof(int) + // CSR + labels + flags + boundary_indices 
+                            penalty.size() * sizeof(double);
+    
+    size_t available_memory = max_memory_mb * 1024 * 1024;
+    
+    if (subgraph_memory <= available_memory) {
+        // 전체 서브그래프가 메모리에 들어가는 경우
+        printf("[GPU-Streaming] Processing entire subgraph (%zu bytes)\n", subgraph_memory);
+        return runBoundaryLPOnGPU_SubgraphUnified(subgraph, penalty, num_partitions);
+    } else {
+        // 청크 단위 처리 필요
+        printf("[GPU-Streaming] Subgraph too large (%zu bytes), using chunking\n", subgraph_memory);
+        return runBoundaryLPOnGPU_Chunked(subgraph, penalty, num_partitions, available_memory);
+    }
+}
+
+/**
+ * 청크 단위 처리 함수 구현
+ * 큰 서브그래프를 메모리에 맞게 청크로 나누어 처리
+ */
+GPULabelUpdateResult runBoundaryLPOnGPU_Chunked(
     const BoundarySubgraph& subgraph,
-    const std::vector<int>& chunk_boundary_indices,
-    const std::vector<int>& labels_old,
-    std::vector<int>& labels_new,
     const std::vector<double>& penalty,
     int num_partitions,
-    cudaStream_t stream,
-    size_t chunk_id)
-{
-    printf("[GPU-Chunk-%zu] Processing %zu boundary nodes\n", chunk_id, chunk_boundary_indices.size());
+    size_t available_memory) {
     
-    // GPU 메모리 할당 (청크 크기에 맞게)
-    int *d_row_ptr, *d_col_idx, *d_labels_old, *d_labels_new, *d_chunk_indices;
-    double *d_penalty;
+    // 결과 누적용
+    GPULabelUpdateResult total_result;
     
-    GPUMemoryManager::safeMalloc((void**)&d_row_ptr, subgraph.row_ptr.size() * sizeof(int));
-    GPUMemoryManager::safeMalloc((void**)&d_col_idx, subgraph.col_idx.size() * sizeof(int));
-    GPUMemoryManager::safeMalloc((void**)&d_labels_old, subgraph.num_nodes * sizeof(int));
-    GPUMemoryManager::safeMalloc((void**)&d_labels_new, subgraph.num_nodes * sizeof(int));
-    GPUMemoryManager::safeMalloc((void**)&d_chunk_indices, chunk_boundary_indices.size() * sizeof(int));
-    GPUMemoryManager::safeMalloc((void**)&d_penalty, penalty.size() * sizeof(double));
+    // 각 청크당 최대 노드 수 계산
+    size_t per_node_memory = sizeof(int) * 3 + sizeof(bool); // CSR + labels + flags
+    size_t overhead_memory = penalty.size() * sizeof(double) + 1024 * 1024; // penalty + 1MB 오버헤드
+    size_t usable_memory = available_memory - overhead_memory;
+    int max_nodes_per_chunk = std::max(1, (int)(usable_memory / per_node_memory));
     
-    // 서브그래프 라벨 배열 구성
-    std::vector<int> subgraph_labels_old(subgraph.num_nodes);
-    std::vector<int> subgraph_labels_new(subgraph.num_nodes);
+    printf("[GPU-Chunked] Processing %d nodes in chunks of max %d nodes\n", 
+           subgraph.num_nodes, max_nodes_per_chunk);
     
-    for (int i = 0; i < subgraph.num_nodes; i++) {
-        int orig_node = subgraph.node_mapping[i];
-        subgraph_labels_old[i] = labels_old[orig_node];
-        subgraph_labels_new[i] = labels_new[orig_node];
+    // 노드 범위별로 청크 처리
+    for (int start_node = 0; start_node < subgraph.num_nodes; start_node += max_nodes_per_chunk) {
+        int end_node = std::min(start_node + max_nodes_per_chunk, subgraph.num_nodes);
+        int chunk_size = end_node - start_node;
+        
+        printf("[GPU-Chunked] Processing chunk [%d-%d] (%d nodes)\n", 
+               start_node, end_node-1, chunk_size);
+        
+        // 청크용 서브그래프 생성
+        BoundarySubgraph chunk_subgraph = createChunkSubgraph(subgraph, start_node, end_node);
+        
+        // 청크 처리
+        GPULabelUpdateResult chunk_result = runBoundaryLPOnGPU_SubgraphUnified(
+            chunk_subgraph, penalty, num_partitions);
+        
+        // 결과 병합 (노드 인덱스를 원래 인덱스로 변환)
+        for (size_t i = 0; i < chunk_result.updated_nodes.size(); i++) {
+            int original_node = chunk_result.updated_nodes[i] + start_node;
+            if (original_node < subgraph.num_local_nodes) { // 로컬 노드만
+                total_result.updated_nodes.push_back(original_node);
+                total_result.updated_labels.push_back(chunk_result.updated_labels[i]);
+            }
+        }
+        
+        // 청크 메모리 해제
+        freeChunkSubgraph(chunk_subgraph);
     }
     
-    // 비동기 메모리 전송
-    cudaMemcpyAsync(d_row_ptr, subgraph.row_ptr.data(), subgraph.row_ptr.size() * sizeof(int), cudaMemcpyHostToDevice, stream);
-    cudaMemcpyAsync(d_col_idx, subgraph.col_idx.data(), subgraph.col_idx.size() * sizeof(int), cudaMemcpyHostToDevice, stream);
-    cudaMemcpyAsync(d_labels_old, subgraph_labels_old.data(), subgraph.num_nodes * sizeof(int), cudaMemcpyHostToDevice, stream);
-    cudaMemcpyAsync(d_labels_new, subgraph_labels_new.data(), subgraph.num_nodes * sizeof(int), cudaMemcpyHostToDevice, stream);
-    cudaMemcpyAsync(d_chunk_indices, chunk_boundary_indices.data(), chunk_boundary_indices.size() * sizeof(int), cudaMemcpyHostToDevice, stream);
-    cudaMemcpyAsync(d_penalty, penalty.data(), penalty.size() * sizeof(double), cudaMemcpyHostToDevice, stream);
+    printf("[GPU-Chunked] Total updated nodes: %zu\n", total_result.updated_nodes.size());
+    return total_result;
+}
+
+/**
+ * 청크용 서브그래프 생성
+ */
+BoundarySubgraph createChunkSubgraph(const BoundarySubgraph& original, int start_node, int end_node) {
+    BoundarySubgraph chunk;
+    chunk.num_nodes = end_node - start_node;
+    chunk.num_local_nodes = 0;
     
-    // 커널 실행 (청크 단위)
-    int threads = 256;
-    int blocks = (chunk_boundary_indices.size() + threads - 1) / threads;
-    size_t shared_mem = num_partitions * sizeof(double);
-    
-    boundaryLPKernel_subgraph<<<blocks, threads, shared_mem, stream>>>(
-        d_row_ptr, d_col_idx, d_labels_old, d_labels_new, d_penalty,
-        d_chunk_indices, chunk_boundary_indices.size(),
-        num_partitions, subgraph.num_nodes);
-    
-    // 결과 복사 (비동기)
-    cudaMemcpyAsync(subgraph_labels_new.data(), d_labels_new, subgraph.num_nodes * sizeof(int), cudaMemcpyDeviceToHost, stream);
-    
-    // 스트림 동기화 후 원본 배열 업데이트
-    cudaStreamSynchronize(stream);
-    
-    // 청크 결과를 원본 라벨 배열에 반영 (스레드 안전성 고려)
-    #pragma omp critical
-    {
-        for (size_t i = 0; i < chunk_boundary_indices.size(); i++) {
-            int subgraph_idx = chunk_boundary_indices[i];
-            int orig_node = subgraph.node_mapping[subgraph_idx];
-            labels_new[orig_node] = subgraph_labels_new[subgraph_idx];
+    // 로컬 노드 수 계산
+    for (int i = start_node; i < end_node; i++) {
+        if (original.local_node_flags[i]) {
+            chunk.num_local_nodes++;
         }
     }
     
-    // 메모리 정리
-    GPUMemoryManager::safeFree(d_row_ptr);
-    GPUMemoryManager::safeFree(d_col_idx);
-    GPUMemoryManager::safeFree(d_labels_old);
-    GPUMemoryManager::safeFree(d_labels_new);
-    GPUMemoryManager::safeFree(d_chunk_indices);
-    GPUMemoryManager::safeFree(d_penalty);
+    // 청크의 엣지 수 계산
+    chunk.num_edges = 0;
+    for (int i = start_node; i < end_node; i++) {
+        chunk.num_edges += original.row_ptr[i+1] - original.row_ptr[i];
+    }
     
-    printf("[GPU-Chunk-%zu] Completed\n", chunk_id);
+    // 메모리 할당
+    chunk.row_ptr.resize(chunk.num_nodes + 1);
+    chunk.col_idx.resize(chunk.num_edges);
+    chunk.labels.resize(chunk.num_nodes);
+    chunk.local_node_flags.resize(chunk.num_nodes);
+    
+    // 데이터 복사
+    chunk.row_ptr[0] = 0;
+    int edge_offset = 0;
+    
+    for (int i = 0; i < chunk.num_nodes; i++) {
+        int original_node = start_node + i;
+        
+        // 라벨과 플래그 복사
+        chunk.labels[i] = original.labels[original_node];
+        chunk.local_node_flags[i] = original.local_node_flags[original_node];
+        
+        // 엣지 정보 복사
+        int start_edge = original.row_ptr[original_node];
+        int end_edge = original.row_ptr[original_node + 1];
+        int edge_count = end_edge - start_edge;
+        
+        for (int j = 0; j < edge_count; j++) {
+            chunk.col_idx[edge_offset + j] = 
+                original.col_idx[start_edge + j] - start_node; // 상대 인덱스로 변환
+        }
+        
+        edge_offset += edge_count;
+        chunk.row_ptr[i + 1] = edge_offset;
+    }
+    
+    return chunk;
+}
+
+/**
+ * 청크 서브그래프 메모리 해제
+ */
+void freeChunkSubgraph(BoundarySubgraph& chunk) {
+    // std::vector는 자동으로 해제되므로 특별한 작업 불필요
+    chunk.row_ptr.clear();
+    chunk.col_idx.clear();
+    chunk.labels.clear();
+    chunk.local_node_flags.clear();
 }
 
 // GPU용 Partition Info 구조체
