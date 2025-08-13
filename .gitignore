@@ -32,6 +32,8 @@ Makefile
 
 # 기타
 *.ipynb_checkpoints
+./dataset/
+./datasets/
 
 # CUDA
 *.cu.o
