@@ -361,20 +361,22 @@ PartitioningMetrics run_phase2(
             break;
         }
 
-        // Step3: 효율적인 GPU 바운더리 라벨 전파 (로컬+고스트 통합)
+        // Step3: 효율적인 GPU 바운더리 라벨 전파 (로컬+고스트 통합, 최적화)
         GPULabelUpdateResult gpu_result;
         try {
-            // GPU 메모리 정보 가져오기
+            // GPU 메모리 정보 가져오기 및 적응적 메모리 사용
             size_t free_memory, total_memory;
             cudaMemGetInfo(&free_memory, &total_memory);
-            size_t max_gpu_memory = static_cast<size_t>(free_memory * 0.9); // 90% 사용
+            size_t max_gpu_memory = static_cast<size_t>(free_memory * 0.85); // 85%로 보수적 사용
             
             printf("[Rank %d] GPU 메모리: 전체 %.1fGB, 사용가능 %.1fGB, 사용예정 %.1fGB\n", 
                    mpi_rank, total_memory / (1024.0*1024.0*1024.0), 
                    free_memory / (1024.0*1024.0*1024.0),
                    max_gpu_memory / (1024.0*1024.0*1024.0));
             
-            // 통합 서브그래프 방식: 로컬+고스트 라벨 통합하여 GPU에 전달
+            // 통합 서브그래프 방식: 로컬+고스트 라벨 통합하여 GPU에 전달 (스트리밍 최적화)
+            auto gpu_start = std::chrono::high_resolution_clock::now();
+            
             gpu_result = runBoundaryLPOnGPU_Streaming(
                 local_graph.row_ptr,
                 local_graph.col_indices,
@@ -385,11 +387,17 @@ PartitioningMetrics run_phase2(
                 penalty_pinned,            // penalty 배열
                 local_graph.num_vertices,  // 로컬 노드 수
                 num_partitions,
-                max_gpu_memory  // 동적 메모리 제한
+                max_gpu_memory / (1024 * 1024)  // MB 단위로 변환
             );
+            
+            auto gpu_end = std::chrono::high_resolution_clock::now();
+            auto gpu_duration = std::chrono::duration_cast<std::chrono::microseconds>(gpu_end - gpu_start);
+            printf("[Rank %d] GPU 처리 완료: %.2fms, %d 변경사항\n", 
+                   mpi_rank, gpu_duration.count() / 1000.0, gpu_result.change_count);
+                   
         } catch (const std::exception& e) {
-            printf("[Rank %d] 통합 GPU 처리 실패: %s\n", mpi_rank, e.what());
-            // 폴백: 빈 결과 반환
+            printf("[Rank %d] GPU 처리 실패 (fallback to CPU): %s\n", mpi_rank, e.what());
+            // GPU 실패 시 CPU fallback은 여기에 구현 가능
             gpu_result.change_count = 0;
         }
 

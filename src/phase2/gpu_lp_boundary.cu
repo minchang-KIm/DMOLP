@@ -11,16 +11,17 @@
 #include <algorithm>
 #include <cstring>
 #include <omp.h>
+#include <chrono>
 
 #include "phase2/gpu_lp_boundary.h"
 
 // ==================== 바운더리 서브그래프 생성 (로컬+고스트 통합) ====================
 
 /**
- * 바운더리 노드 + 1-hop 이웃으로 구성된 통합 서브그래프 생성
+ * 바운더리 노드 + 1-hop 이웃으로 구성된 통합 서브그래프 생성 (최적화)
  * - 로컬 노드와 고스트 노드의 라벨을 통합하여 GPU에 전달
  * - 로컬 노드만 업데이트 대상으로 표시
- * - GPU 메모리 지역성 최적화
+ * - GPU 메모리 지역성 최적화 + OpenMP 병렬화
  */
 BoundarySubgraph createBoundarySubgraphUnified(
     const std::vector<int>& row_ptr,
@@ -31,45 +32,59 @@ BoundarySubgraph createBoundarySubgraphUnified(
     const std::vector<int>& global_ids,
     int num_local_nodes)
 {
+    auto start_time = std::chrono::high_resolution_clock::now();
+    
     BoundarySubgraph subgraph;
     subgraph.num_local_nodes = num_local_nodes;
+    int total_nodes = local_labels.size() + ghost_labels.size();
     
-    // 1단계: 서브그래프에 포함될 모든 노드 수집 (바운더리 + 1-hop 이웃)
-    std::unordered_set<int> subgraph_nodes_set;
+    // 1단계: 서브그래프에 포함될 모든 노드 수집 (바운더리 + 1-hop 이웃) - 병렬화
+    std::vector<bool> node_included(total_nodes, false);
     
-    // 바운더리 노드들 추가
-    for (int boundary_node : boundary_nodes) {
-        if (boundary_node >= 0 && boundary_node < (int)(local_labels.size() + ghost_labels.size())) {
-            subgraph_nodes_set.insert(boundary_node);
+    // 바운더리 노드들 먼저 마킹
+    #pragma omp parallel for
+    for (size_t i = 0; i < boundary_nodes.size(); i++) {
+        int boundary_node = boundary_nodes[i];
+        if (boundary_node >= 0 && boundary_node < total_nodes) {
+            node_included[boundary_node] = true;
         }
     }
     
-    // 각 바운더리 노드의 1-hop 이웃 추가
-    for (int boundary_node : boundary_nodes) {
+    // 각 바운더리 노드의 1-hop 이웃 추가 - 병렬화
+    #pragma omp parallel for
+    for (size_t i = 0; i < boundary_nodes.size(); i++) {
+        int boundary_node = boundary_nodes[i];
         if (boundary_node >= 0 && boundary_node < (int)row_ptr.size() - 1) {
             for (int edge_idx = row_ptr[boundary_node]; edge_idx < row_ptr[boundary_node + 1]; edge_idx++) {
                 int neighbor = col_idx[edge_idx];
-                if (neighbor >= 0 && neighbor < (int)(local_labels.size() + ghost_labels.size())) {
-                    subgraph_nodes_set.insert(neighbor);
+                if (neighbor >= 0 && neighbor < total_nodes) {
+                    node_included[neighbor] = true;
                 }
             }
         }
     }
     
-    // 2단계: 노드 매핑 구성
-    std::vector<int> subgraph_nodes(subgraph_nodes_set.begin(), subgraph_nodes_set.end());
-    std::sort(subgraph_nodes.begin(), subgraph_nodes.end());
+    // 2단계: 포함된 노드들을 벡터로 변환 (병렬 압축)
+    std::vector<int> subgraph_nodes;
+    subgraph_nodes.reserve(total_nodes / 4); // 추정값으로 예약
+    
+    for (int i = 0; i < total_nodes; i++) {
+        if (node_included[i]) {
+            subgraph_nodes.push_back(i);
+        }
+    }
     
     subgraph.num_nodes = subgraph_nodes.size();
-    subgraph.node_mapping = subgraph_nodes;
-    subgraph.reverse_mapping.resize(local_labels.size() + ghost_labels.size(), -1);
+    subgraph.node_mapping = std::move(subgraph_nodes);
+    subgraph.reverse_mapping.assign(total_nodes, -1);
     
-    // 통합 라벨 배열 및 로컬 노드 플래그 구성
+    // 통합 라벨 배열 및 로컬 노드 플래그 구성 - 병렬화
     subgraph.labels.resize(subgraph.num_nodes);
     subgraph.local_node_flags.resize(subgraph.num_nodes);
     
+    #pragma omp parallel for
     for (int i = 0; i < subgraph.num_nodes; i++) {
-        int orig_node = subgraph_nodes[i];
+        int orig_node = subgraph.node_mapping[i];
         subgraph.reverse_mapping[orig_node] = i;
         
         // 라벨 설정 (로컬 또는 고스트)
@@ -89,59 +104,83 @@ BoundarySubgraph createBoundarySubgraphUnified(
         }
     }
     
-    // 3단계: 서브그래프 CSR 구성
+    // 3단계: 서브그래프 CSR 구성 - 메모리 효율적 방식
     subgraph.row_ptr.resize(subgraph.num_nodes + 1, 0);
-    std::vector<std::vector<int>> adj_list(subgraph.num_nodes);
     
-    // 각 서브그래프 노드에 대해 이웃 수집
+    // 먼저 각 노드의 이웃 수 계산 (병렬)
+    std::vector<int> neighbor_counts(subgraph.num_nodes, 0);
+    
+    #pragma omp parallel for
     for (int i = 0; i < subgraph.num_nodes; i++) {
-        int orig_node = subgraph_nodes[i];
+        int orig_node = subgraph.node_mapping[i];
         if (orig_node < (int)row_ptr.size() - 1) {
             for (int edge_idx = row_ptr[orig_node]; edge_idx < row_ptr[orig_node + 1]; edge_idx++) {
                 int neighbor = col_idx[edge_idx];
-                if (neighbor >= 0 && neighbor < (int)(local_labels.size() + ghost_labels.size())) {
+                if (neighbor >= 0 && neighbor < total_nodes && subgraph.reverse_mapping[neighbor] != -1) {
+                    neighbor_counts[i]++;
+                }
+            }
+        }
+    }
+    
+    // CSR row_ptr 계산 (prefix sum)
+    int edge_count = 0;
+    for (int i = 0; i < subgraph.num_nodes; i++) {
+        subgraph.row_ptr[i] = edge_count;
+        edge_count += neighbor_counts[i];
+    }
+    subgraph.row_ptr[subgraph.num_nodes] = edge_count;
+    subgraph.num_edges = edge_count;
+    
+    // 이웃 노드 수집 (병렬)
+    subgraph.col_idx.resize(edge_count);
+    
+    #pragma omp parallel for
+    for (int i = 0; i < subgraph.num_nodes; i++) {
+        int orig_node = subgraph.node_mapping[i];
+        int start_idx = subgraph.row_ptr[i];
+        int idx = start_idx;
+        
+        if (orig_node < (int)row_ptr.size() - 1) {
+            for (int edge_idx = row_ptr[orig_node]; edge_idx < row_ptr[orig_node + 1]; edge_idx++) {
+                int neighbor = col_idx[edge_idx];
+                if (neighbor >= 0 && neighbor < total_nodes) {
                     int neighbor_subgraph_idx = subgraph.reverse_mapping[neighbor];
                     if (neighbor_subgraph_idx != -1) {
-                        adj_list[i].push_back(neighbor_subgraph_idx);
+                        subgraph.col_idx[idx++] = neighbor_subgraph_idx;
                     }
                 }
             }
         }
     }
     
-    // CSR 형태로 변환
-    int edge_count = 0;
-    for (int i = 0; i < subgraph.num_nodes; i++) {
-        subgraph.row_ptr[i] = edge_count;
-        edge_count += adj_list[i].size();
-    }
-    subgraph.row_ptr[subgraph.num_nodes] = edge_count;
-    subgraph.num_edges = edge_count;
+    // 4단계: 서브그래프 내 실제 바운더리 노드 인덱스 찾기 (로컬 노드만) - 최적화
+    std::vector<bool> is_boundary(boundary_nodes.size(), true);
+    std::vector<int> boundary_subgraph_indices;
+    boundary_subgraph_indices.reserve(boundary_nodes.size());
     
-    subgraph.col_idx.resize(edge_count);
-    int idx = 0;
-    for (int i = 0; i < subgraph.num_nodes; i++) {
-        for (int neighbor : adj_list[i]) {
-            subgraph.col_idx[idx++] = neighbor;
+    for (int boundary_node : boundary_nodes) {
+        if (boundary_node < num_local_nodes) { // 로컬 노드만
+            int subgraph_idx = subgraph.reverse_mapping[boundary_node];
+            if (subgraph_idx != -1) {
+                boundary_subgraph_indices.push_back(subgraph_idx);
+            }
         }
     }
     
-    // 4단계: 서브그래프 내 실제 바운더리 노드 인덱스 찾기 (로컬 노드만)
-    std::unordered_set<int> boundary_set(boundary_nodes.begin(), boundary_nodes.end());
-    for (int i = 0; i < subgraph.num_nodes; i++) {
-        int orig_node = subgraph_nodes[i];
-        if (boundary_set.count(orig_node) && subgraph.local_node_flags[i] == 1) {
-            subgraph.boundary_indices.push_back(i);
-        }
-    }
+    subgraph.boundary_indices = std::move(boundary_subgraph_indices);
     
+    // 통계 계산
     int local_count = 0;
     for (int flag : subgraph.local_node_flags) {
         if (flag == 1) local_count++;
     }
     
-    printf("[Subgraph-Unified] Created: %d nodes (%d local, %d ghost), %d edges, %zu boundary nodes\n", 
-           subgraph.num_nodes, local_count, subgraph.num_nodes - local_count, 
+    auto end_time = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
+    
+    printf("[Subgraph-Unified] Created in %.2fms: %d nodes (%d local, %d ghost), %d edges, %zu boundary nodes\n", 
+           duration.count() / 1000.0, subgraph.num_nodes, local_count, subgraph.num_nodes - local_count, 
            subgraph.num_edges, subgraph.boundary_indices.size());
     
     return subgraph;
@@ -338,9 +377,10 @@ std::vector<PinnedMemoryPool::PinnedBuffer*> PinnedMemoryPool::buffer_pool;
 // ==================== 서브그래프 전용 커널 (로컬 노드만 업데이트) ====================
 
 /**
- * 통합 서브그래프 전용 최적화 커널
+ * 통합 서브그래프 전용 최적화 커널 (개선된 버전)
  * - 로컬+고스트 라벨을 모두 참조하지만 로컬 노드만 업데이트
  * - 로컬 노드 플래그로 업데이트 대상 구분
+ * - 메모리 접근 패턴 최적화 + 레지스터 사용량 개선
  */
 __global__ void boundaryLPKernel_unified(
     const int* __restrict__ row_ptr, 
@@ -360,43 +400,70 @@ __global__ void boundaryLPKernel_unified(
     int subgraph_node_idx = boundary_indices[idx];
     if (subgraph_node_idx < 0 || subgraph_node_idx >= subgraph_size) return;
     
-    // 로컬 노드가 아니면 스킵 (고스트 노드는 업데이트하지 않음)
+    // 로컬 노드가 아니면 조기 종료 (고스트 노드는 업데이트하지 않음)
     if (local_node_flags[subgraph_node_idx] != 1) return;
     
     int my_label = labels_old[subgraph_node_idx];
-
+    
+    // 동적 공유 메모리 사용 (파티션별 점수)
     extern __shared__ double scores[];
     
-    // 공유 메모리 초기화 (워프 협력)
-    for (int l = threadIdx.x; l < num_partitions; l += blockDim.x) {
+    // 공유 메모리 초기화 (워프 협력 방식)
+    int tid = threadIdx.x;
+    int block_size = blockDim.x;
+    for (int l = tid; l < num_partitions; l += block_size) {
         scores[l] = 0.0;
     }
     __syncthreads();
 
-    // 로컬 카운터 (레지스터 사용)
-    double local_counts[32] = {0.0};
-    int max_partitions = (num_partitions < 32 ? num_partitions : 32);
+    // 제한된 레지스터 사용을 위한 최적화
+    constexpr int MAX_LOCAL_PARTITIONS = 16;
+    double local_counts[MAX_LOCAL_PARTITIONS];
+    int effective_partitions = min(num_partitions, MAX_LOCAL_PARTITIONS);
     
-    // 이웃 노드 순회 (서브그래프 내에서 로컬+고스트 모두 참조)
+    // 로컬 카운터 초기화
+    #pragma unroll 8
+    for (int l = 0; l < effective_partitions; l++) {
+        local_counts[l] = 0.0;
+    }
+    
+    // 이웃 노드 순회 - 메모리 접근 최적화
     int start = row_ptr[subgraph_node_idx];
     int end = row_ptr[subgraph_node_idx + 1];
+    int degree = end - start;
     
-    for (int e = start; e < end; e++) {
-        int neighbor_idx = col_idx[e];
-        if (neighbor_idx >= 0 && neighbor_idx < subgraph_size) {
-            int neighbor_label = labels_old[neighbor_idx];
-            if (neighbor_label >= 0 && neighbor_label < max_partitions) {
-                local_counts[neighbor_label] += 1.0;
+    // 적응적 처리: 작은 degree는 레지스터, 큰 degree는 공유 메모리 직접 사용
+    if (degree <= 32 && num_partitions <= MAX_LOCAL_PARTITIONS) {
+        // 레지스터 기반 처리 (작은 degree)
+        for (int e = start; e < end; e++) {
+            int neighbor_idx = col_idx[e];
+            if (neighbor_idx >= 0 && neighbor_idx < subgraph_size) {
+                int neighbor_label = labels_old[neighbor_idx];
+                if (neighbor_label >= 0 && neighbor_label < effective_partitions) {
+                    local_counts[neighbor_label] += 1.0;
+                }
+            }
+        }
+        
+        // 공유 메모리에 누적
+        for (int l = 0; l < effective_partitions; l++) {
+            if (local_counts[l] > 0.0) {
+                atomicAdd(&scores[l], local_counts[l]);
+            }
+        }
+    } else {
+        // 공유 메모리 직접 사용 (큰 degree)
+        for (int e = start; e < end; e++) {
+            int neighbor_idx = col_idx[e];
+            if (neighbor_idx >= 0 && neighbor_idx < subgraph_size) {
+                int neighbor_label = labels_old[neighbor_idx];
+                if (neighbor_label >= 0 && neighbor_label < num_partitions) {
+                    atomicAdd(&scores[neighbor_label], 1.0);
+                }
             }
         }
     }
     
-    // 공유 메모리에 합산
-    for (int l = 0; l < max_partitions; l++) {
-        if (local_counts[l] > 0.0) {
-            atomicAdd(&scores[l], local_counts[l]);
-        }
-    }
     __syncthreads();
     
     // 패널티 적용
