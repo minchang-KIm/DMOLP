@@ -370,14 +370,6 @@ PartitioningMetrics run_phase2(
     std::cout << "[Rank " << mpi_rank << "/" << mpi_size << "] Phase2 시작 (GPU " << gpu_id << ")" << std::endl;
     std::cout.flush();
     
-    // GPU가 이미 할당되었으므로 추가 설정만 확인
-    int current_device;
-    cudaGetDevice(&current_device);
-    if (current_device != gpu_id) {
-        cudaSetDevice(gpu_id);
-        std::cout << "[Rank " << mpi_rank << "] GPU " << gpu_id << " 재설정 완료" << std::endl;
-    }
-    
     // CPU 메모리 Pin 최적화: 자주 사용되는 벡터들을 Pinned Memory로 할당
     std::vector<int> labels_new;
     std::vector<double> penalty_pinned;
@@ -386,48 +378,7 @@ PartitioningMetrics run_phase2(
     // GPU와 자주 통신하는 메모리를 Pinned로 할당 (성능 향상)
     labels_new.resize(local_graph.vertex_labels.size());
     penalty_pinned.reserve(num_partitions);  // 미리 공간 확보
-    
-    // 모든 프로세스 동기화
-    MPI_Barrier(MPI_COMM_WORLD);
-
-    // *** CRITICAL: Phase1과 Phase2 사이의 Ghost Node 라벨 동기화 ***
-    // Phase1 완료 후 모든 owned 노드의 최신 라벨을 다른 프로세스와 공유
-    std::vector<Delta> all_owned_labels;
-    for (int i = 0; i < local_graph.num_vertices; i++) {
-        if (i < (int)local_graph.global_ids.size()) {
-            Delta delta;
-            delta.gid = local_graph.global_ids[i];
-            delta.new_label = local_graph.vertex_labels[i];
-            all_owned_labels.push_back(delta);
-        }
-    }
-    
-    // 최적화된 Delta 통신 사용
-    std::vector<Delta> recv_all_labels = allgatherDeltas(all_owned_labels, mpi_size);
-    
-    // Ghost 노드 라벨 업데이트
-    for (const auto &delta : recv_all_labels) {
-        auto it_ghost = ghost_nodes.global_to_local.find(delta.gid);
-        if (it_ghost != ghost_nodes.global_to_local.end()) {
-            int ghost_idx = it_ghost->second;
-            if (ghost_idx >= 0 && ghost_idx < (int)ghost_nodes.ghost_labels.size()) {
-                ghost_nodes.ghost_labels[ghost_idx] = delta.new_label;
-                
-                // local_graph의 vertex_labels도 동기화
-                int ghost_lid = local_graph.num_vertices + ghost_idx;
-                if (ghost_lid < (int)local_graph.vertex_labels.size()) {
-                    local_graph.vertex_labels[ghost_lid] = delta.new_label;
-                }
-            }
-        }
-    }
-    
-    if (mpi_rank == 0) {
-        std::cout << "Phase1-Phase2 라벨 동기화 완료 (전체 라벨: " << recv_all_labels.size() << "개)" << std::endl;
-    }
-
     labels_new = local_graph.vertex_labels; // 현재 라벨 복사 (최적화된 할당)
-
     int prev_edge_cut = computeEdgeCut(local_graph, local_graph.vertex_labels, ghost_nodes);
     int convergence_count = 0;
 
@@ -455,79 +406,15 @@ PartitioningMetrics run_phase2(
         }
 
         // Step3: 고성능 GPU 커널 실행 (다단계 최적화)
-#ifdef USE_PINNED_MEMORY_OPTIMIZATION
-        // 1순위: Pinned Memory 최적화 (메모리 누수 방지 + 최고 성능)
-        try {
-            runBoundaryLPOnGPU_PinnedOptimized(local_graph.row_ptr,
-                                             local_graph.col_indices,
-                                             local_graph.vertex_labels, // old labels
-                                             labels_new,                // new labels
-                                             penalty_pinned,            // pinned penalty 배열
-                                             boundary_nodes_pinned,     // pinned boundary 배열
-                                             num_partitions);
-        } catch (const std::exception& e) {
-            printf("[Rank %d] Pinned 메모리 최적화 실패, Thrust로 전환: %s\n", mpi_rank, e.what());
-            
-#ifdef USE_THRUST_OPTIMIZATION
-            try {
-                runBoundaryLPOnGPU_Thrust_Optimized(local_graph.row_ptr,
-                                                   local_graph.col_indices,
-                                                   local_graph.vertex_labels,
-                                                   labels_new,
-                                                   penalty_pinned,
-                                                   boundary_nodes_pinned,
-                                                   num_partitions);
-            } catch (const std::exception& e2) {
-                printf("[Rank %d] Thrust 최적화도 실패, 기본 버전으로 전환: %s\n", mpi_rank, e2.what());
-                runBoundaryLPOnGPU_Optimized(local_graph.row_ptr,
-                                           local_graph.col_indices,
-                                           local_graph.vertex_labels,
-                                           labels_new,
-                                           penalty_pinned,
-                                           boundary_nodes_pinned,
-                                           num_partitions);
-            }
-#else
-            runBoundaryLPOnGPU_Optimized(local_graph.row_ptr,
-                                       local_graph.col_indices,
-                                       local_graph.vertex_labels,
-                                       labels_new,
-                                       penalty_pinned,
-                                       boundary_nodes_pinned,
-                                       num_partitions);
-#endif
-        }
-        
-#elif defined(USE_THRUST_OPTIMIZATION)
-        // 2순위: Thrust 최적화
-        try {
-            runBoundaryLPOnGPU_Thrust_Optimized(local_graph.row_ptr,
-                                               local_graph.col_indices,
-                                               local_graph.vertex_labels, // old labels
-                                               labels_new,                // new labels
-                                               penalty_pinned,            // pinned penalty 배열
-                                               boundary_nodes_pinned,     // pinned boundary 배열
-                                               num_partitions);
-        } catch (const std::exception& e) {
-            printf("[Rank %d] Thrust 최적화 실패, 안전 모드로 전환: %s\n", mpi_rank, e.what());
-            runBoundaryLPOnGPU_Safe(local_graph.row_ptr,
-                                  local_graph.col_indices,
-                                  local_graph.vertex_labels,
-                                  labels_new,
-                                  penalty_pinned,
-                                  boundary_nodes_pinned,
-                                  num_partitions);
-        }
-#else
-        // 기본: 표준 최적화
-        runBoundaryLPOnGPU_Optimized(local_graph.row_ptr,
-                                   local_graph.col_indices,
-                                   local_graph.vertex_labels, // old labels
-                                   labels_new,                // new labels
-                                   penalty_pinned,            // pinned penalty 배열
-                                   boundary_nodes_pinned,     // pinned boundary 배열
-                                   num_partitions);
-#endif
+
+        runBoundaryLPOnGPU_PinnedOptimized(local_graph.row_ptr,
+                                            local_graph.col_indices,
+                                            local_graph.vertex_labels, // old labels
+                                            labels_new,                // new labels
+                                            penalty_pinned,            // pinned penalty 배열
+                                            boundary_nodes_pinned,     // pinned boundary 배열
+                                            num_partitions);
+
         
         // GPU 동기화
         cudaDeviceSynchronize();
