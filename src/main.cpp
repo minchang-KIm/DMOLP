@@ -212,11 +212,6 @@ int main(int argc, char** argv) {
         printComparisonReport(metrics1, metrics2);
     }
     
-    // GPU 리소스 정리 (메모리 누수 방지)
-#ifdef GPU_PARTITION
-    cleanupGPUResources();
-#endif
-    
     MPI_Finalize();
     return 0;
 }
