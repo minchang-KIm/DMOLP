@@ -12,6 +12,7 @@
 #include <cstring>
 #include <map>
 #include <omp.h>
+#include <future>
 
 #include "graph_types.h"
 #include "phase2/phase2.h"
@@ -389,6 +390,10 @@ PartitioningMetrics run_phase2(
     penalty_pinned.resize(num_partitions);
     std::vector<Delta> delta_changes;
     delta_changes.reserve(1000);  // 예상 변경사항 수만큼 미리 할당
+    
+    // 적응적 바운더리 관리: 첫 번째 이터레이션은 전체 노드로 시작
+    std::vector<int> current_boundary_nodes;
+    bool first_iteration = true;
 
     for (int iter = 0; iter < max_iter; iter++) {
         // 메모리 재사용: labels_new 벡터를 재할당하지 않고 내용만 복사
@@ -397,32 +402,75 @@ PartitioningMetrics run_phase2(
         // Step1: 최적화된 penalty 계산 (통계 재사용, 메모리 풀에서 할당)
         penalty_pinned = calculatePenalties(current_stats, num_partitions, mpi_rank);
 
-        // Step2: Boundary 노드 추출(local id) - 메모리 풀 재사용
-        boundary_nodes_pinned = extractBoundaryLocalIDs(local_graph, ghost_nodes);
+        // Step2: 적응적 바운더리 노드 관리
+        if (first_iteration) {
+            // 첫 번째 이터레이션: 전체 노드를 바운더리로 설정
+            current_boundary_nodes.clear();
+            for (int i = 0; i < local_graph.num_vertices; i++) {
+                current_boundary_nodes.push_back(i);
+            }
+            first_iteration = false;
+            printf("[Rank %d] 첫 번째 이터레이션: 전체 %d 노드 처리\n", 
+                   mpi_rank, local_graph.num_vertices);
+        } else {
+            // 이후 이터레이션: 이전 바운더리 + 1-hop 이웃에서 실제 바운더리만 필터링
+            current_boundary_nodes = expandBoundaryNodes(
+                local_graph.row_ptr, local_graph.col_indices,
+                current_boundary_nodes, local_graph.vertex_labels,
+                local_graph.num_vertices + ghost_nodes.ghost_labels.size());
+        }
         
-        if (boundary_nodes_pinned.empty()) {
+        if (current_boundary_nodes.empty()) {
             if (mpi_rank == 0) std::cout << "경계 노드 없음, 종료\n";
             break;
         }
 
-        // Step3: 고성능 GPU 커널 실행 (다단계 최적화)
+        // Step3: 메모리 효율적인 스트리밍 GPU 처리
+        try {
+            // 대용량 그래프 대응: 스트리밍 방식으로 처리
+            runBoundaryLPOnGPU_Streaming(
+                local_graph.row_ptr,
+                local_graph.col_indices,
+                local_graph.vertex_labels, // old labels
+                labels_new,                // new labels
+                penalty_pinned,            // penalty 배열
+                current_boundary_nodes,    // 적응적 바운더리 노드들
+                num_partitions,
+                512  // 512MB 메모리 제한
+            );
+        } catch (const std::exception& e) {
+            printf("[Rank %d] 스트리밍 GPU 처리 실패, 기본 최적화로 폴백: %s\n", mpi_rank, e.what());
+            runBoundaryLPOnGPU_Optimized(local_graph.row_ptr,
+                                        local_graph.col_indices,
+                                        local_graph.vertex_labels, // old labels
+                                        labels_new,                // new labels
+                                        penalty_pinned,            // pinned penalty 배열
+                                        current_boundary_nodes,    // boundary 배열
+                                        num_partitions);
+        }
 
-        runBoundaryLPOnGPU_PinnedOptimized(local_graph.row_ptr,
-                                            local_graph.col_indices,
-                                            local_graph.vertex_labels, // old labels
-                                            labels_new,                // new labels
-                                            penalty_pinned,            // pinned penalty 배열
-                                            boundary_nodes_pinned,     // pinned boundary 배열
-                                            num_partitions);
-
+        // Step4: 비동기 통신 시작 (GPU 처리와 오버랩)
+        // GPU 작업이 완료되기 전에 이전 이터레이션 결과 통신 시작
+        std::vector<Delta> recv_deltas;
+        MPI_Request comm_request = MPI_REQUEST_NULL;
+        bool async_comm_started = false;
         
-        // GPU 동기화
+        if (iter > 0 && !delta_changes.empty()) {
+            // 비동기 통신 시작 (배경에서 실행)
+            auto async_result = std::async(std::launch::async, [&]() {
+                return allgatherDeltas(delta_changes, mpi_size);
+            });
+            recv_deltas = async_result.get();  // 나중에 결과 받기
+            async_comm_started = true;
+        }
+        
+        // GPU 동기화 (통신과 병렬 실행됨)
         cudaDeviceSynchronize();
 
         // Step4b: GPU 결과를 실제 라벨 배열에 적용 & 변경사항을 Delta로 수집
         delta_changes.clear();  // 메모리 재사용: clear()로 용량 유지
         
-        for (int lid : boundary_nodes_pinned) {
+        for (int lid : current_boundary_nodes) {
             if (lid >= 0 && lid < local_graph.num_vertices && lid < (int)labels_new.size()) {
                 if (local_graph.vertex_labels[lid] != labels_new[lid]) {
                     // Delta 구조체에 변경사항 기록 (적용 전 상태)
@@ -441,10 +489,13 @@ PartitioningMetrics run_phase2(
         
         std::cout << "[Rank " << mpi_rank << "] Label changes: " << delta_changes.size() << std::endl;
 
-        // Step5: 최적화된 Delta 통신 사용
-        std::vector<Delta> recv_deltas = allgatherDeltas(delta_changes, mpi_size);
+        // Step5: 최적화된 통신 및 동기화 (비동기가 시작되지 않은 경우에만 실행)
+        if (!async_comm_started) {
+            recv_deltas = allgatherDeltas(delta_changes, mpi_size);
+        }
+        // async_comm_started가 true면 recv_deltas는 이미 위에서 받음
 
-        // Step5b: 수신된 라벨 변경사항 적용
+        // Step5b: 수신된 라벨 변경사항 적용 (다음 이터레이션에 적용)
         for (const auto &delta : recv_deltas) {
             // ghost 노드인지 확인
             auto it_ghost = ghost_nodes.global_to_local.find(delta.gid);
