@@ -44,7 +44,10 @@ std::vector<int> expandBoundaryNodes(
     const std::vector<int>& col_idx,
     const std::vector<int>& prev_boundary_nodes,
     const std::vector<int>& labels,
-    int labels_count);
+    const std::vector<double>& penalty,
+    const std::vector<double>& RE,
+    int labels_count,
+    int iter);
 
 // 효율적인 GPU 라벨 전파 (서브그래프만 전달, 로컬만 업데이트)
 GPULabelUpdateResult runBoundaryLPOnGPU_SubgraphUnified(

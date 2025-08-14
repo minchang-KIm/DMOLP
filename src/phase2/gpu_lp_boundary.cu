@@ -182,19 +182,23 @@ std::vector<int> expandBoundaryNodes(
     const std::vector<int>& col_idx,
     const std::vector<int>& prev_boundary_nodes,
     const std::vector<int>& labels,
-    int labels_count)
+    const std::vector<double>& penalty,
+    const std::vector<double>& RE,
+    int vertex_count,
+    int iter)
 {
+    double ratio = exp((-iter)/(10.0));
+    printf("===========>>> ratio : %f <<<============",ratio);
     std::unordered_set<int> candidate_nodes;
-    
-    // 이전 바운더리 노드들과 그들의 1-hop 이웃 수집
+
     for (int boundary_node : prev_boundary_nodes) {
-        if (boundary_node >= 0 && boundary_node < labels_count) {
+        if (boundary_node >= 0 && boundary_node < vertex_count) {
             candidate_nodes.insert(boundary_node);
             
             if (boundary_node < (int)row_ptr.size() - 1) {
                 for (int edge_idx = row_ptr[boundary_node]; edge_idx < row_ptr[boundary_node + 1]; edge_idx++) {
                     int neighbor = col_idx[edge_idx];
-                    if (neighbor >= 0 && neighbor < labels_count) {
+                    if (neighbor >= 0 && neighbor < vertex_count) {
                         candidate_nodes.insert(neighbor);
                     }
                 }
@@ -202,31 +206,66 @@ std::vector<int> expandBoundaryNodes(
         }
     }
     
-    // 후보 노드들 중에서 실제 바운더리 노드만 필터링
     std::vector<int> new_boundary_nodes;
+    std::unordered_map<int, std::vector<std::pair<int,int>>> part_to_nodes;
+    part_to_nodes.reserve(64);
+
+
     for (int node : candidate_nodes) {
-        if (node >= 0 && node < labels_count && node < (int)row_ptr.size() - 1) {
-            int node_label = labels[node];
-            bool is_boundary = false;
-            
-            for (int edge_idx = row_ptr[node]; edge_idx < row_ptr[node + 1]; edge_idx++) {
-                int neighbor = col_idx[edge_idx];
-                if (neighbor >= 0 && neighbor < labels_count) {
-                    int neighbor_label = labels[neighbor];
-                    if (neighbor_label != node_label) {
-                        is_boundary = true;
-                        break;
-                    }
-                }
-            }
-            
-            if (is_boundary) {
-                new_boundary_nodes.push_back(node);
+        if (!(node >= 0 && node < vertex_count)) continue;
+        if (node + 1 >= static_cast<int>(row_ptr.size())) continue;
+
+        const int node_label = labels[node];
+        bool is_boundary = false;
+
+        for (int e = row_ptr[node]; e < row_ptr[node + 1]; ++e) {
+            int nbr = col_idx[e];
+            if (nbr < 0 || nbr >= vertex_count) continue;
+            if (labels[nbr] != node_label) {
+                is_boundary = true;
+                break;
             }
         }
+
+        if (is_boundary) {
+            int degree = row_ptr[node + 1] - row_ptr[node];
+            part_to_nodes[node_label].emplace_back(node, degree);
+        }
     }
+
+    std::vector<int> selected_boundary_nodes;
+
+    size_t approx_total = 0;
+    for (const auto& kv : part_to_nodes) approx_total += kv.second.size();
+    selected_boundary_nodes.reserve(static_cast<size_t>(std::ceil(ratio * approx_total)) + 8);
+
+    for (auto& kv : part_to_nodes) {
+        int part_id = kv.first;
+        auto& vec = kv.second;
+
+        if (RE[part_id] > 1.0) {
+            std::sort(vec.begin(), vec.end(),
+                      [](const auto& a, const auto& b){
+                          if (a.second != b.second) return a.second > b.second; // degree desc
+                          return a.first  < b.first;
+                      });
+        } else {
+            std::sort(vec.begin(), vec.end(),
+                      [](const auto& a, const auto& b){
+                          if (a.second != b.second) return a.second < b.second; // degree asc
+                          return a.first  < b.first;
+                      });
+        }
+
+        int k = static_cast<int>(std::ceil(ratio * static_cast<double>(vec.size())));
+        if (k < 0) k = 0;
+        if (k > static_cast<int>(vec.size())) k = static_cast<int>(vec.size());
+
+        for (int i = 0; i < k; ++i) selected_boundary_nodes.push_back(vec[i].first);
+    }
+
     
-    return new_boundary_nodes;
+    return selected_boundary_nodes;
 }
 
 // ==================== 단순화된 GPU 메모리 관리 ====================

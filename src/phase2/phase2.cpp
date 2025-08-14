@@ -262,15 +262,17 @@ static std::vector<Delta> allgatherDeltas(const std::vector<Delta> &local_deltas
  * 
  * @param stats 파티션 통계 정보
  * @param num_partitions 총 파티션 수
+ * @param iter 이터레이션 반복 횟수
  * @param mpi_rank 현재 프로세서 랭크
  * @return 각 파티션별 penalty 값
  */
-std::vector<double> calculatePenalties(
+std::vector<std::vector<double>> calculatePenalties(
     const PartitionStats &stats,
     int num_partitions,
+    int iter,
     int mpi_rank = 0)
 {
-    std::vector<double> penalties(num_partitions);
+    std::vector<std::vector<double>> result(2, std::vector<double>(num_partitions, 0.0));
     
     // Rank 0만 penalty 계산 수행
     if (mpi_rank == 0) {
@@ -316,16 +318,18 @@ std::vector<double> calculatePenalties(
 
         // Penalty 배열 직접 생성
         for (int i = 0; i < num_partitions; i++) {
-            double G_RV = (1.0 - RV[i]) / num_partitions;
-            double G_RE = (1.0 - RE[i]) / num_partitions;
-            penalties[i] = imb_rv * G_RV + imb_re * G_RE;
+            double G_RV = (1.0 - RV[i]) * (1.0 + log(iter));
+            double G_RE = (1.0 - RE[i]) * (1.0 + log(iter));
+            result[0][i] = imb_rv * G_RV + imb_re * G_RE;
+            result[1][i] = RE[i];
         }
     }
     
     // 결과를 모든 프로세서에 브로드캐스트
-    MPI_Bcast(penalties.data(), num_partitions, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    MPI_Bcast(result[0].data(), num_partitions, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    MPI_Bcast(result[1].data(), num_partitions, MPI_DOUBLE, 0, MPI_COMM_WORLD);
     
-    return penalties;
+    return result;
 }
 
 /**
@@ -498,6 +502,7 @@ PartitioningMetrics run_phase2(
     // CPU 메모리 Pin 최적화: 자주 사용되는 벡터들을 Pinned Memory로 할당
     // GPU와의 빠른 데이터 전송을 위한 메모리 최적화
     std::vector<double> penalty_pinned;
+    std::vector<double> RE_pinned;
     std::vector<int> boundary_nodes_pinned;
     
     // GPU와 자주 통신하는 메모리를 Pinned로 할당 (성능 향상)
@@ -514,12 +519,16 @@ PartitioningMetrics run_phase2(
     // ==================== 성능 최적화를 위한 메모리 사전 할당 ====================
     // 반복 과정에서 사용될 주요 데이터 구조들의 메모리 미리 확보
     penalty_pinned.resize(num_partitions);
+    RE_pinned.resize(num_partitions);
     std::vector<Delta> delta_changes;
     delta_changes.reserve(1000);  // 예상 변경사항 수만큼 미리 할당
     
     // ==================== 적응적 바운더리 관리 시스템 ====================
     std::vector<int> current_boundary_nodes;
-    bool first_iteration = true;  // 첫 번째 반복에서는 전체 노드 처리
+    current_boundary_nodes.clear();
+    for (int i = 0; i < local_graph.num_vertices; i++) {
+        current_boundary_nodes.push_back(i);
+    }
     
     // 결과 메트릭 초기화
     PartitioningMetrics m2;
@@ -529,25 +538,18 @@ PartitioningMetrics run_phase2(
         
         // ============ Step 1: DMOLP Penalty 계산 ============
         // 현재 파티션 불균형 상태를 기반으로 각 파티션별 penalty 계산
-        penalty_pinned = calculatePenalties(current_stats, num_partitions, mpi_rank);
+        std::vector<std::vector<double>> penalties = calculatePenalties(current_stats, num_partitions, iter+1, mpi_rank);
+        penalty_pinned = penalties[0];
+        RE_pinned = penalties[1];
 
         // ============ Step 2: 적응적 바운더리 노드 선정 ============
-        if (first_iteration) {
-            // 첫 번째 이터레이션: 모든 노드를 처리하여 초기 바운더리 탐지
-            current_boundary_nodes.clear();
-            for (int i = 0; i < local_graph.num_vertices; i++) {
-                current_boundary_nodes.push_back(i);
-            }
-            first_iteration = false;
-            printf("[Rank %d] 첫 번째 이터레이션: 전체 %d 노드 처리\n", 
-                   mpi_rank, local_graph.num_vertices);
-        } else {
-            // 이후 이터레이션: 이전 바운더리 + 1-hop 확장으로 효율성 향상
-            current_boundary_nodes = expandBoundaryNodes(
-                local_graph.row_ptr, local_graph.col_indices,
-                current_boundary_nodes, local_graph.vertex_labels,
-                local_graph.num_vertices + ghost_nodes.ghost_labels.size());
-        }
+        current_boundary_nodes = expandBoundaryNodes(
+            local_graph.row_ptr, local_graph.col_indices,
+            current_boundary_nodes, local_graph.vertex_labels,
+            penalty_pinned,
+            RE_pinned,
+            local_graph.num_vertices + ghost_nodes.ghost_labels.size(),
+            iter+1);
         
         // 바운더리가 없으면 최적화 완료
         if (current_boundary_nodes.empty()) {
@@ -583,7 +585,7 @@ PartitioningMetrics run_phase2(
                 penalty_pinned,               // DMOLP penalty 배열
                 local_graph.num_vertices,     // 소유 노드 수
                 num_partitions,               // 파티션 개수
-                max_gpu_memory / (1024 * 1024)  // 사용가능 메모리 (MB)
+                max_gpu_memory / (1024 * 1024)// 사용가능 메모리 (MB)
             );
             
             auto gpu_end = std::chrono::high_resolution_clock::now();
