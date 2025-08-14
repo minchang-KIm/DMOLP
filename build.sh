@@ -130,65 +130,72 @@ if [ "$TEST_MODE" = true ]; then
     echo "[INFO] OpenMP 스레드 수: $OMP_NUM_THREADS"
     echo "[INFO] 실행 명령어 준비 중..."
     
-    # Intel MPI vs OpenMPI 자동 감지 (더 정확한 감지)
-    if [ -n "$I_MPI_ROOT" ] && command -v mpiexec >/dev/null 2>&1; then
-        MPI_CMD="mpiexec"
-        echo "[INFO] Intel MPI 실행 명령어 사용 (mpiexec)"
-        
-        # Intel MPI용 hostfile 생성 (OpenMPI 형식의 slots=X를 :ppn=X로 변환)
-        intel_hostfile="./hostfile_intel"
-        echo "[INFO] Intel MPI용 hostfile 생성: $intel_hostfile"
-        sed -E 's/[[:space:]]+slots=([0-9]+)/:ppn=\1/' ./hostfile > "$intel_hostfile"
-        HOSTFILE_ARG="$intel_hostfile"
-        HOSTFILE_FLAG="-f"
-        
-    elif command -v mpiexec.hydra >/dev/null 2>&1; then
-        MPI_CMD="mpiexec.hydra"
-        echo "[INFO] Intel MPI 실행 명령어 사용 (mpiexec.hydra)"
-        
-        # Intel MPI용 hostfile 생성 (OpenMPI 형식의 slots=X를 :ppn=X로 변환)
-        intel_hostfile="./hostfile_intel"
-        echo "[INFO] Intel MPI용 hostfile 생성: $intel_hostfile"
-        sed -E 's/[[:space:]]+slots=([0-9]+)/:ppn=\1/' ./hostfile > "$intel_hostfile"
-        HOSTFILE_ARG="$intel_hostfile"
-        HOSTFILE_FLAG="-f"
-        
-    elif command -v mpirun >/dev/null 2>&1; then
-        MPI_CMD="mpirun"
-        echo "[INFO] OpenMPI 실행 명령어 사용"
-        HOSTFILE_ARG="./hostfile"
-        HOSTFILE_FLAG="--hostfile"
-    else
-        echo "[ERROR] MPI 실행 명령어를 찾을 수 없습니다"
-        exit 1
+    # hostfile 확인 및 생성 (검증된 Intel MPI 형식)
+    intel_hostfile="./hostfile_intel.reachable"
+    if [ ! -f "$intel_hostfile" ] || [ ! -s "$intel_hostfile" ]; then
+        echo "[INFO] Intel MPI용 hostfile 생성"
+        # OpenMPI 형식 hostfile을 Intel 형식으로 변환 (마지막 줄 개행 문제 해결)
+        (cat ./hostfile; echo) | sed -E 's/[[:space:]]+slots=([0-9]+)/:\1/' | sed '/^$/d' > "$intel_hostfile"
+        echo "[INFO] 생성된 hostfile 내용:"
+        cat "$intel_hostfile"
     fi
     
+    # 검증된 성공 환경 변수 설정
+    export I_MPI_FABRICS=ofi
+    export FI_PROVIDER=tcp
+    export FI_TCP_IFACE=enp4s0
+    
+    echo "[INFO] 검증된 환경 변수 설정:"
+    echo "  I_MPI_FABRICS=$I_MPI_FABRICS"
+    echo "  FI_PROVIDER=$FI_PROVIDER" 
+    echo "  FI_TCP_IFACE=$FI_TCP_IFACE"
+    
+    # 검증된 성공 명령어 사용
+    MPI_CMD="/opt/intel/oneapi/mpi/2021.16/bin/mpiexec.hydra"
+    HOSTFILE_ARG="$intel_hostfile"
+    BINARY="$binfile"
+    DATASET_PATH="./dataset/ljournal-2008.adj-undirected.adj.txt"
+    
+    echo "[INFO] 데이터셋을 원격 노드에 복사 중..."
+    # 데이터셋 원격 복사
+    myip=$(hostname -I | awk '{print $1}')
+    while IFS= read -r line; do
+        # 주석 제거 및 trim
+        line="${line%%#*}"; line="${line%$'\r'}"; line="${line## }"; line="${line%% }"
+        [ -z "$line" ] && continue
+        
+        # IP 추출 (Intel 형식: IP:N)
+        ip="${line%%:*}"
+        [ -z "$ip" ] || [ "$ip" = "$myip" ] && continue
+        
+        echo "[COPY] $ip: 데이터셋 디렉터리 생성 및 복사"
+        ssh $SSH_OPTS "$ip" "mkdir -p '$(dirname "$DATASET_PATH")'" || true
+        if [ -f "$DATASET_PATH" ]; then
+            scp $SSH_OPTS "$DATASET_PATH" "$ip:$DATASET_PATH" || echo "[WARN] $ip: 데이터셋 복사 실패"
+        fi
+    done < "$intel_hostfile"
+    
     echo "[INFO] 실행 시작..."
+    echo "명령어: $MPI_CMD -hostfile $HOSTFILE_ARG -bootstrap ssh -ppn 2 -print-rank-map -l -wdir $(pwd) -n 4 $BINARY $DATASET_PATH 4 50000"
     echo ""
     
-    # 1. 실행할 데이터셋 경로를 변수로 지정
-    DATASET_PATH="./dataset/ljournal-2008.adj.graph-txt"
-    #DATASET_PATH="./dataset/copter2.graph"
-
-    # 2. 데이터셋 파일명에서 디렉토리와 확장자를 제외한 기본 이름 추출 (예: ljournal-2008)
-    FILENAME=$(basename "$DATASET_PATH")
-    DATASET_NAME=${FILENAME%%.*}
+    # 검증된 성공 명령어로 실행
+    $MPI_CMD -hostfile "$HOSTFILE_ARG" -bootstrap ssh -ppn 2 -print-rank-map -l -wdir "$(pwd)" -n 4 "$BINARY" "$DATASET_PATH" 4 50000
     
-    # 3. 현재 시간으로 타임스탬프 생성 (형식: YYYYMMDD_HHMMSS)
-    TIMESTAMP=$(date "+%Y%m%d_%H%M%S")
+    exit_code=$?
     
-    # 4. 최종 로그 파일명 조합
-    LOG_FILE="${DATASET_NAME}_${TIMESTAMP}.log"
-
-    echo "[INFO] 로그가 다음 파일에 기록됩니다: $LOG_FILE"
-    echo "명령어: $MPI_CMD $HOSTFILE_FLAG $HOSTFILE_ARG -np 4 $binfile $DATASET_PATH 4 50000"
-    echo ""
+    if [ $exit_code -eq 0 ]; then
+        echo ""
+        echo "=========================================="
+        echo "         실행 성공! "
+        echo "=========================================="
+    else
+        echo ""
+        echo "=========================================="
+        echo "         실행 실패 "
+        echo "=========================================="
+        echo "종료 코드: $exit_code"
+    fi
     
-    # 5. 동적으로 생성된 로그 파일에 실행 결과 기록(>>
-    $MPI_CMD $HOSTFILE_FLAG "$HOSTFILE_ARG" -np 4 "$binfile" "$DATASET_PATH" 4 50000 >> "$LOG_FILE"
-    
-    echo ""
-    echo "=========================================="
-    echo "           테스트 완료"
-    echo "=========================================="
+    exit $exit_code
 fi

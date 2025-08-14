@@ -34,6 +34,11 @@ Makefile
 *.ipynb_checkpoints
 ./dataset/
 ./datasets/
+*.graph
+*.graph-txt
+*.properties
+*.jar
+*.adj.txt
 
 # CUDA
 *.cu.o
@@ -41,6 +46,5 @@ Makefile
 
 phase2.instructions.md 
 mpi_distributed_workflow_v2
-dataset/*.graph
-dataset/*.graph-txt
-dataset/*.properties
+
+
