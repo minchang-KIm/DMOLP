@@ -38,7 +38,7 @@ fi
 
 # OpenMP 스레드 수 자동 설정 (CPU 코어 수의 50%를 사용하여 안정성 확보)
 CPU_CORES=$(nproc)
-OMP_THREADS=$((CPU_CORES / 2))
+OMP_THREADS=$((CPU_CORES / 4))
 if [ $OMP_THREADS -lt 1 ]; then
     OMP_THREADS=1
 fi

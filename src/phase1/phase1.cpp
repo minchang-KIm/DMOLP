@@ -90,24 +90,46 @@ Phase1Metrics run_phase1(
         }
     }
     MPI_Allreduce(&local_edge_cut, &metrics.initial_edge_cut, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+    metrics.initial_edge_cut /= 2; // undirected 그래프이므로 edge-cut은 2배로 계산됨
 
     // === 파티션별 vertex count ===
     metrics.partition_vertex_counts.assign(num_parts, 0);
-    for (int i = 0; i < (int)local_graph.global_ids.size(); i++)
-        metrics.partition_vertex_counts[local_graph.vertex_labels[i]]++;
+    for (int i = 0; i < (int)local_graph.global_ids.size(); i++){
+        if (local_graph.vertex_labels[i] >= 0){
+            metrics.partition_vertex_counts[local_graph.vertex_labels[i]]++;
+        }
+    }
     MPI_Allreduce(MPI_IN_PLACE, metrics.partition_vertex_counts.data(), num_parts, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
 
     // === 파티션별 edge count ===
-    metrics.partition_edge_counts.assign(num_parts, 0);
-    for (int u = 0; u < (int)local_graph.global_ids.size(); u++) {
+    std::vector<int> local_partition_edges(num_parts, 0);
+
+    // 3. 로컬 노드만 순회하며 파티션 내부 간선을 카운트합니다.
+    for (int u = 0; u < local_graph.num_vertices; u++) {
         int u_label = local_graph.vertex_labels[u];
+        // 할당되지 않은 노드는 건너뜁니다.
+        if (u_label < 0) continue;
+
         for (int e = local_graph.row_ptr[u]; e < local_graph.row_ptr[u + 1]; e++) {
             int v_local = local_graph.col_indices[e];
-            if (local_graph.vertex_labels[v_local] == u_label)
-                metrics.partition_edge_counts[u_label]++;
+            
+            // 위에서 정의한 getNodeLabel 람다 함수를 사용하여 안전하게 라벨을 조회합니다.
+            if (getNodeLabel(v_local) == u_label) {
+                local_partition_edges[u_label]++;
+            }
         }
     }
-    MPI_Allreduce(MPI_IN_PLACE, metrics.partition_edge_counts.data(), num_parts, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+
+    metrics.partition_edge_counts.resize(num_parts);
+
+    // 4. MPI_Allreduce를 사용해 모든 랭크의 로컬 카운트를 합산하여 최종 결과를 얻습니다.
+    MPI_Allreduce(local_partition_edges.data(), metrics.partition_edge_counts.data(), num_parts, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+
+    // 5. 무방향 그래프에서 각 간선이 두 번씩 카운트되었으므로, 2로 나누어 보정합니다.
+    for (int i = 0; i < num_parts; i++) {
+        metrics.partition_edge_counts[i] /= 2;
+    }
+
 
     // === Balance 계산 ===
     double expected_vertices = static_cast<double>(V) / num_parts;
