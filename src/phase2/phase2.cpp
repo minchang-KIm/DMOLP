@@ -192,6 +192,10 @@ static PartitionStats computePartitionStats(const Graph &g, const std::vector<in
     std::copy(recv_buffer.begin(), recv_buffer.begin() + num_partitions, stats.global_vertex_counts.begin());
     std::copy(recv_buffer.begin() + num_partitions, recv_buffer.end(), stats.global_edge_counts.begin());
 
+    for (int i = 0; i < num_partitions; i++) {
+        stats.global_edge_counts[i] /= 2; // undirected 그래프이므로 edge-cut은 2로 나눔
+    }
+
     // 통계 계산 최적화
     stats.total_vertices = std::accumulate(stats.global_vertex_counts.begin(), stats.global_vertex_counts.end(), 0);
     stats.total_edges = std::accumulate(stats.global_edge_counts.begin(), stats.global_edge_counts.end(), 0);
@@ -447,7 +451,7 @@ static int computeEdgeCut(const Graph &g, const std::vector<int> &labels, const 
     MPI_Allreduce(&total_edges, &global_total_edges, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
     
     // 분산 환경에서는 각 owned 노드의 간선만 카운트하므로 중복이 없음
-    return global_cut;
+    return global_cut/2;
 }
 
 /**
