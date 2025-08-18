@@ -175,7 +175,9 @@ BoundarySubgraph createBoundarySubgraphUnified(
 }
 
 /**
- * 적응적 바운더리 확장: 이전 바운더리 + 1-hop 이웃에서 실제 바운더리만 필터링
+ * 적응적 바운더리 확장 (메모리 및 성능 최적화 버전)
+ * - std::unordered_set 대신 'Sort-Unique' 방식으로 메모리 사용량 최소화
+ * - OpenMP 병렬 처리 효율성 극대화
  */
 std::vector<int> expandBoundaryNodes(
     const std::vector<int>& row_ptr,
@@ -187,32 +189,63 @@ std::vector<int> expandBoundaryNodes(
     int vertex_count,
     int iter)
 {
-    double ratio = exp((-iter)/(10.0));
-    printf("===========>>> ratio : %f <<<============",ratio);
-    std::unordered_set<int> candidate_nodes;
+    // --- 1단계: 후보 노드 병렬 수집 ---
+    // 각 OpenMP 스레드가 자신만의 로컬 벡터에 후보 노드를 수집하여 메모리 경합을 방지합니다.
+    std::vector<std::vector<int>> local_candidates_per_thread;
+    
+    #pragma omp parallel
+    {
+        int thread_id = omp_get_thread_num();
+        #pragma omp single
+        {
+            local_candidates_per_thread.resize(omp_get_num_threads());
+        }
 
-    for (int boundary_node : prev_boundary_nodes) {
-        if (boundary_node >= 0 && boundary_node < vertex_count) {
-            candidate_nodes.insert(boundary_node);
-            
-            if (boundary_node < (int)row_ptr.size() - 1) {
-                for (int edge_idx = row_ptr[boundary_node]; edge_idx < row_ptr[boundary_node + 1]; edge_idx++) {
-                    int neighbor = col_idx[edge_idx];
-                    if (neighbor >= 0 && neighbor < vertex_count) {
-                        candidate_nodes.insert(neighbor);
+        #pragma omp for schedule(dynamic, 100) nowait
+        for (size_t i = 0; i < prev_boundary_nodes.size(); ++i) {
+            int boundary_node = prev_boundary_nodes[i];
+            if (boundary_node >= 0 && boundary_node < vertex_count) {
+                local_candidates_per_thread[thread_id].push_back(boundary_node);
+                if (boundary_node < (int)row_ptr.size() - 1) {
+                    for (int edge_idx = row_ptr[boundary_node]; edge_idx < row_ptr[boundary_node + 1]; ++edge_idx) {
+                        int neighbor = col_idx[edge_idx];
+                        if (neighbor >= 0 && neighbor < vertex_count) {
+                            local_candidates_per_thread[thread_id].push_back(neighbor);
+                        }
                     }
                 }
             }
         }
     }
+
+    // --- 2단계: 모든 후보 노드 병합 ---
+    // 각 스레드가 수집한 로컬 벡터들을 하나의 큰 벡터로 합칩니다.
+    std::vector<int> all_candidates;
+    size_t total_candidates = 0;
+    for (const auto& vec : local_candidates_per_thread) {
+        total_candidates += vec.size();
+    }
+    all_candidates.reserve(total_candidates);
+    for (const auto& vec : local_candidates_per_thread) {
+        all_candidates.insert(all_candidates.end(), vec.begin(), vec.end());
+    }
+    local_candidates_per_thread.clear(); // 사용한 메모리는 즉시 해제합니다.
+
+    // --- 3단계: 정렬 및 중복 제거 (Sort-Unique) ---
+    // std::unordered_set 대신 정렬 후 중복을 제거하는 방식으로 메모리 효율성을 극대화합니다.
+    std::sort(all_candidates.begin(), all_candidates.end());
+    all_candidates.erase(std::unique(all_candidates.begin(), all_candidates.end()), all_candidates.end());
+
+    // --- 4단계: 실제 경계 노드 필터링 및 선택 (기존 로직과 동일) ---
     
-    std::vector<int> new_boundary_nodes;
+    double ratio = exp((-iter)/(5.0)); // 분모 값을 조절하여 선택 비율을 변경할 수 있습니다.
+    printf("===========>>> ratio : %f <<<============", ratio);
+
     std::unordered_map<int, std::vector<std::pair<int,int>>> part_to_nodes;
     part_to_nodes.reserve(64);
 
-
-    for (int node : candidate_nodes) {
-        if (!(node >= 0 && node < vertex_count)) continue;
+    // 이제 중복이 제거된 후보 노드들로 실제 경계 노드를 찾습니다.
+    for (int node : all_candidates) {
         if (node + 1 >= static_cast<int>(row_ptr.size())) continue;
 
         const int node_label = labels[node];
@@ -234,7 +267,6 @@ std::vector<int> expandBoundaryNodes(
     }
 
     std::vector<int> selected_boundary_nodes;
-
     size_t approx_total = 0;
     for (const auto& kv : part_to_nodes) approx_total += kv.second.size();
     selected_boundary_nodes.reserve(static_cast<size_t>(std::ceil(ratio * approx_total)) + 8);
@@ -243,27 +275,28 @@ std::vector<int> expandBoundaryNodes(
         int part_id = kv.first;
         auto& vec = kv.second;
 
+        // 불균형 상태(RE)에 따라 정렬 기준을 다르게 하여 노드를 선택합니다.
         if (RE[part_id] > 1.0) {
             std::sort(vec.begin(), vec.end(),
                       [](const auto& a, const auto& b){
-                          if (a.second != b.second) return a.second > b.second; // degree desc
+                          if (a.second != b.second) return a.second > b.second; // 차수(degree) 내림차순
                           return a.first  < b.first;
                       });
         } else {
             std::sort(vec.begin(), vec.end(),
                       [](const auto& a, const auto& b){
-                          if (a.second != b.second) return a.second < b.second; // degree asc
+                          if (a.second != b.second) return a.second < b.second; // 차수(degree) 오름차순
                           return a.first  < b.first;
                       });
         }
 
         int k = static_cast<int>(std::ceil(ratio * static_cast<double>(vec.size())));
-        if (k < 0) k = 0;
         if (k > static_cast<int>(vec.size())) k = static_cast<int>(vec.size());
 
-        for (int i = 0; i < k; ++i) selected_boundary_nodes.push_back(vec[i].first);
+        for (int i = 0; i < k; ++i) {
+            selected_boundary_nodes.push_back(vec[i].first);
+        }
     }
-
     
     return selected_boundary_nodes;
 }
@@ -485,12 +518,22 @@ GPULabelUpdateResult runBoundaryLPOnGPU_Streaming(
     // 통합 서브그래프 생성
     BoundarySubgraph subgraph = createBoundarySubgraphUnified(
         row_ptr, col_idx, boundary_nodes, local_labels, ghost_labels, global_ids, num_local_nodes);
-    
-    // 메모리 사용량 계산
-    size_t subgraph_memory = (subgraph.row_ptr.size() + subgraph.col_idx.size() + 
-                             subgraph.num_nodes * 4) * sizeof(int) + // CSR + labels + flags + boundary_indices 
-                            penalty.size() * sizeof(double);
-    
+    printf("Subgraph created with %d nodes and %d edges\n", subgraph.num_nodes, subgraph.num_edges);
+    // 메모리 사용량 계산 (수정된 최종 버전)
+    size_t row_ptr_bytes = subgraph.row_ptr.size() * sizeof(int);
+    size_t col_idx_bytes = subgraph.col_idx.size() * sizeof(int);
+    size_t labels_bytes = subgraph.labels.size() * sizeof(int);
+    size_t flags_bytes = subgraph.local_node_flags.size() * sizeof(int);
+    size_t boundary_bytes = subgraph.boundary_indices.size() * sizeof(int);
+    size_t penalty_bytes = penalty.size() * sizeof(double);
+
+    size_t subgraph_memory = row_ptr_bytes +
+                            col_idx_bytes +
+                            (labels_bytes * 2) + // d_labels_old 와 d_labels_new, 총 2개
+                            flags_bytes +
+                            boundary_bytes +
+                            penalty_bytes;
+
     size_t available_memory = max_memory_mb * 1024 * 1024;
     
     if (subgraph_memory <= available_memory) {
@@ -503,43 +546,65 @@ GPULabelUpdateResult runBoundaryLPOnGPU_Streaming(
 }
 
 /**
- * 청크 단위 처리 함수 구현
- * 큰 서브그래프를 메모리에 맞게 청크로 나누어 처리
+ * 청크 단위 처리 함수 구현 (수정된 최종 버전)
+ * - 큰 서브그래프를 메모리에 맞게 청크로 나누어 순차적으로 처리하고 결과를 병합
  */
 GPULabelUpdateResult runBoundaryLPOnGPU_Chunked(
     const BoundarySubgraph& subgraph,
     const std::vector<double>& penalty,
     int num_partitions,
-    size_t available_memory) {
-    
-    // 결과 누적용
+    size_t available_memory)
+{
     GPULabelUpdateResult total_result;
-    
-    // 각 청크당 최대 노드 수 계산
-    size_t per_node_memory = sizeof(int) * 3 + sizeof(int); // CSR + labels + flags
-    size_t overhead_memory = penalty.size() * sizeof(double) + 1024 * 1024; // penalty + 1MB 오버헤드
-    size_t usable_memory = available_memory - overhead_memory;
-    int max_nodes_per_chunk = std::max(1, (int)(usable_memory / per_node_memory));
-    
-    // 노드 범위별로 청크 처리
+    // 이터레이션 내에서 청크 간 업데이트를 반영하기 위해 라벨 배열을 복사하여 사용
+    std::vector<int> current_labels = subgraph.labels;
+
+    // 청크당 최대 노드 수를 대략적으로 계산
+    double avg_degree = (subgraph.num_nodes > 0) ? (double)subgraph.num_edges / subgraph.num_nodes : 0.0;
+    size_t per_node_memory = (sizeof(int) * 5) + (sizeof(int) * avg_degree);
+    int max_nodes_per_chunk = std::max(1024, (int)(available_memory / (per_node_memory + 1)));
+
+    printf("[INFO] Subgraph is too large. Starting chunked processing (%d nodes per chunk)...\n", max_nodes_per_chunk);
+
     for (int start_node = 0; start_node < subgraph.num_nodes; start_node += max_nodes_per_chunk) {
         int end_node = std::min(start_node + max_nodes_per_chunk, subgraph.num_nodes);
         
-        // 청크용 서브그래프 생성
         BoundarySubgraph chunk_subgraph = createChunkSubgraph(subgraph, start_node, end_node);
+        if (chunk_subgraph.num_nodes == 0 || chunk_subgraph.boundary_indices.empty()) continue;
         
-        // 청크 처리
+        // 중요: 이전 청크의 업데이트를 반영하기 위해 최신 라벨을 복사
+        chunk_subgraph.labels.assign(current_labels.begin() + start_node, current_labels.begin() + end_node);
+        
+        // mpi_rank를 전달해야 한다면, 이 함수의 인자로 추가하고 여기에도 넘겨주어야 합니다.
         GPULabelUpdateResult chunk_result = runBoundaryLPOnGPU_SubgraphUnified(
             chunk_subgraph, penalty, num_partitions);
         
-        // 결과 병합 (노드 인덱스를 원래 인덱스로 변환)
-        for (size_t i = 0; i < chunk_result.updated_nodes.size(); i++) {
-            int original_node = chunk_result.updated_nodes[i] + start_node;
-            if (original_node < subgraph.num_local_nodes) { // 로컬 노드만
-                total_result.updated_nodes.push_back(original_node);
-                total_result.updated_labels.push_back(chunk_result.updated_labels[i]);
-                total_result.change_count++;
+        // ==================== 결과 병합 로직 (수정됨) ====================
+        // chunk_result.updated_nodes 에는 '원본 그래프 ID'가 들어있습니다.
+        for (size_t i = 0; i < chunk_result.updated_nodes.size(); ++i) {
+            int original_node_id = chunk_result.updated_nodes[i];
+            int new_label = chunk_result.updated_labels[i];
+
+            // 원본 그래프 ID를 -> 전체 서브그래프의 인덱스로 변환합니다.
+            if(original_node_id < (int)subgraph.reverse_mapping.size()) {
+                int subgraph_idx = subgraph.reverse_mapping[original_node_id];
+
+                // 변환된 인덱스가 유효하고, 현재 처리중인 청크 범위 내에 있다면 라벨을 업데이트합니다.
+                if (subgraph_idx != -1 && subgraph_idx >= start_node && subgraph_idx < end_node) {
+                    current_labels[subgraph_idx] = new_label;
+                }
             }
+        }
+        // =================================================================
+    }
+
+    // 모든 청크 처리 후, 최종적으로 변경된 로컬 노드만 수집
+    for(int i = 0; i < subgraph.num_nodes; ++i) {
+        // local_node_flags와 node_mapping은 전체 서브그래프의 것을 사용
+        if(subgraph.labels[i] != current_labels[i] && subgraph.local_node_flags[i] == 1) {
+            total_result.updated_nodes.push_back(subgraph.node_mapping[i]);
+            total_result.updated_labels.push_back(current_labels[i]);
+            total_result.change_count++;
         }
     }
     
@@ -547,56 +612,48 @@ GPULabelUpdateResult runBoundaryLPOnGPU_Chunked(
 }
 
 /**
- * 청크용 서브그래프 생성
+ * 청크용 서브그래프 생성 (수정된 최종 버전)
  */
 BoundarySubgraph createChunkSubgraph(const BoundarySubgraph& original, int start_node, int end_node) {
     BoundarySubgraph chunk;
-    chunk.num_nodes = end_node - start_node;
-    chunk.num_local_nodes = 0;
-    
-    // 로컬 노드 수 계산
-    for (int i = start_node; i < end_node; i++) {
-        if (original.local_node_flags[i]) {
-            chunk.num_local_nodes++;
+    int num_chunk_nodes = end_node - start_node;
+    if (num_chunk_nodes <= 0) return chunk;
+
+    // 1. 청크에 포함될 기본 정보 복사
+    chunk.num_nodes = num_chunk_nodes;
+    chunk.labels.assign(original.labels.begin() + start_node, original.labels.begin() + end_node);
+    chunk.local_node_flags.assign(original.local_node_flags.begin() + start_node, original.local_node_flags.begin() + end_node);
+    chunk.node_mapping.assign(original.node_mapping.begin() + start_node, original.node_mapping.begin() + end_node);
+
+    // 2. 청크 내에서 업데이트 대상이 될 바운더리 노드들의 상대 인덱스를 찾음
+    for (int boundary_original_idx : original.boundary_indices) {
+        if (boundary_original_idx >= start_node && boundary_original_idx < end_node) {
+            chunk.boundary_indices.push_back(boundary_original_idx - start_node);
         }
     }
-    
-    // 청크의 엣지 수 계산
-    chunk.num_edges = 0;
-    for (int i = start_node; i < end_node; i++) {
-        chunk.num_edges += original.row_ptr[i+1] - original.row_ptr[i];
-    }
-    
-    // 메모리 할당
-    chunk.row_ptr.resize(chunk.num_nodes + 1);
-    chunk.col_idx.resize(chunk.num_edges);
-    chunk.labels.resize(chunk.num_nodes);
-    chunk.local_node_flags.resize(chunk.num_nodes);
-    
-    // 데이터 복사
-    chunk.row_ptr[0] = 0;
-    int edge_offset = 0;
-    
-    for (int i = 0; i < chunk.num_nodes; i++) {
-        int original_node = start_node + i;
-        
-        // 라벨과 플래그 복사
-        chunk.labels[i] = original.labels[original_node];
-        chunk.local_node_flags[i] = original.local_node_flags[original_node];
-        
-        // 엣지 정보 복사
-        int start_edge = original.row_ptr[original_node];
-        int end_edge = original.row_ptr[original_node + 1];
-        int edge_count = end_edge - start_edge;
-        
-        for (int j = 0; j < edge_count; j++) {
-            chunk.col_idx[edge_offset + j] = 
-                original.col_idx[start_edge + j] - start_node; // 상대 인덱스로 변환
+
+    // 3. 청크의 CSR 구조를 올바르게 생성
+    chunk.row_ptr.resize(chunk.num_nodes + 1, 0);
+    std::vector<int> temp_col_idx;
+
+    for (int i = 0; i < chunk.num_nodes; ++i) {
+        int original_node_idx = start_node + i;
+        chunk.row_ptr[i] = temp_col_idx.size();
+
+        int start_edge = original.row_ptr[original_node_idx];
+        int end_edge = original.row_ptr[original_node_idx + 1];
+
+        for (int j = start_edge; j < end_edge; ++j) {
+            int neighbor_original_idx = original.col_idx[j];
+            // 중요: 이웃 노드가 현재 청크 범위 내에 있을 때만 간선을 추가
+            if (neighbor_original_idx >= start_node && neighbor_original_idx < end_node) {
+                temp_col_idx.push_back(neighbor_original_idx - start_node); // 청크의 상대 인덱스로 변환
+            }
         }
-        
-        edge_offset += edge_count;
-        chunk.row_ptr[i + 1] = edge_offset;
     }
+    chunk.row_ptr[chunk.num_nodes] = temp_col_idx.size();
+    chunk.col_idx = std::move(temp_col_idx);
+    chunk.num_edges = chunk.col_idx.size();
     
     return chunk;
 }
