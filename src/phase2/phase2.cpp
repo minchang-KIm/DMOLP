@@ -737,7 +737,6 @@ PartitioningMetrics run_phase2(
 
     // 파티션 균형도 계산 (DMOLP 품질 지표)
     double max_vertex_ratio = 0.0, max_edge_ratio = 0.0;
-    double sum_vertex_ratio = 0.0, sum_edge_ratio = 0.0;
     
     for (int i = 0; i < num_partitions; i++) {
         double rv = (final_stats.expected_vertices > 0) ? static_cast<double>(final_stats.global_vertex_counts[i]) / final_stats.expected_vertices : 1.0;
@@ -745,17 +744,12 @@ PartitioningMetrics run_phase2(
         
         max_vertex_ratio = std::max(max_vertex_ratio, rv);
         max_edge_ratio = std::max(max_edge_ratio, re);
-        sum_vertex_ratio += rv;
-        sum_edge_ratio += re;
     }
-    
-    double avg_vertex_ratio = sum_vertex_ratio / num_partitions;
-    double avg_edge_ratio = sum_edge_ratio / num_partitions;
 
     // ==================== 최종 메트릭 구성 ====================
     m2.edge_cut = prev_edge_cut;                                    // 최종 edge-cut
-    m2.vertex_balance = max_vertex_ratio / avg_vertex_ratio;        // 노드 균형도
-    m2.edge_balance = max_edge_ratio / avg_edge_ratio;              // 간선 균형도
+    m2.vertex_balance = max_vertex_ratio;                           // 노드 균형도
+    m2.edge_balance = max_edge_ratio;                               // 간선 균형도
     m2.loading_time_ms = exec_ms;                                   // 총 실행 시간
     m2.distribution_time_ms = 0;                                    // 분산 처리 시간 (Phase2에서는 미사용)
     m2.num_partitions = num_partitions;                             // 파티션 수
