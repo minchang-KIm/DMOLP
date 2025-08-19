@@ -557,7 +557,7 @@ GPULabelUpdateResult runBoundaryLPOnGPU_Chunked(
 {
     GPULabelUpdateResult total_result;
     // 이터레이션 내에서 청크 간 업데이트를 반영하기 위해 라벨 배열을 복사하여 사용
-    std::vector<int> current_labels = subgraph.labels;
+    std::vector<int> new_labels = subgraph.labels;
 
     // 청크당 최대 노드 수를 대략적으로 계산
     double avg_degree = (subgraph.num_nodes > 0) ? (double)subgraph.num_edges / subgraph.num_nodes : 0.0;
@@ -571,9 +571,6 @@ GPULabelUpdateResult runBoundaryLPOnGPU_Chunked(
         
         BoundarySubgraph chunk_subgraph = createChunkSubgraph(subgraph, start_node, end_node);
         if (chunk_subgraph.num_nodes == 0 || chunk_subgraph.boundary_indices.empty()) continue;
-        
-        // 중요: 이전 청크의 업데이트를 반영하기 위해 최신 라벨을 복사
-        chunk_subgraph.labels.assign(current_labels.begin() + start_node, current_labels.begin() + end_node);
         
         // mpi_rank를 전달해야 한다면, 이 함수의 인자로 추가하고 여기에도 넘겨주어야 합니다.
         GPULabelUpdateResult chunk_result = runBoundaryLPOnGPU_SubgraphUnified(
@@ -591,7 +588,7 @@ GPULabelUpdateResult runBoundaryLPOnGPU_Chunked(
 
                 // 변환된 인덱스가 유효하고, 현재 처리중인 청크 범위 내에 있다면 라벨을 업데이트합니다.
                 if (subgraph_idx != -1 && subgraph_idx >= start_node && subgraph_idx < end_node) {
-                    current_labels[subgraph_idx] = new_label;
+                    new_labels[subgraph_idx] = new_label;
                 }
             }
         }
@@ -601,9 +598,9 @@ GPULabelUpdateResult runBoundaryLPOnGPU_Chunked(
     // 모든 청크 처리 후, 최종적으로 변경된 로컬 노드만 수집
     for(int i = 0; i < subgraph.num_nodes; ++i) {
         // local_node_flags와 node_mapping은 전체 서브그래프의 것을 사용
-        if(subgraph.labels[i] != current_labels[i] && subgraph.local_node_flags[i] == 1) {
+        if(subgraph.labels[i] != new_labels[i] && subgraph.local_node_flags[i] == 1) {
             total_result.updated_nodes.push_back(subgraph.node_mapping[i]);
-            total_result.updated_labels.push_back(current_labels[i]);
+            total_result.updated_labels.push_back(new_labels[i]);
             total_result.change_count++;
         }
     }
