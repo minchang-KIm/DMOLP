@@ -99,7 +99,10 @@ BoundarySubgraph createBoundarySubgraphUnified(
             if (ghost_idx >= 0 && ghost_idx < (int)ghost_labels.size()) {
                 subgraph.labels[i] = ghost_labels[ghost_idx];
             } else {
-                subgraph.labels[i] = -1; // 유효하지 않은 라벨
+                // 고스트 노드가 유효하지 않은 경우
+                printf("Warning: Invalid ghost node index %d for original node %d\n", ghost_idx, orig_node);
+                exit(1);
+                //subgraph.labels[i] = -1; // 유효하지 않은 라벨
             }
             subgraph.local_node_flags[i] = 0;
         }
