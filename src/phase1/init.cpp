@@ -96,7 +96,6 @@ void load_graph(const char *filename, int procId, int nprocs, unordered_map<int,
     MPI_Allreduce(&local_E, &E, 1, MPI_UINT64_T, MPI_SUM, MPI_COMM_WORLD);
     MPI_Allreduce(&local_V, &V, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
     free(buf);
-
     E /= 2;
 }
 

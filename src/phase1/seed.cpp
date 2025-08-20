@@ -184,7 +184,7 @@ int find_next_seed(int procId, int nprocs, const vector<int> &selected_seeds, co
         }
     }
 
-    if (procId == 0 && global_best_hub != -1) cout << "Found next seed " << global_best_hub << " with degree " << global_max_degree << " (outside existing coverage)" << endl;
+    // if (procId == 0 && global_best_hub != -1) cout << "Found next seed " << global_best_hub << " with degree " << global_max_degree << " (outside existing coverage)" << endl;
 
     return global_best_hub;
 }
@@ -197,7 +197,7 @@ vector<int> find_seeds(int procId, int nprocs, int numParts, size_t num_nodes, c
         return selected_seeds;
     }
     
-    if (procId == 0) cout << "Finding " << numParts << " seeds from " << hub_nodes.size() << " hub nodes using " << nprocs << " processes..." << endl;
+    // if (procId == 0) cout << "Finding " << numParts << " seeds from " << hub_nodes.size() << " hub nodes using " << nprocs << " processes..." << endl;
 
     boost::dynamic_bitset<> used_hubs(hub_nodes.size());
     auto it = find(hub_nodes.begin(), hub_nodes.end(), first_seed.first);
@@ -222,21 +222,21 @@ vector<int> find_seeds(int procId, int nprocs, int numParts, size_t num_nodes, c
         if (it != hub_nodes.end()) used_hubs.set(distance(hub_nodes.begin(), it));
 
         int next_degree = global_degree.count(next_seed) ? global_degree.at(next_seed) : 0;
-        if (procId == 0) cout << "Selected seed " << (k + 1) << ": " << next_seed << " with degree " << next_degree << " (took " << duration.count() << " ms)\n" << endl;
+        // if (procId == 0) cout << "Selected seed " << (k + 1) << ": " << next_seed << " with degree " << next_degree << " (took " << duration.count() << " ms)\n" << endl;
     }
     auto total_end_time = chrono::high_resolution_clock::now();
     auto total_duration = chrono::duration_cast<chrono::milliseconds>(total_end_time - total_start_time);
 
     size_t result_size = selected_seeds.size();
-    if (procId == 0) {
-        cout << "Seed selection completed.\n";
-        cout << "Selected " << result_size << " seed: ";
-        for (size_t i = 0; i < result_size; i++) {
-            cout << selected_seeds[i];
-            if (i < result_size - 1) cout << ", ";
-        }
-        cout << "\nTotal execution time: " << total_duration.count() << "(ms)" << endl;
-    }
+    // if (procId == 0) {
+    //     cout << "Seed selection completed.\n";
+    //     cout << "Selected " << result_size << " seed: ";
+    //     for (size_t i = 0; i < result_size; i++) {
+    //         cout << selected_seeds[i];
+    //         if (i < result_size - 1) cout << ", ";
+    //     }
+    //     cout << "\nTotal execution time: " << total_duration.count() << "(ms)" << endl;
+    // }
     
     return selected_seeds;
 }

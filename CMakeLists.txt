@@ -50,6 +50,7 @@ add_executable(hpc_partitioning
   src/phase1/init.cpp
   src/phase1/partition.cpp
   src/phase1/seed.cpp
+  src/phase1/random.cpp
   src/phase2/phase2.cpp
   src/phase2/gpu_lp_boundary.cu
 )

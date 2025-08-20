@@ -13,6 +13,14 @@
 #include "phase2/gpu_lp_boundary.h"  // GPU 리소스 정리 함수 포함
 #include "utils.hpp"
 
+struct Options {
+    bool verbose = false;
+    bool mode = false; // false => bfs / true => random
+    const char* graph_file = nullptr;
+    int num_partitions = 0;
+    int theta = 0;
+};
+
 // GPU 할당 함수
 int allocateGPU(int mpi_rank, int mpi_size) {
     // 호스트 정보 확인
@@ -112,46 +120,97 @@ int allocateGPU(int mpi_rank, int mpi_size) {
     return gpu_id;
 }
 
+static bool parse_args(int argc, char** argv, Options& opts, int mpi_rank) {
+    std::vector<const char*> positionals;
+    for (int i = 1; i < argc; ++i) {
+        const char* a = argv[i];
+
+        // 종료 토큰
+        if (std::strcmp(a, "--") == 0) {
+            for (int j = i + 1; j < argc; ++j) positionals.push_back(argv[j]);
+            break;
+        }
+
+        // --verbose / -v
+        if (std::strcmp(a, "--verbose") == 0 || std::strcmp(a, "-v") == 0) {
+            opts.verbose = true;
+            continue;
+        }
+
+        // -m <mode>
+        if (std::strcmp(a, "-m") == 0) {
+            if (i + 1 >= argc) {
+                if (mpi_rank == 0) std::cerr << "오류: -m 인자에 값이 없습니다.\n";
+                return false;
+            }
+            const char* v = argv[++i];
+            if (std::strcmp(v, "bfs") == 0)       opts.mode = false;
+            else if (std::strcmp(v, "random") == 0) opts.mode = true;
+            else {
+                if (mpi_rank == 0) std::cerr << "오류: -m 인자는 bfs 또는 random 이어야 합니다: " << v << "\n";
+                return false;
+            }
+            continue;
+        }
+
+        // --mode=bfs 같은 형식 허용
+        if (std::strncmp(a, "--mode=", 7) == 0) {
+            const char* v = a + 7;
+            if (std::strcmp(v, "bfs") == 0)       opts.mode = false;
+            else if (std::strcmp(v, "random") == 0) opts.mode = true;
+            else {
+                if (mpi_rank == 0) std::cerr << "오류: --mode 값은 bfs 또는 random 이어야 합니다: " << v << "\n";
+                return false;
+            }
+            continue;
+        }
+
+        // 알 수 없는 -옵션
+        if (a[0] == '-') {
+            if (mpi_rank == 0) std::cerr << "오류: 알 수 없는 옵션: " << a << "\n";
+            return false;
+        }
+
+        // 위치 인자
+        positionals.push_back(a);
+    }
+
+    // 위치 인자: <graph_file> <num_partitions> <theta>
+    if (positionals.size() != 3) {
+        if (mpi_rank == 0) std::cerr << "오류: 위치 인자는 정확히 3개여야 합니다.\n";
+        return false;
+    }
+
+    opts.graph_file     = positionals[0];
+    opts.num_partitions = std::atoi(positionals[1]);
+    opts.theta          = std::atoi(positionals[2]);
+
+    if (opts.num_partitions <= 0 || opts.theta < 0) {
+        if (mpi_rank == 0) std::cerr << "오류: num_partitions>0, theta>=0 이어야 합니다.\n";
+        return false;
+    }
+    return true;
+}
+
 int main(int argc, char** argv) {
     MPI_Init(&argc, &argv);
 
     int mpi_rank, mpi_size;
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
     MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
-
-    if (argc < 4) {
+    
+    Options opts;
+    if (!parse_args(argc, argv, opts, mpi_rank)) {
         if (mpi_rank == 0)
-            std::cout << "Usage: mpirun -np <servers> ./hpc_partitioning <graph_file> <num_partitions> <theta> \n";
+            std::cout << "Usage: mpirun -np <procs> ./hpc_partitioning [--verbose] -m <bfs|random> <graph_file> <num_partitions> <theta>\n";
         MPI_Finalize();
         return 1;
     }
 
-    const char* graph_file = argv[1];
-    const int num_partitions = atoi(argv[2]);
-    const int theta = atoi(argv[3]);
-
-    // MPI 통신 테스트
-    char hostname[256];
-    gethostname(hostname, sizeof(hostname));
-    std::cout << "[Rank " << mpi_rank << "/" << mpi_size << "] 시작 - 호스트: " << hostname << std::endl;
-    std::cout.flush();
-    
-    // 간단한 통신 테스트
-    int test_value = mpi_rank;
-    std::vector<int> all_ranks(mpi_size);
-    
-    std::cout << "[Rank " << mpi_rank << "] 초기 통신 테스트 시작" << std::endl;
-    std::cout.flush();
-    
-    MPI_Allgather(&test_value, 1, MPI_INT, all_ranks.data(), 1, MPI_INT, MPI_COMM_WORLD);
-    
-    std::cout << "[Rank " << mpi_rank << "] 초기 통신 테스트 성공 - 수집된 rank들: ";
-    for (int i = 0; i < mpi_size; i++) {
-        std::cout << all_ranks[i] << " ";
+    if (opts.verbose && mpi_rank == 0) {
+        std::cout << "[옵션] mode=" << (opts.mode == false ? "bfs" : "random")
+                  << ", verbose=on\n";
     }
-    std::cout << std::endl;
-    std::cout.flush();
-
     
     Graph local_graph;
     GhostNodes ghost_nodes;
@@ -164,16 +223,18 @@ int main(int argc, char** argv) {
     }
 
     Phase1Metrics metrics1_raw = run_phase1(
-        mpi_rank, mpi_size,
-        graph_file,
-        num_partitions,
-        theta,
-        local_graph,
-        ghost_nodes
+            mpi_rank, mpi_size,
+            opts.graph_file,
+            opts.num_partitions,
+            opts.theta,
+            opts.mode,
+            opts.verbose,
+            local_graph,
+            ghost_nodes
     );
 
     
-    PartitioningMetrics metrics1(metrics1_raw, num_partitions);
+    PartitioningMetrics metrics1(metrics1_raw, opts.num_partitions);
     
     // Phase1 완료 동기화
     MPI_Barrier(MPI_COMM_WORLD);
@@ -181,9 +242,9 @@ int main(int argc, char** argv) {
     // --------------------
     // GPU 할당 (Phase2 전에 미리 수행)
     // --------------------
-    if (mpi_rank == 0) {
-        std::cout << "\n=== GPU 할당 ===\n";
-    }
+    // if (mpi_rank == 0) {
+    //     std::cout << "\n=== GPU 할당 ===\n";
+    // }
     
     int gpu_id = allocateGPU(mpi_rank, mpi_size);
     if (gpu_id < 0) {
@@ -202,10 +263,10 @@ int main(int argc, char** argv) {
 
     PartitioningMetrics metrics2 = run_phase2(
         mpi_rank, mpi_size,
-        num_partitions,
+        opts.num_partitions,
         local_graph,
         ghost_nodes,
-        gpu_id  // GPU ID 전달
+        gpu_id
     );
 
     if (mpi_rank == 0) {

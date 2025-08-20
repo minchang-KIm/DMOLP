@@ -10,6 +10,7 @@
 #include "phase1/init.hpp"
 #include "phase1/partition.hpp"
 #include "phase1/seed.hpp"
+#include "phase1/random.hpp"
 #include "utils.hpp"
 #include "graph_types.h"
 
@@ -19,6 +20,8 @@ Phase1Metrics run_phase1(
     const char* graph_file,
     int num_parts,
     int theta,
+    bool mode,
+    bool verbose,
     Graph &local_graph,
     GhostNodes &ghost_nodes
 )
@@ -55,8 +58,11 @@ Phase1Metrics run_phase1(
     seeds = find_seeds(mpi_rank, mpi_size, num_parts, V, first_seed, hub_nodes, global_degree, graph);
 
     sync_vector(mpi_rank, 0, seeds);
+    if(mode)
+        random_partition(mpi_rank, mpi_size, num_parts, theta, seeds, global_degree, graph, local_graph, ghost_nodes, verbose);
+    else
+        partition_expansion(mpi_rank, mpi_size, num_parts, theta, seeds, global_degree, graph, local_graph, ghost_nodes, verbose);
 
-    partition_expansion(mpi_rank, mpi_size, num_parts, theta, seeds, global_degree, graph, local_graph, ghost_nodes, false);
     
     auto distribute_end = std::chrono::high_resolution_clock::now();
     auto load_duration = std::chrono::duration_cast<std::chrono::milliseconds>(distribute_start - load_start);
@@ -150,9 +156,6 @@ Phase1Metrics run_phase1(
     metrics.distribution_time_ms = distribution_duration.count();
     metrics.total_vertices = V;
     metrics.total_edges = E;
-
-    std::cout << "[Rank " << mpi_rank << "] Phase1 함수 완료 준비" << std::endl;
-    std::cout.flush();
 
     return metrics;
 

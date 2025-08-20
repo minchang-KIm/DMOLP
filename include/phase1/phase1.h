@@ -9,6 +9,8 @@ Phase1Metrics run_phase1(
     const char* graph_file,
     int num_parts,
     int theta,
+    bool mode,
+    bool verbose,
     Graph &local_graph,
     GhostNodes &ghost_nodes
 );
