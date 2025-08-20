@@ -58,16 +58,11 @@ Phase1Metrics run_phase1(
     seeds = find_seeds(mpi_rank, mpi_size, num_parts, V, first_seed, hub_nodes, global_degree, graph);
 
     sync_vector(mpi_rank, 0, seeds);
-    auto partition_start = std::chrono::high_resolution_clock::now();
-    if(mode) {
+    if(mode)
         random_partition(mpi_rank, mpi_size, num_parts, theta, seeds, global_degree, graph, local_graph, ghost_nodes, verbose);
-    }
-    else {
+    else
         partition_expansion(mpi_rank, mpi_size, num_parts, theta, seeds, global_degree, graph, local_graph, ghost_nodes, verbose);
-    }
-    auto partition_end = std::chrono::high_resolution_clock::now();
-    auto partition_dur = std::chrono::duration_cast<std::chrono::milliseconds>(partition_end - partition_start);
-    if (mpi_rank == 0) std::cout << "Partition Time: " << partition_dur.count() << std::endl;
+
     
     auto distribute_end = std::chrono::high_resolution_clock::now();
     auto load_duration = std::chrono::duration_cast<std::chrono::milliseconds>(distribute_start - load_start);
@@ -159,7 +154,6 @@ Phase1Metrics run_phase1(
 
     metrics.loading_time_ms = load_duration.count();
     metrics.distribution_time_ms = distribution_duration.count();
-    metrics.partition_time_ms = partition_dur.count();
     metrics.total_vertices = V;
     metrics.total_edges = E;
 
