@@ -209,33 +209,6 @@ std::vector<std::vector<double>> calculatePenalties(
 }
 
 /**
- * @brief Boundary Local ID 추출 함수 (현재 코드에선 미사용 가능)
- */
-static std::vector<int> extractBoundaryLocalIDs(const Graph &graph, const GhostNodes &ghost_nodes) {
-    std::vector<int> boundary_nodes;
-    #pragma omp parallel
-    {
-        std::vector<int> thread_boundary_nodes;
-        #pragma omp for nowait
-        for (int u = 0; u < graph.num_vertices; u++) {
-            int u_label = graph.vertex_labels[u];
-            bool is_boundary = false;
-            for (int edge_idx = graph.row_ptr[u]; edge_idx < graph.row_ptr[u + 1]; edge_idx++) {
-                int v = graph.col_indices[edge_idx];
-                int v_label = getNodeLabel(v, graph, graph.vertex_labels, ghost_nodes);
-                if (v_label != -1 && u_label != v_label) { is_boundary = true; break; }
-            }
-            if (is_boundary) thread_boundary_nodes.push_back(u);
-        }
-        #pragma omp critical
-        {
-            boundary_nodes.insert(boundary_nodes.end(), thread_boundary_nodes.begin(), thread_boundary_nodes.end());
-        }
-    }
-    return boundary_nodes;
-}
-
-/**
  * @brief Edge-cut 계산 함수
  */
 static int computeEdgeCut(const Graph &g, const std::vector<int> &labels, const GhostNodes &ghost_nodes, int mpi_rank) {
@@ -400,10 +373,6 @@ PartitioningMetrics run_phase2(
                 int ghost_idx = it_ghost->second;
                 if (0 <= ghost_idx && ghost_idx < (int)ghost_nodes.ghost_labels.size()) {
                     ghost_nodes.ghost_labels[ghost_idx] = delta.new_label;
-                    int ghost_lid = local_graph.num_vertices + ghost_idx;
-                    if (ghost_lid < (int)local_graph.vertex_labels.size()) {
-                        local_graph.vertex_labels[ghost_lid] = delta.new_label;
-                    }
                 }
             }
         }
