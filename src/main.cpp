@@ -270,6 +270,7 @@ int main(int argc, char** argv) {
     );
 
     if (mpi_rank == 0) {
+        metrics1_raw.print();
         printComparisonReport(metrics1, metrics2);
     }
     

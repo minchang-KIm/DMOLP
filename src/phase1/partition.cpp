@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <iostream>
 #include <numeric>
+#include <boost/dynamic_bitset.hpp>
 
 #include "graph_types.h"
 #include "utils.hpp"
@@ -18,6 +19,79 @@ struct GhostEntry {
     vector<int> nbrs;
     int label = -1;
 };
+
+// Node to bitset index mapping structure
+struct NodeIndexMap {
+    unordered_map<int, int> node_to_index;
+    vector<int> index_to_node;
+    int next_index;
+};
+
+static void init_node_index_map(NodeIndexMap& map) {
+    map.next_index = 0;
+    map.node_to_index.clear();
+    map.index_to_node.clear();
+}
+
+static void reserve_node_index_map(NodeIndexMap& map, int capacity) {
+    map.node_to_index.reserve(capacity);
+    map.index_to_node.reserve(capacity);
+}
+
+static int get_node_index(NodeIndexMap& map, int node_id) {
+    auto it = map.node_to_index.find(node_id);
+    if (it != map.node_to_index.end()) {
+        return it->second;
+    }
+    
+    int idx = map.next_index++;
+    map.node_to_index[node_id] = idx;
+    if (idx >= (int)map.index_to_node.size()) {
+        map.index_to_node.resize(idx + 1);
+    }
+    map.index_to_node[idx] = node_id;
+    return idx;
+}
+
+static int get_node_id_from_index(const NodeIndexMap& map, int index) {
+    return index < (int)map.index_to_node.size() ? map.index_to_node[index] : -1;
+}
+
+static bool has_node_in_map(const NodeIndexMap& map, int node_id) {
+    return map.node_to_index.find(node_id) != map.node_to_index.end();
+}
+
+static void ensure_bitset_size(boost::dynamic_bitset<>& bitset, int required_size) {
+    if (required_size >= (int)bitset.size()) {
+        bitset.resize(required_size + 1);
+    }
+}
+
+static void set_node_in_bitset(boost::dynamic_bitset<>& bitset, NodeIndexMap& map, int node_id) {
+    int idx = get_node_index(map, node_id);
+    ensure_bitset_size(bitset, idx);
+    bitset.set(idx);
+}
+
+static bool test_node_in_bitset(const boost::dynamic_bitset<>& bitset, const NodeIndexMap& map, int node_id) {
+    auto it = map.node_to_index.find(node_id);
+    if (it == map.node_to_index.end()) return false;
+    int idx = it->second;
+    return idx < (int)bitset.size() && bitset.test(idx);
+}
+
+static vector<int> bitset_to_node_vector(const boost::dynamic_bitset<>& bitset, const NodeIndexMap& map) {
+    vector<int> result;
+    result.reserve(bitset.count());
+    
+    for (size_t i = bitset.find_first(); i != boost::dynamic_bitset<>::npos; i = bitset.find_next(i)) {
+        int node_id = get_node_id_from_index(map, i);
+        if (node_id != -1) {
+            result.push_back(node_id);
+        }
+    }
+    return result;
+}
 
 static bool is_unlabeled_local(const unordered_map<int,int>& node_label, int v) {
     auto it = node_label.find(v);
@@ -55,17 +129,18 @@ static void sort_unique(vector<int>& v) {
 static int owner_of(int vid, int nprocs) {
     return (vid % nprocs + nprocs) % nprocs;
 }
+
 static bool is_my_partition(int vid, int nprocs, int procId){
     return (vid % nprocs) == procId;
 }
 
-static int count_local_labeled(unordered_map<int,int> node_label){
+static int count_local_labeled(const unordered_map<int,int>& node_label){
     int c=0;
-    for (auto &kv: node_label){
+    for (const auto &kv: node_label){
         if (kv.second>=0) ++c;
     }
     return c;
-};
+}
 
 static void recompute_partition_sizes(
     int numParts,
@@ -89,14 +164,17 @@ static void recompute_partition_sizes(
                   numParts, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
 }
 
-static void fetch_ghost_nodes(
-    const unordered_set<int> &to_request_ghosts,
+static void fetch_ghost_nodes_with_bitset(
+    const boost::dynamic_bitset<>& to_request_ghosts_bitset,
+    const NodeIndexMap& ghost_map,
     const unordered_map<int, vector<int>> &local_adj,
     const unordered_map<int, int> &node_label,
     int procId,
     int nprocs,
     unordered_map<int, GhostEntry> &ghost_nodes
 ) {
+    vector<int> to_request_ghosts = bitset_to_node_vector(to_request_ghosts_bitset, ghost_map);
+    
     vector<vector<int>> requests_per_rank(nprocs);
     for (int ghost : to_request_ghosts) {
         int owner = owner_of(ghost, nprocs);
@@ -220,8 +298,11 @@ void build_local_graph_and_ghosts(
             })
     );
 
-    unordered_set<int> ghosts_unknown; 
-    ghosts_unknown.reserve(1024);
+    // Use bitset for ghosts_unknown
+    NodeIndexMap unknown_ghost_map;
+    init_node_index_map(unknown_ghost_map);
+    reserve_node_index_map(unknown_ghost_map, 1024);
+    boost::dynamic_bitset<> ghosts_unknown_bitset;
 
     const int ghost_base = L;
     for (int li = 0; li < L; ++li) {
@@ -250,7 +331,10 @@ void build_local_graph_and_ghosts(
                     auto gt = ghost_nodes.find(v_global);
                     if (gt != ghost_nodes.end()) glabel = gt->second.label;
                     local_partition_ghosts.ghost_labels.push_back(glabel);
-                    if (glabel == -1) ghosts_unknown.insert(v_global);
+                    
+                    if (glabel == -1) {
+                        set_node_in_bitset(ghosts_unknown_bitset, unknown_ghost_map, v_global);
+                    }
                     local_partition_graphs.col_indices.push_back(ghost_base + new_idx);
                 } else {
                     local_partition_graphs.col_indices.push_back(ghost_base + kt->second);
@@ -260,6 +344,9 @@ void build_local_graph_and_ghosts(
     }
     local_partition_graphs.row_ptr[L] = (int)local_partition_graphs.col_indices.size();
     local_partition_graphs.num_edges = (int)local_partition_graphs.col_indices.size();
+
+    // Convert bitset to vector for MPI communication
+    vector<int> ghosts_unknown = bitset_to_node_vector(ghosts_unknown_bitset, unknown_ghost_map);
 
     vector<vector<int>> requests(nprocs);
     for (int gid : ghosts_unknown) {
@@ -318,7 +405,6 @@ void build_local_graph_and_ghosts(
     }
 }
 
-
 // ======== Main ========
 void partition_expansion(
     int procId,
@@ -339,10 +425,19 @@ void partition_expansion(
     unordered_map<int,int> node_label;
     unordered_map<int, GhostEntry> ghost_nodes;
 
+    // Initialize index maps for different bitset use cases
+    NodeIndexMap seed_ghost_map, request_ghost_map, visited_map;
+    init_node_index_map(seed_ghost_map);
+    init_node_index_map(request_ghost_map);
+    init_node_index_map(visited_map);
+    
+    reserve_node_index_map(seed_ghost_map, numParts);
+    reserve_node_index_map(request_ghost_map, 1024);
+    reserve_node_index_map(visited_map, 1024);
 
     for (auto &kv : local_adj) node_label[kv.first] = -1;
 
-    unordered_set<int> initial_ghost_seed;
+    boost::dynamic_bitset<> initial_ghost_seed_bitset;
     for (int p=0; p<numParts; ++p) {
         int seed = seeds[p];
         if (is_my_partition(p, nprocs, procId)) {
@@ -352,13 +447,13 @@ void partition_expansion(
                 node_label[seed] = p;
                 if (verbose) cout << "[Rank " << procId << "] seed local P" << p << " <- " << seed << "\n";
             } else {
-                initial_ghost_seed.insert(seed);
+                set_node_in_bitset(initial_ghost_seed_bitset, seed_ghost_map, seed);
                 if (verbose) cout << "[Rank " << procId << "] seed ghost P" << p << " <- " << seed << "\n";
             }
         }
     }
 
-    fetch_ghost_nodes(initial_ghost_seed, local_adj, node_label, procId, nprocs, ghost_nodes);
+    fetch_ghost_nodes_with_bitset(initial_ghost_seed_bitset, seed_ghost_map, local_adj, node_label, procId, nprocs, ghost_nodes);
     recompute_partition_sizes(numParts, local_adj, node_label, part_size_global);
 
     int total_num = (int)global_degree.size();
@@ -417,15 +512,20 @@ void partition_expansion(
                   });
 
         vector<queue<int>> carry_frontiers(numParts);
-        unordered_map<int, unordered_set<int>> selected_by_part;
-        selected_by_part.reserve(my_parts.size());
-
+        
+        // Use bitsets for selected nodes by partition
+        vector<NodeIndexMap> selected_maps(numParts);
+        vector<boost::dynamic_bitset<>> selected_bitsets(numParts);
+        for (int p = 0; p < numParts; ++p) {
+            init_node_index_map(selected_maps[p]);
+        }
+        
         unordered_map<int, int> picked_per_part;
         for (int p : my_parts) picked_per_part[p] = 0;
 
         for (const auto& e : expandables) {
             if (picked_per_part[e.p] < theta) {
-                selected_by_part[e.p].insert(e.u);
+                set_node_in_bitset(selected_bitsets[e.p], selected_maps[e.p], e.u);
                 ++picked_per_part[e.p];
             }
         }
@@ -434,7 +534,7 @@ void partition_expansion(
             queue<int> q = frontiers[p];
             while (!q.empty()) {
                 int u = q.front(); q.pop();
-                if (selected_by_part[p].count(u) == 0) {
+                if (!test_node_in_bitset(selected_bitsets[p], selected_maps[p], u)) {
                     carry_frontiers[p].push(u);
                 }
             }
@@ -442,21 +542,24 @@ void partition_expansion(
 
         if (verbose) {
             int K_total = 0;
-            for (auto &kv : selected_by_part) K_total += (int)kv.second.size();
+            for (int p = 0; p < numParts; ++p) {
+                K_total += selected_bitsets[p].count();
+            }
             cout << "[Rank " << procId << "] round " << round
                  << " expand_selected_total=" << K_total
                  << " (theta_per_part=" << theta << ")\n";
         }
 
-        unordered_set<int> to_request_ghosts;
-        unordered_set<int> visited;
+        boost::dynamic_bitset<> to_request_ghosts_bitset;
+        boost::dynamic_bitset<> visited_bitset;
         vector<queue<int>> next_frontiers(numParts);
 
         for (int p : my_parts) {
             queue<int> q = frontiers[p];
             while (!q.empty()) {
                 int u = q.front(); q.pop();
-                if (selected_by_part[p].count(u) == 0) continue;
+                
+                if (!test_node_in_bitset(selected_bitsets[p], selected_maps[p], u)) continue;
 
                 const vector<int>* nbrs = nullptr;
                 if (local_adj.count(u)) nbrs=&local_adj.at(u);
@@ -466,17 +569,26 @@ void partition_expansion(
                 for (int v : *nbrs) {
                     if (!local_adj.count(v)) {
                         auto git = ghost_nodes.find(v);
-                        if (git==ghost_nodes.end() || git->second.label==-1) to_request_ghosts.insert(v);
+                        if (git==ghost_nodes.end() || git->second.label==-1) {
+                            set_node_in_bitset(to_request_ghosts_bitset, request_ghost_map, v);
+                        }
                     }
-                    if (is_unlabeled(node_label, ghost_nodes, local_adj, v) && visited.insert(v).second) {
-                        next_frontiers[p].push(v);
+                    if (is_unlabeled(node_label, ghost_nodes, local_adj, v)) {
+                        if (!test_node_in_bitset(visited_bitset, visited_map, v)) {
+                            set_node_in_bitset(visited_bitset, visited_map, v);
+                            next_frontiers[p].push(v);
+                        }
                     }
                 }
             }
         }
-        if (verbose) cout << "[Rank " << procId << "] round " << round << " to_request_ghosts=" << to_request_ghosts.size() << "\n";
+        
+        if (verbose) {
+            cout << "[Rank " << procId << "] round " << round 
+                 << " to_request_ghosts=" << to_request_ghosts_bitset.count() << "\n";
+        }
 
-        fetch_ghost_nodes(to_request_ghosts, local_adj, node_label, procId, nprocs, ghost_nodes);
+        fetch_ghost_nodes_with_bitset(to_request_ghosts_bitset, request_ghost_map, local_adj, node_label, procId, nprocs, ghost_nodes);
 
         vector<vector<int>> req_per_owner(nprocs);
         for (int p=0; p<numParts; ++p) {

@@ -278,6 +278,7 @@ struct Phase1Metrics {
     double initial_vertex_balance = 0.0;
     double initial_edge_balance = 0.0;
     long loading_time_ms = 0;
+    long partition_time_ms = 0;
     long distribution_time_ms = 0;
     int total_vertices = 0;
     uint64_t total_edges = 0;
@@ -290,6 +291,7 @@ struct Phase1Metrics {
         std::cout << "Initial vertex balance: " << std::fixed << std::setprecision(4) << initial_vertex_balance << std::endl;
         std::cout << "Initial edge balance: " << std::fixed << std::setprecision(4) << initial_edge_balance << std::endl;
         std::cout << "Loading time: " << loading_time_ms << " ms" << std::endl;
+        std::cout << "Partitioning time: " << partition_time_ms << " ms" << std::endl;
         std::cout << "Distribution time: " << distribution_time_ms << " ms" << std::endl;
         std::cout << "Total vertices: " << total_vertices << std::endl;
         std::cout << "Total edges: " << total_edges << std::endl;

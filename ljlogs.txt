@@ -1,6 +1,0 @@
-
-=== Phase 1: Initial Partitioning & Distribution ===
-[Phase1] 그래프 크기 로딩: 0 ms
-[Phase1] 라벨링: 10 ms
-[Phase1] 내 Rank 담당 vertex 집합 추출: 18 ms
-[Phase1] 내 vertex adjacency 읽기: 3230 ms

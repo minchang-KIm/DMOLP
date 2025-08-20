@@ -7096,3 +7096,2818 @@ GPU LP 실행 완료
 총 소요시간: 3068 ms
 
 === 7단계 알고리즘 완료 ===
+[옵션] mode=bfs, verbose=on
+
+=== Phase 1: Initial Partitioning & Distribution ===
+[Rank 1] seed local P1 <- 1888773
+[Rank 1] seed ghost P5 <- 1284907
+[Rank 0] seed ghost P0 <- 1762223
+[Rank 0] seed ghost P4 <- 614354
+[Rank 2] seed ghost P2 <- 649527
+[Rank 3] seed ghost P3 <- 574181
+[Rank 3] ===== Round 0 =====
+[Rank 3] round 0 frontier_total=1
+[Rank 3] round 0 expand_selected_total=1 (theta_per_part=50000)
+[Rank 1] ===== Round 0 =====
+[Rank 1] round 0 frontier_total=2
+[Rank 1] round 0 expand_selected_total=2 (theta_per_part=50000)
+[Rank 0] ===== Round 0 =====
+[Rank 0] round 0 frontier_total=2
+[Rank 0] round 0 expand_selected_total=2 (theta_per_part=50000)
+[Rank 2] ===== Round 0 =====
+[Rank 2] round 0 frontier_total=1
+[Rank 2] round 0 expand_selected_total=1 (theta_per_part=50000)
+[Rank 2] round 0 to_request_ghosts=1780
+[Rank 3] round 0 to_request_ghosts=1660
+[Rank 1] round 0 to_request_ghosts=3381
+[Rank 0] round 0 to_request_ghosts=11331
+[Rank 2] round 0 recv_counts(req)_sum=18018
+[Rank 3] round 0 recv_counts(req)_sum=18327
+[Rank 1] round 0 recv_counts(req)_sum=18102
+[Rank 0] round 0 recv_counts(req)_sum=18264
+[Rank 3] round 0 owned_claims=6109 upd_recv=8319
+[Rank 1] round 0 owned_claims=6034 upd_recv=10523
+[Rank 2] round 0 owned_claims=6006 upd_recv=8376
+[Rank 0] round 0 owned_claims=6088 upd_recv=21256
+[Rank 0] round 0 next_frontier_total=15168
+[Rank 3] round 0 next_frontier_total=2210
+[Rank 1] round 0 next_frontier_total=4489
+[Rank 2] round 0 next_frontier_total=2370
+[Rank 3] ===== Round 1 =====
+[Rank 3] round 1 frontier_total=2210
+[Rank 1] ===== Round 1 =====
+[Rank 1] round 1 frontier_total=4489
+[Rank 2] ===== Round 1 =====
+[Rank 2] round 1 frontier_total=2370
+[Rank 3] round 1 expand_selected_total=2210 (theta_per_part=50000)
+[Rank 2] round 1 expand_selected_total=2370 (theta_per_part=50000)
+[Rank 0] ===== Round 1 =====
+[Rank 0] round 1 frontier_total=15168
+[Rank 1] round 1 expand_selected_total=4489 (theta_per_part=50000)
+[Rank 0] round 1 expand_selected_total=15168 (theta_per_part=50000)
+[Rank 2] round 1 to_request_ghosts=26396
+[Rank 3] round 1 to_request_ghosts=31908
+[Rank 1] round 1 to_request_ghosts=118506
+[Rank 0] round 1 to_request_ghosts=562610
+[Rank 0] round 1 recv_counts(req)_sum=732603
+[Rank 1] round 1 recv_counts(req)_sum=732756
+[Rank 3] round 1 recv_counts(req)_sum=732759
+[Rank 2] round 1 recv_counts(req)_sum=732165
+[Rank 2] round 1 owned_claims=221153 upd_recv=254864
+[Rank 3] round 1 owned_claims=221417 upd_recv=262670
+[Rank 1] round 1 owned_claims=221418 upd_recv=375876
+[Rank 0] round 1 owned_claims=221335 upd_recv=968674
+[Rank 3] round 1 next_frontier_total=40829
+[Rank 2] round 1 next_frontier_total=32299
+[Rank 1] round 1 next_frontier_total=147773
+[Rank 0] round 1 next_frontier_total=664422
+[Rank 2] ===== Round 2 =====
+[Rank 2] round 2 frontier_total=32299
+[Rank 2] round 2 expand_selected_total=32299 (theta_per_part=50000)
+[Rank 1] ===== Round 2 =====
+[Rank 1] round 2 frontier_total=147773
+[Rank 3] ===== Round 2 =====
+[Rank 3] round 2 frontier_total=40829
+[Rank 3] round 2 expand_selected_total=40829 (theta_per_part=50000)
+[Rank 1] round 2 expand_selected_total=86755 (theta_per_part=50000)
+[Rank 0] ===== Round 2 =====
+[Rank 0] round 2 frontier_total=664422
+[Rank 0] round 2 expand_selected_total=72434 (theta_per_part=50000)
+[Rank 0] round 2 to_request_ghosts=67835
+[Rank 2] round 2 to_request_ghosts=469336
+[Rank 3] round 2 to_request_ghosts=555409
+[Rank 1] round 2 to_request_ghosts=501056
+[Rank 3] round 2 recv_counts(req)_sum=486075
+[Rank 0] round 2 recv_counts(req)_sum=487437
+[Rank 2] round 2 recv_counts(req)_sum=488388
+[Rank 1] round 2 recv_counts(req)_sum=486144
+[Rank 0] round 2 owned_claims=116032 upd_recv=182352
+[Rank 2] round 2 owned_claims=116276 upd_recv=257378
+[Rank 1] round 2 owned_claims=115950 upd_recv=319499
+[Rank 3] round 2 owned_claims=115829 upd_recv=354206
+[Rank 1] round 2 next_frontier_total=188438
+[Rank 2] round 2 next_frontier_total=135162
+[Rank 3] round 2 next_frontier_total=136558
+[Rank 0] round 2 next_frontier_total=656935
+[Rank 0] ===== Round 3 =====
+[Rank 0] round 3 frontier_total=656935
+[Rank 2] ===== Round 3 =====
+[Rank 2] round 3 frontier_total=135162
+[Rank 0] round 3 expand_selected_total=100000 (theta_per_part=50000)
+[Rank 1] ===== Round 3 =====
+[Rank 1] round 3 frontier_total=188438
+[Rank 2] round 3 expand_selected_total=50000 (theta_per_part=50000)
+[Rank 3] ===== Round 3 =====
+[Rank 3] round 3 frontier_total=136558
+[Rank 1] round 3 expand_selected_total=100000 (theta_per_part=50000)
+[Rank 3] round 3 expand_selected_total=50000 (theta_per_part=50000)
+[Rank 2] round 3 to_request_ghosts=16433
+[Rank 3] round 3 to_request_ghosts=6782
+[Rank 0] round 3 to_request_ghosts=58002
+[Rank 1] round 3 to_request_ghosts=143122
+[Rank 3] round 3 recv_counts(req)_sum=114870
+[Rank 1] round 3 recv_counts(req)_sum=114714
+[Rank 2] round 3 recv_counts(req)_sum=115053
+[Rank 0] round 3 recv_counts(req)_sum=115302
+[Rank 3] round 3 owned_claims=33959 upd_recv=41528
+[Rank 2] round 3 owned_claims=34055 upd_recv=48128
+[Rank 0] round 3 owned_claims=34141 upd_recv=75140
+[Rank 1] round 3 owned_claims=33927 upd_recv=124599
+[Rank 3] round 3 next_frontier_total=92887
+[Rank 2] round 3 next_frontier_total=97211
+[Rank 1] round 3 next_frontier_total=166829
+[Rank 0] round 3 next_frontier_total=596248
+[Rank 3] ===== Round 4 =====
+[Rank 3] round 4 frontier_total=92887
+[Rank 2] ===== Round 4 =====
+[Rank 2] round 4 frontier_total=97211
+[Rank 0] ===== Round 4 =====
+[Rank 0] round 4 frontier_total=596248
+[Rank 1] ===== Round 4 =====
+[Rank 1] round 4 frontier_total=166829
+[Rank 3] round 4 expand_selected_total=50000 (theta_per_part=50000)
+[Rank 2] round 4 expand_selected_total=50000 (theta_per_part=50000)
+[Rank 1] round 4 expand_selected_total=100000 (theta_per_part=50000)
+[Rank 0] round 4 expand_selected_total=90965 (theta_per_part=50000)
+[Rank 3] round 4 to_request_ghosts=27015
+[Rank 2] round 4 to_request_ghosts=57400
+[Rank 1] round 4 to_request_ghosts=81405
+[Rank 0] round 4 to_request_ghosts=134471
+[Rank 2] round 4 recv_counts(req)_sum=157053
+[Rank 3] round 4 recv_counts(req)_sum=157887
+[Rank 1] round 4 recv_counts(req)_sum=157434
+[Rank 0] round 4 recv_counts(req)_sum=156951
+[Rank 3] round 4 owned_claims=43205 upd_recv=65893
+[Rank 2] round 4 owned_claims=42943 upd_recv=80568
+[Rank 0] round 4 owned_claims=42959 upd_recv=113606
+[Rank 1] round 4 owned_claims=43071 upd_recv=121886
+[Rank 3] round 4 next_frontier_total=57911
+[Rank 2] round 4 next_frontier_total=74852
+[Rank 1] round 4 next_frontier_total=130173
+[Rank 0] round 4 next_frontier_total=571452
+[Rank 3] ===== Round 5 =====
+[Rank 3] round 5 frontier_total=57911
+[Rank 2] ===== Round 5 =====
+[Rank 2] round 5 frontier_total=74852
+[Rank 1] ===== Round 5 =====
+[Rank 1] round 5 frontier_total=130173
+[Rank 3] round 5 expand_selected_total=50000 (theta_per_part=50000)
+[Rank 0] ===== Round 5 =====
+[Rank 0] round 5 frontier_total=571452
+[Rank 2] round 5 expand_selected_total=50000 (theta_per_part=50000)
+[Rank 1] round 5 expand_selected_total=100000 (theta_per_part=50000)
+[Rank 0] round 5 expand_selected_total=100000 (theta_per_part=50000)
+[Rank 3] round 5 to_request_ghosts=70798
+[Rank 2] round 5 to_request_ghosts=85143
+[Rank 0] round 5 to_request_ghosts=39303
+[Rank 1] round 5 to_request_ghosts=154147
+[Rank 1] round 5 recv_counts(req)_sum=123087
+[Rank 0] round 5 recv_counts(req)_sum=122964
+[Rank 3] round 5 recv_counts(req)_sum=122883
+[Rank 2] round 5 recv_counts(req)_sum=122970
+[Rank 0] round 5 owned_claims=30395 upd_recv=57574
+[Rank 3] round 5 owned_claims=30440 upd_recv=62329
+[Rank 2] round 5 owned_claims=30473 upd_recv=66052
+[Rank 1] round 5 owned_claims=30454 upd_recv=99775
+[Rank 2] round 5 next_frontier_total=48442
+[Rank 3] round 5 next_frontier_total=37122
+[Rank 1] round 5 next_frontier_total=76077
+[Rank 0] round 5 next_frontier_total=494509
+[Rank 3] ===== Round 6 =====
+[Rank 3] round 6 frontier_total=37122
+[Rank 0] ===== Round 6 =====
+[Rank 0] round 6 frontier_total=494509
+[Rank 2] ===== Round 6 =====
+[Rank 2] round 6 frontier_total=48442
+[Rank 3] round 6 expand_selected_total=37122 (theta_per_part=50000)
+[Rank 2] round 6 expand_selected_total=48442 (theta_per_part=50000)
+[Rank 1] ===== Round 6 =====
+[Rank 1] round 6 frontier_total=76077
+[Rank 1] round 6 expand_selected_total=76077 (theta_per_part=50000)
+[Rank 0] round 6 expand_selected_total=71687 (theta_per_part=50000)
+[Rank 3] round 6 to_request_ghosts=55721
+[Rank 0] round 6 to_request_ghosts=39806
+[Rank 2] round 6 to_request_ghosts=143540
+[Rank 1] round 6 to_request_ghosts=117991
+[Rank 3] round 6 recv_counts(req)_sum=57105
+[Rank 2] round 6 recv_counts(req)_sum=57372
+[Rank 0] round 6 recv_counts(req)_sum=56724
+[Rank 1] round 6 recv_counts(req)_sum=57714
+[Rank 3] round 6 owned_claims=14073 upd_recv=24915
+[Rank 0] round 6 owned_claims=14016 upd_recv=27074
+[Rank 2] round 6 owned_claims=14157 upd_recv=33390
+[Rank 1] round 6 owned_claims=14192 upd_recv=47364
+[Rank 3] round 6 next_frontier_total=7234
+[Rank 2] round 6 next_frontier_total=12087
+[Rank 1] round 6 next_frontier_total=26325
+[Rank 0] round 6 next_frontier_total=433614
+[Rank 3] ===== Round 7 =====
+[Rank 3] round 7 frontier_total=7234
+[Rank 0] ===== Round 7 =====
+[Rank 0] round 7 frontier_total=433614
+[Rank 3] round 7 expand_selected_total=7234 (theta_per_part=50000)
+[Rank 1] ===== Round 7 =====
+[Rank 1] round 7 frontier_total=26325
+[Rank 3] round 7 to_request_ghosts=1284
+[Rank 2] ===== Round 7 =====
+[Rank 2] round 7 frontier_total=12087
+[Rank 2] round 7 expand_selected_total=12087 (theta_per_part=50000)
+[Rank 1] round 7 expand_selected_total=26325 (theta_per_part=50000)
+[Rank 2] round 7 to_request_ghosts=1480
+[Rank 1] round 7 to_request_ghosts=2656
+[Rank 0] round 7 expand_selected_total=54776 (theta_per_part=50000)
+[Rank 0] round 7 to_request_ghosts=32184
+[Rank 0] round 7 recv_counts(req)_sum=8406
+[Rank 3] round 7 recv_counts(req)_sum=8436
+[Rank 1] round 7 recv_counts(req)_sum=8373
+[Rank 2] round 7 recv_counts(req)_sum=8550
+[Rank 3] round 7 owned_claims=2714 upd_recv=3751
+[Rank 1] round 7 owned_claims=2695 upd_recv=5466
+[Rank 2] round 7 owned_claims=2754 upd_recv=4309
+[Rank 0] round 7 owned_claims=2705 upd_recv=8597
+[Rank 2] round 7 next_frontier_total=1540
+[Rank 1] round 7 next_frontier_total=2724
+[Rank 3] round 7 next_frontier_total=1011
+[Rank 2] ===== Round 8 =====
+[Rank 2] round 8 frontier_total=1540
+[Rank 3] ===== Round 8 =====
+[Rank 3] round 8 frontier_total=1011
+[Rank 3] round 8 expand_selected_total=1011 (theta_per_part=50000)
+[Rank 0] round 7 next_frontier_total=384431
+[Rank 2] round 8 expand_selected_total=1540 (theta_per_part=50000)
+[Rank 1] ===== Round 8 =====
+[Rank 1] round 8 frontier_total=2724
+[Rank 3] round 8 to_request_ghosts=63
+[Rank 2] round 8 to_request_ghosts=128
+[Rank 1] round 8 expand_selected_total=2724 (theta_per_part=50000)
+[Rank 1] round 8 to_request_ghosts=342
+[Rank 0] ===== Round 8 =====
+[Rank 0] round 8 frontier_total=384431
+[Rank 0] round 8 expand_selected_total=50284 (theta_per_part=50000)
+[Rank 0] round 8 to_request_ghosts=37912
+[Rank 2] round 8 recv_counts(req)_sum=4455
+[Rank 1] round 8 recv_counts(req)_sum=4548
+[Rank 3] round 8 recv_counts(req)_sum=4560
+[Rank 0] round 8 recv_counts(req)_sum=4515
+[Rank 3] round 8 owned_claims=1506 upd_recv=1572
+[Rank 2] round 8 owned_claims=1475 upd_recv=1613
+[Rank 1] round 8 owned_claims=1502 upd_recv=1914
+[Rank 0] round 8 owned_claims=1492 upd_recv=6902
+[Rank 1] round 8 next_frontier_total=412
+[Rank 1] ===== Round 9 =====
+[Rank 1] round 9 frontier_total=412
+[Rank 3] round 8 next_frontier_total=66
+[Rank 3] ===== Round 9 =====
+[Rank 3] round 9 frontier_total=66
+[Rank 3] round 9 expand_selected_total=66 (theta_per_part=50000)
+[Rank 3] round 9 to_request_ghosts=6
+[Rank 2] round 8 next_frontier_total=138
+[Rank 2] ===== Round 9 =====
+[Rank 2] round 9 frontier_total=138
+[Rank 2] round 9 expand_selected_total=138 (theta_per_part=50000)
+[Rank 2] round 9 to_request_ghosts=19
+[Rank 0] round 8 next_frontier_total=339506
+[Rank 1] round 9 expand_selected_total=412 (theta_per_part=50000)
+[Rank 1] round 9 to_request_ghosts=42
+[Rank 0] ===== Round 9 =====
+[Rank 0] round 9 frontier_total=339506
+[Rank 0] round 9 expand_selected_total=50087 (theta_per_part=50000)
+[Rank 0] round 9 to_request_ghosts=43949
+[Rank 3] round 9 recv_counts(req)_sum=4224
+[Rank 0] round 9 recv_counts(req)_sum=4254
+[Rank 2] round 9 recv_counts(req)_sum=4062
+[Rank 1] round 9 recv_counts(req)_sum=4227
+[Rank 2] round 9 owned_claims=1354 upd_recv=1379
+[Rank 3] round 9 owned_claims=1407 upd_recv=1416
+[Rank 1] round 9 owned_claims=1409 upd_recv=1464
+[Rank 0] round 9 owned_claims=1417 upd_recv=6917
+[Rank 1] round 9 next_frontier_total=55
+[Rank 3] round 9 next_frontier_total=9
+[Rank 3] ===== Round 10 =====
+[Rank 3] round 10 frontier_total=9
+[Rank 3] round 10 expand_selected_total=9 (theta_per_part=50000)
+[Rank 3] round 10 to_request_ghosts=0
+[Rank 2] round 9 next_frontier_total=25
+[Rank 2] ===== Round 10 =====
+[Rank 2] round 10 frontier_total=25
+[Rank 2] round 10 expand_selected_total=25 (theta_per_part=50000)
+[Rank 2] round 10 to_request_ghosts=2
+[Rank 1] ===== Round 10 =====
+[Rank 1] round 10 frontier_total=55
+[Rank 1] round 10 expand_selected_total=55 (theta_per_part=50000)
+[Rank 1] round 10 to_request_ghosts=8
+[Rank 0] round 9 next_frontier_total=294917
+[Rank 0] ===== Round 10 =====
+[Rank 0] round 10 frontier_total=294917
+[Rank 0] round 10 expand_selected_total=50003 (theta_per_part=50000)
+[Rank 0] round 10 to_request_ghosts=44617
+[Rank 2] round 10 recv_counts(req)_sum=3807
+[Rank 3] round 10 recv_counts(req)_sum=3846
+[Rank 0] round 10 recv_counts(req)_sum=3795
+[Rank 1] round 10 recv_counts(req)_sum=3831
+[Rank 3] round 10 owned_claims=1282 upd_recv=1282
+[Rank 2] round 10 owned_claims=1269 upd_recv=1272
+[Rank 1] round 10 owned_claims=1277 upd_recv=1287
+[Rank 0] round 10 owned_claims=1265 upd_recv=6345
+[Rank 1] round 10 next_frontier_total=10
+[Rank 1] ===== Round 11 =====
+[Rank 1] round 11 frontier_total=10
+[Rank 1] round 11 expand_selected_total=10 (theta_per_part=50000)
+[Rank 1] round 11 to_request_ghosts=0
+[Rank 2] round 10 next_frontier_total=3
+[Rank 2] ===== Round 11 =====
+[Rank 2] round 11 frontier_total=3
+[Rank 2] round 11 expand_selected_total=3 (theta_per_part=50000)
+[Rank 2] round 11 to_request_ghosts=0
+[Rank 3] round 10 next_frontier_total=0
+[Rank 3] ===== Round 11 =====
+[Rank 0] round 10 next_frontier_total=249994
+[Rank 0] ===== Round 11 =====
+[Rank 0] round 11 frontier_total=249994
+[Rank 3] round 11 frontier_total=73248
+[Rank 3] round 11 expand_selected_total=50000 (theta_per_part=50000)
+[Rank 3] round 11 to_request_ghosts=564
+[Rank 0] round 11 expand_selected_total=50000 (theta_per_part=50000)
+[Rank 0] round 11 to_request_ghosts=46920
+[Rank 0] round 11 recv_counts(req)_sum=5025
+[Rank 3] round 11 recv_counts(req)_sum=0
+[Rank 1] round 11 recv_counts(req)_sum=4224
+[Rank 2] round 11 recv_counts(req)_sum=5025
+[Rank 1] round 11 owned_claims=1408 upd_recv=1408
+[Rank 2] round 11 owned_claims=1671 upd_recv=1671
+[Rank 0] round 11 owned_claims=1675 upd_recv=5906
+[Rank 3] round 11 owned_claims=0 upd_recv=527
+[Rank 1] round 11 next_frontier_total=0
+[Rank 1] ===== Round 12 =====
+[Rank 3] round 11 next_frontier_total=23775
+[Rank 2] round 11 next_frontier_total=0
+[Rank 2] ===== Round 12 =====
+[Rank 0] round 11 next_frontier_total=204221
+[Rank 3] ===== Round 12 =====
+[Rank 3] round 12 frontier_total=23775
+[Rank 3] round 12 expand_selected_total=23775 (theta_per_part=50000)
+[Rank 0] ===== Round 12 =====
+[Rank 0] round 12 frontier_total=204221
+[Rank 2] round 12 frontier_total=71604
+[Rank 1] round 12 frontier_total=71852
+[Rank 2] round 12 expand_selected_total=50000 (theta_per_part=50000)
+[Rank 1] round 12 expand_selected_total=50000 (theta_per_part=50000)
+[Rank 2] round 12 to_request_ghosts=615
+[Rank 1] round 12 to_request_ghosts=507
+[Rank 3] round 12 to_request_ghosts=57808
+[Rank 0] round 12 expand_selected_total=50000 (theta_per_part=50000)
+[Rank 0] round 12 to_request_ghosts=40762
+[Rank 3] round 12 recv_counts(req)_sum=0
+[Rank 2] round 12 recv_counts(req)_sum=0
+[Rank 0] round 12 recv_counts(req)_sum=60669
+[Rank 1] round 12 recv_counts(req)_sum=0
+[Rank 2] round 12 owned_claims=0 upd_recv=21
+[Rank 1] round 12 owned_claims=0 upd_recv=249
+[Rank 0] round 12 owned_claims=19171 upd_recv=20555
+[Rank 3] round 12 owned_claims=0 upd_recv=18569
+[Rank 1] round 12 next_frontier_total=22101
+[Rank 2] round 12 next_frontier_total=21622
+[Rank 0] round 12 next_frontier_total=154583
+[Rank 3] round 12 next_frontier_total=18542
+[Rank 1] ===== Round 13 =====
+[Rank 1] round 13 frontier_total=22101
+[Rank 2] ===== Round 13 =====
+[Rank 2] round 13 frontier_total=21622
+[Rank 1] round 13 expand_selected_total=22101 (theta_per_part=50000)
+[Rank 2] round 13 expand_selected_total=21622 (theta_per_part=50000)
+[Rank 3] ===== Round 13 =====
+[Rank 3] round 13 frontier_total=18542
+[Rank 3] round 13 expand_selected_total=18542 (theta_per_part=50000)
+[Rank 0] ===== Round 13 =====
+[Rank 0] round 13 frontier_total=154583
+[Rank 3] round 13 to_request_ghosts=206
+[Rank 2] round 13 to_request_ghosts=53775
+[Rank 1] round 13 to_request_ghosts=53693
+[Rank 0] round 13 expand_selected_total=50000 (theta_per_part=50000)
+[Rank 0] round 13 to_request_ghosts=38093
+[Rank 1] round 13 recv_counts(req)_sum=0
+[Rank 3] round 13 recv_counts(req)_sum=0
+[Rank 2] round 13 recv_counts(req)_sum=0
+[Rank 0] round 13 recv_counts(req)_sum=12909
+[Rank 2] round 13 owned_claims=0 upd_recv=1116
+[Rank 3] round 13 owned_claims=0 upd_recv=25
+[Rank 0] round 13 owned_claims=3031 upd_recv=3444
+[Rank 1] round 13 owned_claims=0 upd_recv=2749
+[Rank 0] round 13 next_frontier_total=104830
+[Rank 2] round 13 next_frontier_total=28
+[Rank 1] round 13 next_frontier_total=2749
+[Rank 3] round 13 next_frontier_total=7
+[Rank 3] ===== Round 14 =====
+[Rank 3] round 14 frontier_total=7
+[Rank 3] round 14 expand_selected_total=7 (theta_per_part=50000)
+[Rank 3] round 14 to_request_ghosts=0
+[Rank 1] ===== Round 14 =====
+[Rank 1] round 14 frontier_total=2749
+[Rank 2] ===== Round 14 =====
+[Rank 2] round 14 frontier_total=28
+[Rank 2] round 14 expand_selected_total=28 (theta_per_part=50000)
+[Rank 2] round 14 to_request_ghosts=0
+[Rank 0] ===== Round 14 =====
+[Rank 0] round 14 frontier_total=104830
+[Rank 1] round 14 expand_selected_total=2749 (theta_per_part=50000)
+[Rank 1] round 14 to_request_ghosts=8
+[Rank 0] round 14 expand_selected_total=50000 (theta_per_part=50000)
+[Rank 0] round 14 to_request_ghosts=34795
+[Rank 3] round 14 recv_counts(req)_sum=0
+[Rank 3] round 14 owned_claims=0 upd_recv=0
+[Rank 1] round 14 recv_counts(req)_sum=0
+[Rank 1] round 14 owned_claims=0 upd_recv=0
+[Rank 2] round 14 recv_counts(req)_sum=0
+[Rank 2] round 14 owned_claims=0 upd_recv=0
+[Rank 0] round 14 recv_counts(req)_sum=942
+[Rank 0] round 14 owned_claims=314 upd_recv=628
+[Rank 2] round 14 next_frontier_total=0
+[Rank 2] ===== Round 15 =====
+[Rank 3] round 14 next_frontier_total=0
+[Rank 3] ===== Round 15 =====
+[Rank 1] round 14 next_frontier_total=0
+[Rank 1] ===== Round 15 =====
+[Rank 0] round 14 next_frontier_total=55144
+[Rank 0] ===== Round 15 =====
+[Rank 0] round 15 frontier_total=55144
+[Rank 0] round 15 expand_selected_total=50000 (theta_per_part=50000)
+[Rank 2] round 15 frontier_total=0
+[Rank 2] round 15 expand_selected_total=0 (theta_per_part=50000)
+[Rank 2] round 15 to_request_ghosts=0
+[Rank 3] round 15 frontier_total=0
+[Rank 3] round 15 expand_selected_total=0 (theta_per_part=50000)
+[Rank 3] round 15 to_request_ghosts=0
+[Rank 1] round 15 frontier_total=0
+[Rank 1] round 15 expand_selected_total=0 (theta_per_part=50000)
+[Rank 1] round 15 to_request_ghosts=0
+[Rank 0] round 15 to_request_ghosts=25256
+[Rank 3] round 15 recv_counts(req)_sum=0
+[Rank 3] round 15 owned_claims=0 upd_recv=0
+[Rank 1] round 15 recv_counts(req)_sum=0
+[Rank 1] round 15 owned_claims=0 upd_recv=0
+[Rank 2] round 15 recv_counts(req)_sum=0
+[Rank 2] round 15 owned_claims=0 upd_recv=0
+[Rank 0] round 15 recv_counts(req)_sum=924
+[Rank 0] round 15 owned_claims=308 upd_recv=616
+[Rank 3] round 15 next_frontier_total=0
+[Rank 3] ===== Round 16 =====
+[Rank 1] round 15 next_frontier_total=0
+[Rank 1] ===== Round 16 =====
+[Rank 0] round 15 next_frontier_total=5452
+[Rank 2] round 15 next_frontier_total=0
+[Rank 2] ===== Round 16 =====
+[Rank 0] ===== Round 16 =====
+[Rank 0] round 16 frontier_total=5452
+[Rank 0] round 16 expand_selected_total=5452 (theta_per_part=50000)
+[Rank 2] round 16 frontier_total=0
+[Rank 2] round 16 expand_selected_total=0 (theta_per_part=50000)
+[Rank 2] round 16 to_request_ghosts=0
+[Rank 3] round 16 frontier_total=0
+[Rank 3] round 16 expand_selected_total=0 (theta_per_part=50000)
+[Rank 3] round 16 to_request_ghosts=0
+[Rank 1] round 16 frontier_total=0
+[Rank 1] round 16 expand_selected_total=0 (theta_per_part=50000)
+[Rank 1] round 16 to_request_ghosts=0
+[Rank 0] round 16 to_request_ghosts=1580
+[Rank 2] round 16 recv_counts(req)_sum=0
+[Rank 2] round 16 owned_claims=0 upd_recv=0
+[Rank 0] round 16 recv_counts(req)_sum=108
+[Rank 0] round 16 owned_claims=36 upd_recv=72
+[Rank 1] round 16 recv_counts(req)_sum=0
+[Rank 1] round 16 owned_claims=0 upd_recv=0
+[Rank 3] round 16 recv_counts(req)_sum=0
+[Rank 3] round 16 owned_claims=0 upd_recv=0
+[Rank 1] round 16 next_frontier_total=0
+[Rank 1] ===== Round 17 =====
+[Rank 2] round 16 next_frontier_total=0
+[Rank 2] ===== Round 17 =====
+[Rank 3] round 16 next_frontier_total=0
+[Rank 3] ===== Round 17 =====
+[Rank 0] round 16 next_frontier_total=36
+[Rank 0] ===== Round 17 =====
+[Rank 0] round 17 frontier_total=36
+[Rank 0] round 17 expand_selected_total=36 (theta_per_part=50000)
+[Rank 0] round 17 to_request_ghosts=0
+[Rank 3] round 17 frontier_total=0
+[Rank 3] round 17 expand_selected_total=0 (theta_per_part=50000)
+[Rank 3] round 17 to_request_ghosts=0
+[Rank 3] round 17 recv_counts(req)_sum=0
+[Rank 3] round 17 owned_claims=0 upd_recv=0
+[Rank 2] round 17 frontier_total=0
+[Rank 2] round 17 expand_selected_total=0 (theta_per_part=50000)
+[Rank 2] round 17 to_request_ghosts=0
+[Rank 2] round 17 recv_counts(req)_sum=0
+[Rank 2] round 17 owned_claims=0 upd_recv=0
+[Rank 1] round 17 frontier_total=0
+[Rank 1] round 17 expand_selected_total=0 (theta_per_part=50000)
+[Rank 1] round 17 to_request_ghosts=0
+[Rank 1] round 17 recv_counts(req)_sum=0
+[Rank 1] round 17 owned_claims=0 upd_recv=0
+[Rank 0] round 17 recv_counts(req)_sum=0
+[Rank 0] round 17 owned_claims=0 upd_recv=0
+[Rank 2] round 17 next_frontier_total=0
+[Rank 2] ===== Round 18 =====
+[Rank 0] round 17 next_frontier_total=0
+[Rank 0] ===== Round 18 =====
+[Rank 1] round 17 next_frontier_total=0
+[Rank 1] ===== Round 18 =====
+[Rank 3] round 17 next_frontier_total=0
+[Rank 3] ===== Round 18 =====
+[Rank 2] round 18 frontier_total=0
+[Rank 2] round 18 expand_selected_total=0 (theta_per_part=50000)
+[Rank 2] round 18 to_request_ghosts=0
+[Rank 3] round 18 frontier_total=0
+[Rank 3] round 18 expand_selected_total=0 (theta_per_part=50000)
+[Rank 3] round 18 to_request_ghosts=0
+[Rank 1] round 18 frontier_total=0
+[Rank 1] round 18 expand_selected_total=0 (theta_per_part=50000)
+[Rank 1] round 18 to_request_ghosts=0
+[Rank 0] round 18 frontier_total=48810
+[Rank 0] round 18 expand_selected_total=48810 (theta_per_part=50000)
+[Rank 1] round 18 recv_counts(req)_sum=0
+[Rank 1] round 18 owned_claims=0 upd_recv=0
+[Rank 3] round 18 recv_counts(req)_sum=0
+[Rank 3] round 18 owned_claims=0 upd_recv=0
+[Rank 2] round 18 recv_counts(req)_sum=0
+[Rank 2] round 18 owned_claims=0 upd_recv=0
+[Rank 0] round 18 to_request_ghosts=0
+[Rank 0] round 18 recv_counts(req)_sum=0
+[Rank 0] round 18 owned_claims=0 upd_recv=0
+[Rank 2] round 18 next_frontier_total=0
+[Rank 1] round 18 next_frontier_total=0
+[Rank 3] round 18 next_frontier_total=0
+[Rank 0] round 18 next_frontier_total=0
+=== [Rank 0] CSR Summary ===
+Vertices: 545190
+Edges:    57167523
+Ghosts:   1449570
+=== [Rank 1] CSR Summary ===
+Vertices: 545190
+Edges:    57103029
+Ghosts:   1449132
+=== [Rank 2] CSR Summary ===
+Vertices: 545190
+Edges:    57318791
+Ghosts:   1449552
+=== [Rank 3] CSR Summary ===
+Vertices: 545189
+Edges:    57396289
+Ghosts:   1449322
+[Rank 0] GPU 0: NVIDIA GeForce RTX 3080 (메모리: 9886MB, 컴퓨트 능력: 8.6)
+[Rank 2] GPU 0: NVIDIA GeForce RTX 3080 (메모리: 9886MB, 컴퓨트 능력: 8.6)
+[Rank 1] GPU 1: NVIDIA GeForce RTX 3080 (메모리: 9886MB, 컴퓨트 능력: 8.6)
+[Rank 3] GPU 1: NVIDIA GeForce RTX 3080 (메모리: 9886MB, 컴퓨트 능력: 8.6)
+[Rank 3/4] Phase2 시작 (GPU 1)
+[Rank 3] Phase2 초기 edge-cut 계산 시작...
+[Rank 1/4] Phase2 시작 (GPU 1)
+[Rank 1] Phase2 초기 edge-cut 계산 시작...
+
+=== GPU 배치 정보 ===
+호스트 wise-176: Rank0(GPU0) Rank1(GPU1) Rank2(GPU0) Rank3(GPU1) 
+=====================
+
+=== Phase 2: Label Propagation ===
+[Rank 0/4] Phase2 시작 (GPU 0)
+[Rank 0] Phase2 초기 edge-cut 계산 시작...
+[Rank 2/4] Phase2 시작 (GPU 0)
+[Rank 2] Phase2 초기 edge-cut 계산 시작...
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 75319740 edges
+Expected per label: 363459.8 vertices, 12553290.0 edges
+Label 0: 718595 vertices (1.977), 46774361 edges (3.726)
+Label 1: 264636 vertices (0.728), 10796386 edges (0.860)
+Label 2: 318554 vertices (0.876), 4079774 edges (0.325)
+Label 3: 330805 vertices (0.910), 5664758 edges (0.451)
+Label 4: 241107 vertices (0.663), 3202496 edges (0.255)
+Label 5: 307062 vertices (0.845), 4801965 edges (0.383)
+========================
+
+===========>>> ratio : 0.818731 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.818731 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.818731 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.4GB, 사용예정 8.0GB
+===========>>> ratio : 0.818731 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 1863199 nodes and 56110585 edges
+Subgraph created with 1864259 nodes and 56092963 edges
+Subgraph created with 1863650 nodes and 56242663 edges
+Subgraph created with 1863208 nodes and 56265380 edges
+[Rank 0] GPU 처리 완료: 239.83ms, 177037 변경사항
+[Rank 0] GPU 라벨 변경: 177037 (로컬 delta: 177037)
+[Rank 2] GPU 처리 완료: 243.51ms, 188332 변경사항
+[Rank 2] GPU 라벨 변경: 188332 (로컬 delta: 188332)
+[Rank 1] GPU 처리 완료: 285.80ms, 186821 변경사항
+[Rank 1] GPU 라벨 변경: 186821 (로컬 delta: 186821)
+[Rank 3] GPU 처리 완료: 291.96ms, 176950 변경사항
+[Rank 3] GPU 라벨 변경: 176950 (로컬 delta: 176950)
+[Rank 0] Iter 0: 로컬 변경 177037개, 수신 변경 729140개
+[Rank 2] Iter 0: 로컬 변경 188332개, 수신 변경 729140개
+[Rank 1] Iter 0: 로컬 변경 186821개, 수신 변경 729140개
+[Rank 3] Iter 0: 로컬 변경 176950개, 수신 변경 729140개
+[Rank 1] Iter 1: Edge-cut 계산 중...
+[Rank 0] Iter 1: Edge-cut 계산 중...
+[Rank 2] Iter 1: Edge-cut 계산 중...
+[Rank 3] Iter 1: Edge-cut 계산 중...
+Iter 1: Edge-cut 43223830 (변화율: 10.341%)
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 71268986 edges
+Expected per label: 363459.8 vertices, 11878164.3 edges
+Label 0: 131222 vertices (0.361), 261145 edges (0.022)
+Label 1: 501804 vertices (1.381), 26660424 edges (2.244)
+Label 2: 458572 vertices (1.262), 13090448 edges (1.102)
+Label 3: 416020 vertices (1.145), 11508084 edges (0.969)
+Label 4: 243927 vertices (0.671), 4388603 edges (0.369)
+Label 5: 429214 vertices (1.181), 15360282 edges (1.293)
+========================
+
+===========>>> ratio : 0.670320 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.670320 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.670320 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.670320 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 1759949 nodes and 55955959 edges
+Subgraph created with 1775804 nodes and 55875811 edges
+Subgraph created with 1779898 nodes and 56197671 edges
+Subgraph created with 1759971 nodes and 56178653 edges
+[Rank 0] GPU 처리 완료: 232.68ms, 110026 변경사항
+[Rank 0] GPU 라벨 변경: 110026 (로컬 delta: 110026)
+[Rank 2] GPU 처리 완료: 238.17ms, 116247 변경사항
+[Rank 2] GPU 라벨 변경: 116247 (로컬 delta: 116247)
+[Rank 1] GPU 처리 완료: 279.04ms, 114206 변경사항
+[Rank 1] GPU 라벨 변경: 114206 (로컬 delta: 114206)
+[Rank 3] GPU 처리 완료: 286.28ms, 110838 변경사항
+[Rank 3] GPU 라벨 변경: 110838 (로컬 delta: 110838)
+[Rank 1] Iter 1: 로컬 변경 114206개, 수신 변경 451317개
+[Rank 0] Iter 1: 로컬 변경 110026개, 수신 변경 451317개
+[Rank 2] Iter 1: 로컬 변경 116247개, 수신 변경 451317개
+[Rank 3] Iter 1: 로컬 변경 110838개, 수신 변경 451317개
+[Rank 0] Iter 2: Edge-cut 계산 중...
+[Rank 3] Iter 2: Edge-cut 계산 중...
+[Rank 2] Iter 2: Edge-cut 계산 중...
+[Rank 1] Iter 2: Edge-cut 계산 중...
+Iter 2: Edge-cut 33679227 (변화율: 22.082%)
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 80813589 edges
+Expected per label: 363459.8 vertices, 13468931.5 edges
+Label 0: 147947 vertices (0.407), 643004 edges (0.048)
+Label 1: 166272 vertices (0.457), 459261 edges (0.034)
+Label 2: 555132 vertices (1.527), 21561043 edges (1.601)
+Label 3: 528398 vertices (1.454), 24902354 edges (1.849)
+Label 4: 312141 vertices (0.859), 9809548 edges (0.728)
+Label 5: 470869 vertices (1.296), 23438379 edges (1.740)
+========================
+
+===========>>> ratio : 0.548812 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.548812 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.548812 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.548812 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 1658797 nodes and 55722329 edges
+Subgraph created with 1658891 nodes and 55832455 edges
+Subgraph created with 1657164 nodes and 55557238 edges
+[Rank 2] GPU 처리 완료: 226.45ms, 184524 변경사항
+[Rank 2] GPU 라벨 변경: 184524 (로컬 delta: 184524)
+Subgraph created with 1657028 nodes and 55550034 edges
+[Rank 0] GPU 처리 완료: 223.25ms, 182022 변경사항
+[Rank 0] GPU 라벨 변경: 182022 (로컬 delta: 182022)
+[Rank 3] GPU 처리 완료: 269.20ms, 182098 변경사항
+[Rank 3] GPU 라벨 변경: 182098 (로컬 delta: 182098)
+[Rank 1] GPU 처리 완료: 272.78ms, 183305 변경사항
+[Rank 1] GPU 라벨 변경: 183305 (로컬 delta: 183305)
+[Rank 2] Iter 2: 로컬 변경 184524개, 수신 변경 731949개
+[Rank 0] Iter 2: 로컬 변경 182022개, 수신 변경 731949개
+[Rank 3] Iter 2: 로컬 변경 182098개, 수신 변경 731949개
+[Rank 1] Iter 2: 로컬 변경 183305개, 수신 변경 731949개
+[Rank 3] Iter 3: Edge-cut 계산 중...
+[Rank 2] Iter 3: Edge-cut 계산 중...
+[Rank 0] Iter 3: Edge-cut 계산 중...
+[Rank 1] Iter 3: Edge-cut 계산 중...
+Iter 3: Edge-cut 41016613 (변화율: 21.786%)
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 73476203 edges
+Expected per label: 363459.8 vertices, 12246033.8 edges
+Label 0: 582472 vertices (1.603), 37765248 edges (3.084)
+Label 1: 207455 vertices (0.571), 3745936 edges (0.306)
+Label 2: 307255 vertices (0.845), 1008763 edges (0.082)
+Label 3: 272306 vertices (0.749), 1128158 edges (0.092)
+Label 4: 547002 vertices (1.505), 29027197 edges (2.370)
+Label 5: 264269 vertices (0.727), 800901 edges (0.065)
+========================
+
+===========>>> ratio : 0.449329 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.449329 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.449329 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.449329 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 1631064 nodes and 55936716 edges
+[Rank 1] GPU 처리 완료: 232.12ms, 121762 변경사항
+[Rank 1] GPU 라벨 변경: 121762 (로컬 delta: 121762)
+Subgraph created with 1634599 nodes and 56269886 edges
+Subgraph created with 1632978 nodes and 55966046 edges
+[Rank 0] GPU 처리 완료: 216.11ms, 120783 변경사항
+[Rank 0] GPU 라벨 변경: 120783 (로컬 delta: 120783)
+Subgraph created with 1637067 nodes and 56190292 edges
+[Rank 3] GPU 처리 완료: 239.13ms, 121449 변경사항
+[Rank 3] GPU 라벨 변경: 121449 (로컬 delta: 121449)
+[Rank 2] GPU 처리 완료: 212.81ms, 122116 변경사항
+[Rank 2] GPU 라벨 변경: 122116 (로컬 delta: 122116)
+[Rank 3] Iter 3: 로컬 변경 121449개, 수신 변경 486110개
+[Rank 2] Iter 3: 로컬 변경 122116개, 수신 변경 486110개
+[Rank 1] Iter 3: 로컬 변경 121762개, 수신 변경 486110개
+[Rank 0] Iter 3: 로컬 변경 120783개, 수신 변경 486110개
+[Rank 0] Iter 4: Edge-cut 계산 중...
+[Rank 2] Iter 4: Edge-cut 계산 중...
+[Rank 1] Iter 4: Edge-cut 계산 중...
+[Rank 3] Iter 4: Edge-cut 계산 중...
+Iter 4: Edge-cut 34750558 (변화율: 15.277%)
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 79742258 edges
+Expected per label: 363459.8 vertices, 13290376.3 edges
+Label 0: 366809 vertices (1.009), 3376054 edges (0.254)
+Label 1: 533974 vertices (1.469), 62545246 edges (4.706)
+Label 2: 347121 vertices (0.955), 3812287 edges (0.287)
+Label 3: 309230 vertices (0.851), 5007953 edges (0.377)
+Label 4: 334696 vertices (0.921), 2161575 edges (0.163)
+Label 5: 288929 vertices (0.795), 2839143 edges (0.214)
+========================
+
+===========>>> ratio : 0.367879 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.367879 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.367879 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.367879 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 1494185 nodes and 53821726 edges
+[Rank 2] GPU 처리 완료: 196.27ms, 62126 변경사항
+[Rank 2] GPU 라벨 변경: 62126 (로컬 delta: 62126)
+Subgraph created with 1492931 nodes and 53893147 edges
+Subgraph created with 1492413 nodes and 53652904 edges
+Subgraph created with 1491790 nodes and 53620842 edges
+[Rank 3] GPU 처리 완료: 225.26ms, 60823 변경사항
+[Rank 3] GPU 라벨 변경: 60823 (로컬 delta: 60823)
+[Rank 0] GPU 처리 완료: 200.92ms, 60512 변경사항
+[Rank 0] GPU 라벨 변경: 60512 (로컬 delta: 60512)
+[Rank 1] GPU 처리 완료: 223.16ms, 61669 변경사항
+[Rank 1] GPU 라벨 변경: 61669 (로컬 delta: 61669)
+[Rank 3] Iter 4: 로컬 변경 60823개, 수신 변경 245130개
+[Rank 2] Iter 4: 로컬 변경 62126개, 수신 변경 245130개
+[Rank 0] Iter 4: 로컬 변경 60512개, 수신 변경 245130개
+[Rank 1] Iter 4: 로컬 변경 61669개, 수신 변경 245130개
+[Rank 0] Iter 5: Edge-cut 계산 중...
+[Rank 3] Iter 5: Edge-cut 계산 중...
+[Rank 2] Iter 5: Edge-cut 계산 중...
+[Rank 1] Iter 5: Edge-cut 계산 중...
+Iter 5: Edge-cut 58192709 (변화율: 67.458%)
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 56300107 edges
+Expected per label: 363459.8 vertices, 9383351.2 edges
+Label 0: 413036 vertices (1.136), 15063458 edges (1.605)
+Label 1: 352965 vertices (0.971), 3556481 edges (0.379)
+Label 2: 412672 vertices (1.135), 15441480 edges (1.646)
+Label 3: 338170 vertices (0.930), 9647450 edges (1.028)
+Label 4: 337972 vertices (0.930), 5549854 edges (0.591)
+Label 5: 325944 vertices (0.897), 7041384 edges (0.750)
+========================
+
+===========>>> ratio : 0.301194 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.301194 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.301194 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.301194 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 1490986 nodes and 54763747 edges
+Subgraph created with 1484823 nodes and 54422326 edges
+Subgraph created with 1488398 nodes and 54475953 edges
+Subgraph created with 1489913 nodes and 54657134 edges
+[Rank 0] GPU 처리 완료: 208.77ms, 59101 변경사항
+[Rank 0] GPU 라벨 변경: 59101 (로컬 delta: 59101)
+[Rank 2] GPU 처리 완료: 207.95ms, 59215 변경사항
+[Rank 2] GPU 라벨 변경: 59215 (로컬 delta: 59215)
+[Rank 3] GPU 처리 완료: 257.59ms, 59542 변경사항
+[Rank 3] GPU 라벨 변경: 59542 (로컬 delta: 59542)
+[Rank 1] GPU 처리 완료: 261.69ms, 59258 변경사항
+[Rank 1] GPU 라벨 변경: 59258 (로컬 delta: 59258)
+[Rank 1] Iter 5: 로컬 변경 59258개, 수신 변경 237116개
+[Rank 3] Iter 5: 로컬 변경 59542개, 수신 변경 237116개
+[Rank 0] Iter 5: 로컬 변경 59101개, 수신 변경 237116개
+[Rank 2] Iter 5: 로컬 변경 59215개, 수신 변경 237116개
+[Rank 0] Iter 6: Edge-cut 계산 중...
+[Rank 2] Iter 6: Edge-cut 계산 중...
+[Rank 1] Iter 6: Edge-cut 계산 중...
+[Rank 3] Iter 6: Edge-cut 계산 중...
+Iter 6: Edge-cut 45976117 (변화율: 20.993%)
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 68516699 edges
+Expected per label: 363459.8 vertices, 11419449.8 edges
+Label 0: 311912 vertices (0.858), 2165676 edges (0.190)
+Label 1: 412132 vertices (1.134), 15050632 edges (1.318)
+Label 2: 331958 vertices (0.913), 1477323 edges (0.129)
+Label 3: 337598 vertices (0.929), 11654372 edges (1.021)
+Label 4: 400715 vertices (1.103), 14642410 edges (1.282)
+Label 5: 386444 vertices (1.063), 23526286 edges (2.060)
+========================
+
+===========>>> ratio : 0.246597 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.246597 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.246597 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.246597 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 1510241 nodes and 55147691 edges
+Subgraph created with 1506959 nodes and 55080478 edges
+[Rank 0] GPU 처리 완료: 207.08ms, 46033 변경사항
+[Rank 0] GPU 라벨 변경: 46033 (로컬 delta: 46033)
+Subgraph created with 1512087 nodes and 55412815 edges
+Subgraph created with 1513283 nodes and 55321892 edges
+[Rank 1] GPU 처리 완료: 241.84ms, 45760 변경사항
+[Rank 1] GPU 라벨 변경: 45760 (로컬 delta: 45760)
+[Rank 2] GPU 처리 완료: 229.68ms, 46014 변경사항
+[Rank 2] GPU 라벨 변경: 46014 (로컬 delta: 46014)
+[Rank 3] GPU 처리 완료: 249.12ms, 46062 변경사항
+[Rank 3] GPU 라벨 변경: 46062 (로컬 delta: 46062)
+[Rank 0] Iter 6: 로컬 변경 46033개, 수신 변경 183869개
+[Rank 2] Iter 6: 로컬 변경 46014개, 수신 변경 183869개
+[Rank 1] Iter 6: 로컬 변경 45760개, 수신 변경 183869개
+[Rank 3] Iter 6: 로컬 변경 46062개, 수신 변경 183869개
+[Rank 1] Iter 7: Edge-cut 계산 중...
+[Rank 0] Iter 7: Edge-cut 계산 중...
+[Rank 2] Iter 7: Edge-cut 계산 중...
+[Rank 3] Iter 7: Edge-cut 계산 중...
+Iter 7: Edge-cut 51531365 (변화율: 12.083%)
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 62961451 edges
+Expected per label: 363459.8 vertices, 10493575.2 edges
+Label 0: 390602 vertices (1.075), 20825526 edges (1.985)
+Label 1: 337641 vertices (0.929), 3847575 edges (0.367)
+Label 2: 380748 vertices (1.048), 7251109 edges (0.691)
+Label 3: 363700 vertices (1.001), 18337646 edges (1.748)
+Label 4: 381899 vertices (1.051), 10498399 edges (1.000)
+Label 5: 326169 vertices (0.897), 2201196 edges (0.210)
+========================
+
+===========>>> ratio : 0.201897 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.201897 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.201897 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.201897 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 1357478 nodes and 53187995 edges
+Subgraph created with 1355801 nodes and 53207078 edges
+Subgraph created with 1357891 nodes and 53438063 edges
+[Rank 1] GPU 처리 완료: 209.18ms, 33178 변경사항
+[Rank 1] GPU 라벨 변경: 33178 (로컬 delta: 33178)
+[Rank 0] GPU 처리 완료: 195.37ms, 33157 변경사항
+[Rank 0] GPU 라벨 변경: 33157 (로컬 delta: 33157)
+Subgraph created with 1360065 nodes and 53357426 edges
+[Rank 2] GPU 처리 완료: 193.47ms, 33397 변경사항
+[Rank 2] GPU 라벨 변경: 33397 (로컬 delta: 33397)
+[Rank 3] GPU 처리 완료: 222.43ms, 33289 변경사항
+[Rank 3] GPU 라벨 변경: 33289 (로컬 delta: 33289)
+[Rank 1] Iter 7: 로컬 변경 33178개, 수신 변경 133021개
+[Rank 0] Iter 7: 로컬 변경 33157개, 수신 변경 133021개
+[Rank 2] Iter 7: 로컬 변경 33397개, 수신 변경 133021개
+[Rank 3] Iter 7: 로컬 변경 33289개, 수신 변경 133021개
+[Rank 2] Iter 8: Edge-cut 계산 중...
+[Rank 1] Iter 8: Edge-cut 계산 중...
+[Rank 0] Iter 8: Edge-cut 계산 중...
+[Rank 3] Iter 8: Edge-cut 계산 중...
+Iter 8: Edge-cut 52186403 (변화율: 1.271%) [수렴 진행: 1/10]
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 62306413 edges
+Expected per label: 363459.8 vertices, 10384402.2 edges
+Label 0: 328392 vertices (0.904), 2759156 edges (0.266)
+Label 1: 374380 vertices (1.030), 16439685 edges (1.583)
+Label 2: 424995 vertices (1.169), 20212595 edges (1.946)
+Label 3: 319811 vertices (0.880), 2295961 edges (0.221)
+Label 4: 388196 vertices (1.068), 13495907 edges (1.300)
+Label 5: 344985 vertices (0.949), 7103109 edges (0.684)
+========================
+
+===========>>> ratio : 0.165299 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.165299 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.165299 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.165299 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 1323350 nodes and 52960373 edges
+[Rank 0] GPU 처리 완료: 190.28ms, 32742 변경사항
+[Rank 0] GPU 라벨 변경: 32742 (로컬 delta: 32742)
+Subgraph created with 1329100 nodes and 53249133 edges
+Subgraph created with 1321303 nodes and 52847243 edges
+Subgraph created with 1326664 nodes and 53108370 edges
+[Rank 2] GPU 처리 완료: 188.56ms, 32736 변경사항
+[Rank 2] GPU 라벨 변경: 32736 (로컬 delta: 32736)
+[Rank 3] GPU 처리 완료: 244.30ms, 32719 변경사항
+[Rank 3] GPU 라벨 변경: 32719 (로컬 delta: 32719)
+[Rank 1] GPU 처리 완료: 248.31ms, 32778 변경사항
+[Rank 1] GPU 라벨 변경: 32778 (로컬 delta: 32778)
+[Rank 3] Iter 8: 로컬 변경 32719개, 수신 변경 130975개
+[Rank 2] Iter 8: 로컬 변경 32736개, 수신 변경 130975개
+[Rank 0] Iter 8: 로컬 변경 32742개, 수신 변경 130975개
+[Rank 1] Iter 8: 로컬 변경 32778개, 수신 변경 130975개
+[Rank 1] Iter 9: Edge-cut 계산 중...
+[Rank 0] Iter 9: Edge-cut 계산 중...
+[Rank 3] Iter 9: Edge-cut 계산 중...
+[Rank 2] Iter 9: Edge-cut 계산 중...
+Iter 9: Edge-cut 53753618 (변화율: 3.003%)
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 60739198 edges
+Expected per label: 363459.8 vertices, 10123199.7 edges
+Label 0: 374368 vertices (1.030), 11673439 edges (1.153)
+Label 1: 324647 vertices (0.893), 3536577 edges (0.349)
+Label 2: 385709 vertices (1.061), 3609669 edges (0.357)
+Label 3: 348474 vertices (0.959), 10735878 edges (1.061)
+Label 4: 355519 vertices (0.978), 4178397 edges (0.413)
+Label 5: 392042 vertices (1.079), 27005238 edges (2.668)
+========================
+
+===========>>> ratio : 0.135335 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.135335 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.135335 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.135335 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 1287513 nodes and 52897421 edges
+Subgraph created with 1277271 nodes and 52502149 edges
+Subgraph created with 1284641 nodes and 52768693 edges
+Subgraph created with 1277796 nodes and 52518603 edges
+[Rank 2] GPU 처리 완료: 198.60ms, 21178 변경사항
+[Rank 2] GPU 라벨 변경: 21178 (로컬 delta: 21178)
+[Rank 0] GPU 처리 완료: 201.98ms, 21022 변경사항
+[Rank 0] GPU 라벨 변경: 21022 (로컬 delta: 21022)
+[Rank 3] GPU 처리 완료: 225.25ms, 21239 변경사항
+[Rank 3] GPU 라벨 변경: 21239 (로컬 delta: 21239)
+[Rank 1] GPU 처리 완료: 229.23ms, 20984 변경사항
+[Rank 1] GPU 라벨 변경: 20984 (로컬 delta: 20984)
+[Rank 1] Iter 9: 로컬 변경 20984개, 수신 변경 84423개
+[Rank 2] Iter 9: 로컬 변경 21178개, 수신 변경 84423개
+[Rank 0] Iter 9: 로컬 변경 21022개, 수신 변경 84423개
+[Rank 3] Iter 9: 로컬 변경 21239개, 수신 변경 84423개
+[Rank 1] Iter 10: Edge-cut 계산 중...
+[Rank 2] Iter 10: Edge-cut 계산 중...
+[Rank 0] Iter 10: Edge-cut 계산 중...
+[Rank 3] Iter 10: Edge-cut 계산 중...
+Iter 10: Edge-cut 56694188 (변화율: 5.470%)
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 57798628 edges
+Expected per label: 363459.8 vertices, 9633104.7 edges
+Label 0: 349539 vertices (0.962), 4265644 edges (0.443)
+Label 1: 352885 vertices (0.971), 12942389 edges (1.344)
+Label 2: 414229 vertices (1.140), 16435872 edges (1.706)
+Label 3: 346849 vertices (0.954), 10866533 edges (1.128)
+Label 4: 354248 vertices (0.975), 7941895 edges (0.824)
+Label 5: 363009 vertices (0.999), 5346295 edges (0.555)
+========================
+
+===========>>> ratio : 0.110803 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.110803 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.110803 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.110803 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 1164162 nodes and 50158922 edges
+[Rank 0] GPU 처리 완료: 178.79ms, 16523 변경사항
+[Rank 0] GPU 라벨 변경: 16523 (로컬 delta: 16523)
+Subgraph created with 1161313 nodes and 49920417 edges
+Subgraph created with 1174388 nodes and 50228720 edges
+Subgraph created with 1171386 nodes and 50376160 edges
+[Rank 2] GPU 처리 완료: 180.02ms, 16418 변경사항
+[Rank 2] GPU 라벨 변경: 16418 (로컬 delta: 16418)
+[Rank 1] GPU 처리 완료: 216.85ms, 16536 변경사항
+[Rank 1] GPU 라벨 변경: 16536 (로컬 delta: 16536)
+[Rank 3] GPU 처리 완료: 225.98ms, 16577 변경사항
+[Rank 3] GPU 라벨 변경: 16577 (로컬 delta: 16577)
+[Rank 0] Iter 10: 로컬 변경 16523개, 수신 변경 66054개
+[Rank 1] Iter 10: 로컬 변경 16536개, 수신 변경 66054개
+[Rank 2] Iter 10: 로컬 변경 16418개, 수신 변경 66054개
+[Rank 3] Iter 10: 로컬 변경 16577개, 수신 변경 66054개
+[Rank 2] Iter 11: Edge-cut 계산 중...
+[Rank 3] Iter 11: Edge-cut 계산 중...
+[Rank 1] Iter 11: Edge-cut 계산 중...
+[Rank 0] Iter 11: Edge-cut 계산 중...
+Iter 11: Edge-cut 51619234 (변화율: 8.951%)
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 62873582 edges
+Expected per label: 363459.8 vertices, 10478930.3 edges
+Label 0: 372882 vertices (1.026), 11090130 edges (1.058)
+Label 1: 323213 vertices (0.889), 3354952 edges (0.320)
+Label 2: 389088 vertices (1.071), 4043813 edges (0.386)
+Label 3: 345957 vertices (0.952), 10389829 edges (0.991)
+Label 4: 354932 vertices (0.977), 8655460 edges (0.826)
+Label 5: 394687 vertices (1.086), 25339398 edges (2.418)
+========================
+
+===========>>> ratio : 0.090718 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.090718 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.090718 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.090718 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 953041 nodes and 44934674 edges
+Subgraph created with 952956 nodes and 44897302 edges
+Subgraph created with 977340 nodes and 45556729 edges
+Subgraph created with 966889 nodes and 45426997 edges
+[Rank 0] GPU 처리 완료: 177.19ms, 9423 변경사항
+[Rank 0] GPU 라벨 변경: 9423 (로컬 delta: 9423)
+[Rank 2] GPU 처리 완료: 180.65ms, 9521 변경사항
+[Rank 2] GPU 라벨 변경: 9521 (로컬 delta: 9521)
+[Rank 1] GPU 처리 완료: 208.79ms, 9302 변경사항
+[Rank 1] GPU 라벨 변경: 9302 (로컬 delta: 9302)
+[Rank 3] GPU 처리 완료: 216.78ms, 9409 변경사항
+[Rank 3] GPU 라벨 변경: 9409 (로컬 delta: 9409)
+[Rank 3] Iter 11: 로컬 변경 9409개, 수신 변경 37655개
+[Rank 0] Iter 11: 로컬 변경 9423개, 수신 변경 37655개
+[Rank 1] Iter 11: 로컬 변경 9302개, 수신 변경 37655개
+[Rank 2] Iter 11: 로컬 변경 9521개, 수신 변경 37655개
+[Rank 3] Iter 12: Edge-cut 계산 중...
+[Rank 0] Iter 12: Edge-cut 계산 중...
+[Rank 1] Iter 12: Edge-cut 계산 중...
+[Rank 2] Iter 12: Edge-cut 계산 중...
+Iter 12: Edge-cut 58103737 (변화율: 12.562%)
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 56389079 edges
+Expected per label: 363459.8 vertices, 9398179.8 edges
+Label 0: 363520 vertices (1.000), 7747865 edges (0.824)
+Label 1: 334621 vertices (0.921), 8517476 edges (0.906)
+Label 2: 407408 vertices (1.121), 13103033 edges (1.394)
+Label 3: 343335 vertices (0.945), 10876309 edges (1.157)
+Label 4: 355986 vertices (0.979), 8855933 edges (0.942)
+Label 5: 375889 vertices (1.034), 7288463 edges (0.776)
+========================
+
+===========>>> ratio : 0.074274 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.074274 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.074274 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.074274 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 801543 nodes and 41109533 edges
+Subgraph created with 800519 nodes and 40839439 edges
+[Rank 0] GPU 처리 완료: 164.30ms, 6080 변경사항
+[Rank 0] GPU 라벨 변경: 6080 (로컬 delta: 6080)
+Subgraph created with 824002 nodes and 41671043 edges
+Subgraph created with 809764 nodes and 41059398 edges
+[Rank 2] GPU 처리 완료: 165.63ms, 6090 변경사항
+[Rank 2] GPU 라벨 변경: 6090 (로컬 delta: 6090)
+[Rank 1] GPU 처리 완료: 187.39ms, 5994 변경사항
+[Rank 1] GPU 라벨 변경: 5994 (로컬 delta: 5994)
+[Rank 3] GPU 처리 완료: 195.39ms, 6195 변경사항
+[Rank 3] GPU 라벨 변경: 6195 (로컬 delta: 6195)
+[Rank 1] Iter 12: 로컬 변경 5994개, 수신 변경 24359개
+[Rank 2] Iter 12: 로컬 변경 6090개, 수신 변경 24359개
+[Rank 0] Iter 12: 로컬 변경 6080개, 수신 변경 24359개
+[Rank 3] Iter 12: 로컬 변경 6195개, 수신 변경 24359개
+[Rank 1] Iter 13: Edge-cut 계산 중...
+[Rank 2] Iter 13: Edge-cut 계산 중...
+[Rank 3] Iter 13: Edge-cut 계산 중...
+[Rank 0] Iter 13: Edge-cut 계산 중...
+Iter 13: Edge-cut 57968776 (변화율: 0.232%) [수렴 진행: 1/10]
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 56524040 edges
+Expected per label: 363459.8 vertices, 9420673.3 edges
+Label 0: 366240 vertices (1.008), 9348912 edges (0.992)
+Label 1: 336166 vertices (0.925), 8998076 edges (0.955)
+Label 2: 393327 vertices (1.082), 4648028 edges (0.493)
+Label 3: 342768 vertices (0.943), 10228711 edges (1.086)
+Label 4: 356524 vertices (0.981), 8925626 edges (0.947)
+Label 5: 385734 vertices (1.061), 14374687 edges (1.526)
+========================
+
+===========>>> ratio : 0.060810 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.060810 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.060810 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.060810 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 645052 nodes and 35218416 edges
+Subgraph created with 662058 nodes and 35528507 edges
+Subgraph created with 646828 nodes and 35264373 edges
+Subgraph created with 664359 nodes and 35761452 edges
+[Rank 2] GPU 처리 완료: 166.76ms, 3409 변경사항
+[Rank 2] GPU 라벨 변경: 3409 (로컬 delta: 3409)
+[Rank 0] GPU 처리 완료: 168.90ms, 3356 변경사항
+[Rank 0] GPU 라벨 변경: 3356 (로컬 delta: 3356)
+[Rank 1] GPU 처리 완료: 184.75ms, 3389 변경사항
+[Rank 1] GPU 라벨 변경: 3389 (로컬 delta: 3389)
+[Rank 3] GPU 처리 완료: 190.63ms, 3412 변경사항
+[Rank 3] GPU 라벨 변경: 3412 (로컬 delta: 3412)
+[Rank 3] Iter 13: 로컬 변경 3412개, 수신 변경 13566개
+[Rank 2] Iter 13: 로컬 변경 3409개, 수신 변경 13566개
+[Rank 0] Iter 13: 로컬 변경 3356개, 수신 변경 13566개
+[Rank 1] Iter 13: 로컬 변경 3389개, 수신 변경 13566개
+[Rank 3] Iter 14: Edge-cut 계산 중...
+[Rank 2] Iter 14: Edge-cut 계산 중...
+[Rank 1] Iter 14: Edge-cut 계산 중...
+[Rank 0] Iter 14: Edge-cut 계산 중...
+Iter 14: Edge-cut 59708485 (변화율: 3.001%)
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 54784331 edges
+Expected per label: 363459.8 vertices, 9130721.8 edges
+Label 0: 364696 vertices (1.003), 9845467 edges (1.078)
+Label 1: 336845 vertices (0.927), 9733501 edges (1.066)
+Label 2: 402777 vertices (1.108), 8845080 edges (0.969)
+Label 3: 342480 vertices (0.942), 9790097 edges (1.072)
+Label 4: 356848 vertices (0.982), 8928514 edges (0.978)
+Label 5: 377113 vertices (1.038), 7641672 edges (0.837)
+========================
+
+===========>>> ratio : 0.049787 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.049787 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.049787 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.049787 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 749391 nodes and 41172333 edges
+Subgraph created with 768384 nodes and 42005654 edges
+Subgraph created with 753755 nodes and 41675945 edges
+Subgraph created with 776843 nodes and 42119989 edges
+[Rank 1] GPU 처리 완료: 178.73ms, 1907 변경사항
+[Rank 1] GPU 라벨 변경: 1907 (로컬 delta: 1907)
+[Rank 2] GPU 처리 완료: 165.21ms, 1901 변경사항
+[Rank 2] GPU 라벨 변경: 1901 (로컬 delta: 1901)
+[Rank 0] GPU 처리 완료: 166.89ms, 1855 변경사항
+[Rank 0] GPU 라벨 변경: 1855 (로컬 delta: 1855)
+[Rank 0] Iter 14: 로컬 변경 1855개, 수신 변경 7618개
+[Rank 3] GPU 처리 완료: 184.05ms, 1955 변경사항
+[Rank 3] GPU 라벨 변경: 1955 (로컬 delta: 1955)
+[Rank 3] Iter 14: 로컬 변경 1955개, 수신 변경 7618개
+[Rank 2] Iter 14: 로컬 변경 1901개, 수신 변경 7618개
+[Rank 1] Iter 14: 로컬 변경 1907개, 수신 변경 7618개
+[Rank 3] Iter 15: Edge-cut 계산 중...
+[Rank 1] Iter 15: Edge-cut 계산 중...
+[Rank 2] Iter 15: Edge-cut 계산 중...
+[Rank 0] Iter 15: Edge-cut 계산 중...
+Iter 15: Edge-cut 58467031 (변화율: 2.079%) [수렴 진행: 1/10]
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 56025785 edges
+Expected per label: 363459.8 vertices, 9337630.8 edges
+Label 0: 364189 vertices (1.002), 9295641 edges (0.996)
+Label 1: 335045 vertices (0.922), 8161207 edges (0.874)
+Label 2: 402929 vertices (1.109), 9907312 edges (1.061)
+Label 3: 342828 vertices (0.943), 9904370 edges (1.061)
+Label 4: 357063 vertices (0.982), 8970914 edges (0.961)
+Label 5: 378705 vertices (1.042), 9786341 edges (1.048)
+========================
+
+===========>>> ratio : 0.040762 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.040762 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.040762 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.040762 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 712954 nodes and 39871191 edges
+Subgraph created with 719587 nodes and 40479189 edges
+Subgraph created with 741946 nodes and 40671901 edges
+[Rank 1] GPU 처리 완료: 168.08ms, 1647 변경사항
+[Rank 1] GPU 라벨 변경: 1647 (로컬 delta: 1647)
+[Rank 0] GPU 처리 완료: 155.48ms, 1632 변경사항
+[Rank 0] GPU 라벨 변경: 1632 (로컬 delta: 1632)
+Subgraph created with 740725 nodes and 40925263 edges
+[Rank 3] GPU 처리 완료: 174.45ms, 1685 변경사항
+[Rank 3] GPU 라벨 변경: 1685 (로컬 delta: 1685)
+[Rank 2] GPU 처리 완료: 174.72ms, 1663 변경사항
+[Rank 2] GPU 라벨 변경: 1663 (로컬 delta: 1663)
+[Rank 2] Iter 15: 로컬 변경 1663개, 수신 변경 6627개
+[Rank 0] Iter 15: 로컬 변경 1632개, 수신 변경 6627개
+[Rank 3] Iter 15: 로컬 변경 1685개, 수신 변경 6627개
+[Rank 1] Iter 15: 로컬 변경 1647개, 수신 변경 6627개
+[Rank 1] Iter 16: Edge-cut 계산 중...
+[Rank 3] Iter 16: Edge-cut 계산 중...
+[Rank 0] Iter 16: Edge-cut 계산 중...
+[Rank 2] Iter 16: Edge-cut 계산 중...
+Iter 16: Edge-cut 57811934 (변화율: 1.120%) [수렴 진행: 2/10]
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 56680882 edges
+Expected per label: 363459.8 vertices, 9446813.7 edges
+Label 0: 364701 vertices (1.003), 10294882 edges (1.090)
+Label 1: 336009 vertices (0.924), 9158551 edges (0.969)
+Label 2: 402125 vertices (1.106), 8540417 edges (0.904)
+Label 3: 343220 vertices (0.944), 10121125 edges (1.071)
+Label 4: 356955 vertices (0.982), 8979839 edges (0.951)
+Label 5: 377749 vertices (1.039), 9586068 edges (1.015)
+========================
+
+===========>>> ratio : 0.033373 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.033373 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.033373 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.033373 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 674828 nodes and 39226006 edges
+Subgraph created with 663403 nodes and 38181099 edges
+Subgraph created with 689638 nodes and 39219217 edges
+[Rank 0] GPU 처리 완료: 152.98ms, 596 변경사항
+[Rank 0] GPU 라벨 변경: 596 (로컬 delta: 596)
+[Rank 2] GPU 처리 완료: 157.58ms, 681 변경사항
+[Rank 2] GPU 라벨 변경: 681 (로컬 delta: 681)
+[Rank 1] GPU 처리 완료: 169.73ms, 604 변경사항
+[Rank 1] GPU 라벨 변경: 604 (로컬 delta: 604)
+Subgraph created with 692145 nodes and 39394033 edges
+[Rank 2] Iter 16: 로컬 변경 681개, 수신 변경 2494개
+[Rank 0] Iter 16: 로컬 변경 596개, 수신 변경 2494개
+[Rank 3] GPU 처리 완료: 189.19ms, 613 변경사항
+[Rank 3] GPU 라벨 변경: 613 (로컬 delta: 613)
+[Rank 3] Iter 16: 로컬 변경 613개, 수신 변경 2494개
+[Rank 1] Iter 16: 로컬 변경 604개, 수신 변경 2494개
+[Rank 2] Iter 17: Edge-cut 계산 중...
+[Rank 3] Iter 17: Edge-cut 계산 중...
+[Rank 0] Iter 17: Edge-cut 계산 중...
+[Rank 1] Iter 17: Edge-cut 계산 중...
+Iter 17: Edge-cut 57748700 (변화율: 0.109%) [수렴 진행: 3/10]
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 56744116 edges
+Expected per label: 363459.8 vertices, 9457352.7 edges
+Label 0: 364380 vertices (1.003), 9839902 edges (1.040)
+Label 1: 336304 vertices (0.925), 9349721 edges (0.989)
+Label 2: 402195 vertices (1.107), 9225371 edges (0.975)
+Label 3: 343402 vertices (0.945), 10128322 edges (1.071)
+Label 4: 356985 vertices (0.982), 8988967 edges (0.950)
+Label 5: 377493 vertices (1.039), 9211833 edges (0.974)
+========================
+
+===========>>> ratio : 0.027324 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.027324 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.027324 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.027324 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 471676 nodes and 31114745 edges
+Subgraph created with 473193 nodes and 31536669 edges
+[Rank 1] GPU 처리 완료: 152.75ms, 314 변경사항
+[Rank 1] GPU 라벨 변경: 314 (로컬 delta: 314)
+[Rank 0] GPU 처리 완료: 143.34ms, 336 변경사항
+[Rank 0] GPU 라벨 변경: 336 (로컬 delta: 336)
+Subgraph created with 493997 nodes and 32151048 edges
+Subgraph created with 493012 nodes and 32004769 edges
+[Rank 2] GPU 처리 완료: 144.43ms, 359 변경사항
+[Rank 2] GPU 라벨 변경: 359 (로컬 delta: 359)
+[Rank 1] Iter 17: 로컬 변경 314개, 수신 변경 1341개
+[Rank 0] Iter 17: 로컬 변경 336개, 수신 변경 1341개
+[Rank 2] Iter 17: 로컬 변경 359개, 수신 변경 1341개
+[Rank 3] GPU 처리 완료: 173.57ms, 332 변경사항
+[Rank 3] GPU 라벨 변경: 332 (로컬 delta: 332)
+[Rank 3] Iter 17: 로컬 변경 332개, 수신 변경 1341개
+[Rank 1] Iter 18: Edge-cut 계산 중...
+[Rank 3] Iter 18: Edge-cut 계산 중...
+[Rank 2] Iter 18: Edge-cut 계산 중...
+[Rank 0] Iter 18: Edge-cut 계산 중...
+Iter 18: Edge-cut 57747403 (변화율: 0.002%) [수렴 진행: 4/10]
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 56745413 edges
+Expected per label: 363459.8 vertices, 9457568.8 edges
+Label 0: 364839 vertices (1.004), 9840926 edges (1.041)
+Label 1: 336638 vertices (0.926), 9351559 edges (0.989)
+Label 2: 401757 vertices (1.105), 9224378 edges (0.975)
+Label 3: 343611 vertices (0.945), 10126775 edges (1.071)
+Label 4: 357017 vertices (0.982), 8989067 edges (0.950)
+Label 5: 376897 vertices (1.037), 9212708 edges (0.974)
+========================
+
+===========>>> ratio : 0.022371 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.022371 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.022371 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.022371 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 410960 nodes and 28802336 edges
+Subgraph created with 434775 nodes and 29866175 edges
+Subgraph created with 412571 nodes and 29222038 edges
+[Rank 1] GPU 처리 완료: 151.94ms, 1 변경사항
+[Rank 1] GPU 라벨 변경: 1 (로컬 delta: 1)
+[Rank 0] GPU 처리 완료: 151.99ms, 1 변경사항
+[Rank 0] GPU 라벨 변경: 1 (로컬 delta: 1)
+Subgraph created with 432195 nodes and 29984549 edges
+[Rank 3] GPU 처리 완료: 158.97ms, 4 변경사항
+[Rank 3] GPU 라벨 변경: 4 (로컬 delta: 4)
+[Rank 2] GPU 처리 완료: 152.85ms, 0 변경사항
+[Rank 2] GPU 라벨 변경: 0 (로컬 delta: 0)
+[Rank 2] Iter 18: 로컬 변경 0개, 수신 변경 6개
+[Rank 1] Iter 18: 로컬 변경 1개, 수신 변경 6개
+[Rank 0] Iter 18: 로컬 변경 1개, 수신 변경 6개
+[Rank 3] Iter 18: 로컬 변경 4개, 수신 변경 6개
+[Rank 1] Iter 19: Edge-cut 계산 중...
+[Rank 3] Iter 19: Edge-cut 계산 중...
+[Rank 0] Iter 19: Edge-cut 계산 중...
+[Rank 2] Iter 19: Edge-cut 계산 중...
+Iter 19: Edge-cut 57747384 (변화율: 0.000%) [수렴 진행: 5/10]
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 56745432 edges
+Expected per label: 363459.8 vertices, 9457572.0 edges
+Label 0: 364838 vertices (1.004), 9839144 edges (1.040)
+Label 1: 336640 vertices (0.926), 9351565 edges (0.989)
+Label 2: 401756 vertices (1.105), 9224376 edges (0.975)
+Label 3: 343612 vertices (0.945), 10126777 edges (1.071)
+Label 4: 357017 vertices (0.982), 8989067 edges (0.950)
+Label 5: 376896 vertices (1.037), 9214503 edges (0.974)
+========================
+
+===========>>> ratio : 0.018316 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.018316 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.018316 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.018316 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 368954 nodes and 27004503 edges
+Subgraph created with 368382 nodes and 27389572 edges
+Subgraph created with 390662 nodes and 28106219 edges
+[Rank 0] GPU 처리 완료: 135.48ms, 0 변경사항
+[Rank 0] GPU 라벨 변경: 0 (로컬 delta: 0)
+Subgraph created with 389309 nodes and 28419783 edges
+[Rank 1] GPU 처리 완료: 151.77ms, 0 변경사항
+[Rank 1] GPU 라벨 변경: 0 (로컬 delta: 0)
+[Rank 2] GPU 처리 완료: 150.08ms, 0 변경사항
+[Rank 2] GPU 라벨 변경: 0 (로컬 delta: 0)
+[Rank 1] Iter 19: 로컬 변경 0개, 수신 변경 0개
+[Rank 1] Phase2 완료 - GPU 1 총 실행시간: 30336ms
+[Rank 2] Iter 19: 로컬 변경 0개, 수신 변경 0개
+[Rank 2] Phase2 완료 - GPU 0 총 실행시간: 30336ms
+[Rank 0] Iter 19: 로컬 변경 0개, 수신 변경 0개
+Iter 20: 전체 시스템 수렴 완료 (변경사항 없음)
+[Rank 0] Phase2 완료 - GPU 0 총 실행시간: 30336ms
+[Rank 3] GPU 처리 완료: 159.45ms, 0 변경사항
+[Rank 3] GPU 라벨 변경: 0 (로컬 delta: 0)
+[Rank 3] Iter 19: 로컬 변경 0개, 수신 변경 0개
+[Rank 3] Phase2 완료 - GPU 1 총 실행시간: 30336ms
+[Rank 2] GPU 0 작업 완료
+[Rank 0] GPU 0 작업 완료
+
+┌─────────────────────────────────────────────────────────────┐
+│                    메트릭 비교 결과                         │
+├─────────────────────────────────────────────────────────────┤
+│ 그래프 정보:                                                │
+│   총 노드 수:        2180759                              │
+│   총 간선 수:      114492816                              │
+│   파티션 수:               6                              │
+│                                                             │
+│ Edge-cut:                                                   │
+│   Phase 1 (초기):   39173076                              │
+│   Phase 2 (최종):   57747384                              │
+│   개선율:           -47.42%                             │
+│                                                             │
+│ Vertex Balance:                                             │
+│   Phase 1 (초기):   1.9771                             │
+│   Phase 2 (최종):   1.1054                             │
+│   개선율:            44.09%                             │
+│                                                             │
+│ Edge Balance:                                               │
+│   Phase 1 (초기):   3.7261                             │
+│   Phase 2 (최종):   1.0708                             │
+│   개선율:            71.26%                             │
+│                                                             │
+│ 실행 시간:                                                  │
+│   Phase 1 (로딩):   1136 ms                          │
+│   Phase 1 (분산):  13585 ms                          │
+│   Phase 2 (7단계): 30336 ms                          │
+│   총 소요시간:     45057 ms                          │
+└─────────────────────────────────────────────────────────────┘
+
+=== 알고리즘 성능 요약 ===
+⚠ Edge-cut 47.4% 악화 (39173076 → 57747384)
+✓ Vertex Balance 44.1% 개선 (2.0 → 1.1)
+✓ Edge Balance 71.3% 개선 (3.7 → 1.1)
+총 소요시간: 45057 ms
+
+=== 7단계 알고리즘 완료 ===
+[Rank 1] GPU 1 작업 완료
+[Rank 3] GPU 1 작업 완료
+[옵션] mode=bfs, verbose=on
+
+=== Phase 1: Initial Partitioning & Distribution ===
+[Rank 1] seed local P1 <- 1888773
+[Rank 1] seed ghost P5 <- 1284907
+[Rank 1] ===== Round 0 =====
+[Rank 1] round 0 frontier_total=2
+[Rank 1] round 0 expand_selected_total=2 (theta_per_part=50000)
+[Rank 1] round 0 to_request_ghosts=3381
+[Rank 1] round 0 recv_counts(req)_sum=18102
+[Rank 1] round 0 owned_claims=6034 upd_recv=10523
+[Rank 1] round 0 next_frontier_total=4489
+[Rank 1] ===== Round 1 =====
+[Rank 1] round 1 frontier_total=4489
+[Rank 1] round 1 expand_selected_total=4489 (theta_per_part=50000)
+[Rank 1] round 1 to_request_ghosts=118506
+[Rank 2] seed ghost P2 <- 649527
+[Rank 2] ===== Round 0 =====
+[Rank 2] round 0 frontier_total=1
+[Rank 2] round 0 expand_selected_total=1 (theta_per_part=50000)
+[Rank 2] round 0 to_request_ghosts=1780
+[Rank 2] round 0 recv_counts(req)_sum=18018
+[Rank 2] round 0 owned_claims=6006 upd_recv=8376
+[Rank 2] round 0 next_frontier_total=2370
+[Rank 2] ===== Round 1 =====
+[Rank 2] round 1 frontier_total=2370
+[Rank 2] round 1 expand_selected_total=2370 (theta_per_part=50000)
+[Rank 2] round 1 to_request_ghosts=26396
+[Rank 3] seed ghost P3 <- 574181
+[Rank 3] ===== Round 0 =====
+[Rank 3] round 0 frontier_total=1
+[Rank 3] round 0 expand_selected_total=1 (theta_per_part=50000)
+[Rank 3] round 0 to_request_ghosts=1660
+[Rank 3] round 0 recv_counts(req)_sum=18327
+[Rank 3] round 0 owned_claims=6109 upd_recv=8319
+[Rank 3] round 0 next_frontier_total=2210
+[Rank 3] ===== Round 1 =====
+[Rank 3] round 1 frontier_total=2210
+[Rank 3] round 1 expand_selected_total=2210 (theta_per_part=50000)
+[Rank 3] round 1 to_request_ghosts=31908
+[Rank 0] seed ghost P0 <- 1762223
+[Rank 0] seed ghost P4 <- 614354
+[Rank 0] ===== Round 0 =====
+[Rank 0] round 0 frontier_total=2
+[Rank 0] round 0 expand_selected_total=2 (theta_per_part=50000)
+[Rank 0] round 0 to_request_ghosts=11331
+[Rank 0] round 0 recv_counts(req)_sum=18264
+[Rank 0] round 0 owned_claims=6088 upd_recv=21256
+[Rank 0] round 0 next_frontier_total=15168
+[Rank 0] ===== Round 1 =====
+[Rank 0] round 1 frontier_total=15168
+[Rank 0] round 1 expand_selected_total=15168 (theta_per_part=50000)
+[옵션] mode=bfs, verbose=on
+
+=== Phase 1: Initial Partitioning & Distribution ===
+[Rank 1] seed local P1 <- 1888773
+[Rank 1] seed ghost P5 <- 1284907
+[Rank 2] seed ghost P2 <- 649527
+[Rank 3] seed ghost P3 <- 574181
+[Rank 0] seed ghost P0 <- 1762223
+[Rank 0] seed ghost P4 <- 614354
+[Rank 1] ===== Round 0 =====
+[Rank 1] round 0 frontier_total=2
+[Rank 1] round 0 expand_selected_total=2 (theta_per_part=50000)
+[Rank 2] ===== Round 0 =====
+[Rank 2] round 0 frontier_total=1
+[Rank 2] round 0 expand_selected_total=1 (theta_per_part=50000)
+[Rank 0] ===== Round 0 =====
+[Rank 0] round 0 frontier_total=2
+[Rank 0] round 0 expand_selected_total=2 (theta_per_part=50000)
+[Rank 3] ===== Round 0 =====
+[Rank 3] round 0 frontier_total=1
+[Rank 3] round 0 expand_selected_total=1 (theta_per_part=50000)
+[Rank 2] round 0 to_request_ghosts=1780
+[Rank 3] round 0 to_request_ghosts=1660
+[Rank 1] round 0 to_request_ghosts=3381
+[Rank 0] round 0 to_request_ghosts=11331
+[Rank 0] round 0 recv_counts(req)_sum=18264
+[Rank 1] round 0 recv_counts(req)_sum=18102
+[Rank 2] round 0 recv_counts(req)_sum=18018
+[Rank 3] round 0 recv_counts(req)_sum=18327
+[Rank 2] round 0 owned_claims=6006 upd_recv=8376
+[Rank 3] round 0 owned_claims=6109 upd_recv=8319
+[Rank 1] round 0 owned_claims=6034 upd_recv=10523
+[Rank 0] round 0 owned_claims=6088 upd_recv=21256
+[Rank 1] round 0 next_frontier_total=4489
+[Rank 3] round 0 next_frontier_total=2210
+[Rank 2] round 0 next_frontier_total=2370
+[Rank 0] round 0 next_frontier_total=15168
+[Rank 2] ===== Round 1 =====
+[Rank 2] round 1 frontier_total=2370
+[Rank 1] ===== Round 1 =====
+[Rank 1] round 1 frontier_total=4489
+[Rank 3] ===== Round 1 =====
+[Rank 3] round 1 frontier_total=2210
+[Rank 3] round 1 expand_selected_total=2210 (theta_per_part=50000)
+[Rank 2] round 1 expand_selected_total=2370 (theta_per_part=50000)
+[Rank 1] round 1 expand_selected_total=4489 (theta_per_part=50000)
+[Rank 0] ===== Round 1 =====
+[Rank 0] round 1 frontier_total=15168
+[Rank 0] round 1 expand_selected_total=15168 (theta_per_part=50000)
+[Rank 2] round 1 to_request_ghosts=26396
+[Rank 3] round 1 to_request_ghosts=31908
+[Rank 1] round 1 to_request_ghosts=118506
+[Rank 0] round 1 to_request_ghosts=562610
+[Rank 3] round 1 recv_counts(req)_sum=732759
+[Rank 2] round 1 recv_counts(req)_sum=732165
+[Rank 1] round 1 recv_counts(req)_sum=732756
+[Rank 0] round 1 recv_counts(req)_sum=732603
+[Rank 2] round 1 owned_claims=221153 upd_recv=254864
+[Rank 3] round 1 owned_claims=221417 upd_recv=262670
+[Rank 1] round 1 owned_claims=221418 upd_recv=375876
+[Rank 0] round 1 owned_claims=221335 upd_recv=968674
+[Rank 3] round 1 next_frontier_total=40829
+[Rank 2] round 1 next_frontier_total=32299
+[Rank 1] round 1 next_frontier_total=147773
+[Rank 0] round 1 next_frontier_total=664422
+[Rank 2] ===== Round 2 =====
+[Rank 2] round 2 frontier_total=32299
+[Rank 3] ===== Round 2 =====
+[Rank 3] round 2 frontier_total=40829
+[Rank 2] round 2 expand_selected_total=32299 (theta_per_part=50000)
+[Rank 3] round 2 expand_selected_total=40829 (theta_per_part=50000)
+[Rank 1] ===== Round 2 =====
+[Rank 1] round 2 frontier_total=147773
+[Rank 1] round 2 expand_selected_total=86755 (theta_per_part=50000)
+[Rank 0] ===== Round 2 =====
+[Rank 0] round 2 frontier_total=664422
+[Rank 0] round 2 expand_selected_total=72434 (theta_per_part=50000)
+[Rank 0] round 2 to_request_ghosts=67835
+[Rank 2] round 2 to_request_ghosts=469336
+[Rank 3] round 2 to_request_ghosts=555409
+[Rank 1] round 2 to_request_ghosts=501056
+[Rank 2] round 2 recv_counts(req)_sum=488388
+[Rank 0] round 2 recv_counts(req)_sum=487437
+[Rank 3] round 2 recv_counts(req)_sum=486075
+[Rank 1] round 2 recv_counts(req)_sum=486144
+[Rank 0] round 2 owned_claims=116032 upd_recv=182352
+[Rank 2] round 2 owned_claims=116276 upd_recv=257378
+[Rank 1] round 2 owned_claims=115950 upd_recv=319499
+[Rank 3] round 2 owned_claims=115829 upd_recv=354206
+[Rank 1] round 2 next_frontier_total=188438
+[Rank 2] round 2 next_frontier_total=135162
+[Rank 3] round 2 next_frontier_total=136558
+[Rank 0] round 2 next_frontier_total=656935
+[Rank 0] ===== Round 3 =====
+[Rank 0] round 3 frontier_total=656935
+[Rank 2] ===== Round 3 =====
+[Rank 2] round 3 frontier_total=135162
+[Rank 0] round 3 expand_selected_total=100000 (theta_per_part=50000)
+[Rank 1] ===== Round 3 =====
+[Rank 1] round 3 frontier_total=188438
+[Rank 2] round 3 expand_selected_total=50000 (theta_per_part=50000)
+[Rank 3] ===== Round 3 =====
+[Rank 3] round 3 frontier_total=136558
+[Rank 3] round 3 expand_selected_total=50000 (theta_per_part=50000)
+[Rank 1] round 3 expand_selected_total=100000 (theta_per_part=50000)
+[Rank 2] round 3 to_request_ghosts=16433
+[Rank 3] round 3 to_request_ghosts=6782
+[Rank 0] round 3 to_request_ghosts=58002
+[Rank 1] round 3 to_request_ghosts=143122
+[Rank 1] round 3 recv_counts(req)_sum=114714
+[Rank 2] round 3 recv_counts(req)_sum=115053
+[Rank 0] round 3 recv_counts(req)_sum=115302
+[Rank 3] round 3 recv_counts(req)_sum=114870
+[Rank 3] round 3 owned_claims=33959 upd_recv=41528
+[Rank 2] round 3 owned_claims=34055 upd_recv=48128
+[Rank 0] round 3 owned_claims=34141 upd_recv=75140
+[Rank 1] round 3 owned_claims=33927 upd_recv=124599
+[Rank 2] round 3 next_frontier_total=97211
+[Rank 1] round 3 next_frontier_total=166829
+[Rank 3] round 3 next_frontier_total=92887
+[Rank 0] round 3 next_frontier_total=596248
+[Rank 3] ===== Round 4 =====
+[Rank 3] round 4 frontier_total=92887
+[Rank 2] ===== Round 4 =====
+[Rank 2] round 4 frontier_total=97211
+[Rank 0] ===== Round 4 =====
+[Rank 0] round 4 frontier_total=596248
+[Rank 3] round 4 expand_selected_total=50000 (theta_per_part=50000)
+[Rank 1] ===== Round 4 =====
+[Rank 1] round 4 frontier_total=166829
+[Rank 2] round 4 expand_selected_total=50000 (theta_per_part=50000)
+[Rank 1] round 4 expand_selected_total=100000 (theta_per_part=50000)
+[Rank 0] round 4 expand_selected_total=90965 (theta_per_part=50000)
+[Rank 3] round 4 to_request_ghosts=27015
+[Rank 2] round 4 to_request_ghosts=57400
+[Rank 1] round 4 to_request_ghosts=81405
+[Rank 0] round 4 to_request_ghosts=134471
+[Rank 0] round 4 recv_counts(req)_sum=156951
+[Rank 3] round 4 recv_counts(req)_sum=157887
+[Rank 1] round 4 recv_counts(req)_sum=157434
+[Rank 2] round 4 recv_counts(req)_sum=157053
+[Rank 3] round 4 owned_claims=43205 upd_recv=65893
+[Rank 2] round 4 owned_claims=42943 upd_recv=80568
+[Rank 0] round 4 owned_claims=42959 upd_recv=113606
+[Rank 1] round 4 owned_claims=43071 upd_recv=121886
+[Rank 2] round 4 next_frontier_total=74852
+[Rank 3] round 4 next_frontier_total=57911
+[Rank 1] round 4 next_frontier_total=130173
+[Rank 0] round 4 next_frontier_total=571452
+[Rank 3] ===== Round 5 =====
+[Rank 3] round 5 frontier_total=57911
+[Rank 2] ===== Round 5 =====
+[Rank 2] round 5 frontier_total=74852
+[Rank 1] ===== Round 5 =====
+[Rank 1] round 5 frontier_total=130173
+[Rank 3] round 5 expand_selected_total=50000 (theta_per_part=50000)
+[Rank 0] ===== Round 5 =====
+[Rank 0] round 5 frontier_total=571452
+[Rank 2] round 5 expand_selected_total=50000 (theta_per_part=50000)
+[Rank 1] round 5 expand_selected_total=100000 (theta_per_part=50000)
+[Rank 0] round 5 expand_selected_total=100000 (theta_per_part=50000)
+[Rank 3] round 5 to_request_ghosts=70798
+[Rank 2] round 5 to_request_ghosts=85143
+[Rank 0] round 5 to_request_ghosts=39303
+[Rank 1] round 5 to_request_ghosts=154147
+[Rank 1] round 5 recv_counts(req)_sum=123087
+[Rank 2] round 5 recv_counts(req)_sum=122970
+[Rank 3] round 5 recv_counts(req)_sum=122883
+[Rank 0] round 5 recv_counts(req)_sum=122964
+[Rank 0] round 5 owned_claims=30395 upd_recv=57574
+[Rank 3] round 5 owned_claims=30440 upd_recv=62329
+[Rank 2] round 5 owned_claims=30473 upd_recv=66052
+[Rank 1] round 5 owned_claims=30454 upd_recv=99775
+[Rank 2] round 5 next_frontier_total=48442
+[Rank 3] round 5 next_frontier_total=37122
+[Rank 1] round 5 next_frontier_total=76077
+[Rank 0] round 5 next_frontier_total=494509
+[Rank 3] ===== Round 6 =====
+[Rank 3] round 6 frontier_total=37122
+[Rank 0] ===== Round 6 =====
+[Rank 0] round 6 frontier_total=494509
+[Rank 2] ===== Round 6 =====
+[Rank 2] round 6 frontier_total=48442
+[Rank 3] round 6 expand_selected_total=37122 (theta_per_part=50000)
+[Rank 2] round 6 expand_selected_total=48442 (theta_per_part=50000)
+[Rank 1] ===== Round 6 =====
+[Rank 1] round 6 frontier_total=76077
+[Rank 1] round 6 expand_selected_total=76077 (theta_per_part=50000)
+[Rank 0] round 6 expand_selected_total=71687 (theta_per_part=50000)
+[Rank 3] round 6 to_request_ghosts=55721
+[Rank 0] round 6 to_request_ghosts=39806
+[Rank 2] round 6 to_request_ghosts=143540
+[Rank 1] round 6 to_request_ghosts=117991
+[Rank 3] round 6 recv_counts(req)_sum=57105
+[Rank 2] round 6 recv_counts(req)_sum=57372
+[Rank 0] round 6 recv_counts(req)_sum=56724
+[Rank 1] round 6 recv_counts(req)_sum=57714
+[Rank 0] round 6 owned_claims=14016 upd_recv=27074
+[Rank 3] round 6 owned_claims=14073 upd_recv=24915
+[Rank 2] round 6 owned_claims=14157 upd_recv=33390
+[Rank 1] round 6 owned_claims=14192 upd_recv=47364
+[Rank 2] round 6 next_frontier_total=12087
+[Rank 3] round 6 next_frontier_total=7234
+[Rank 1] round 6 next_frontier_total=26325
+[Rank 0] round 6 next_frontier_total=433614
+[Rank 3] ===== Round 7 =====
+[Rank 3] round 7 frontier_total=7234
+[Rank 0] ===== Round 7 =====
+[Rank 0] round 7 frontier_total=433614
+[Rank 3] round 7 expand_selected_total=7234 (theta_per_part=50000)
+[Rank 3] round 7 to_request_ghosts=1284
+[Rank 1] ===== Round 7 =====
+[Rank 1] round 7 frontier_total=26325
+[Rank 2] ===== Round 7 =====
+[Rank 2] round 7 frontier_total=12087
+[Rank 2] round 7 expand_selected_total=12087 (theta_per_part=50000)
+[Rank 1] round 7 expand_selected_total=26325 (theta_per_part=50000)
+[Rank 2] round 7 to_request_ghosts=1480
+[Rank 1] round 7 to_request_ghosts=2656
+[Rank 0] round 7 expand_selected_total=54776 (theta_per_part=50000)
+[Rank 0] round 7 to_request_ghosts=32184
+[Rank 1] round 7 recv_counts(req)_sum=8373
+[Rank 3] round 7 recv_counts(req)_sum=8436
+[Rank 2] round 7 recv_counts(req)_sum=8550
+[Rank 0] round 7 recv_counts(req)_sum=8406
+[Rank 2] round 7 owned_claims=2754 upd_recv=4309
+[Rank 1] round 7 owned_claims=2695 upd_recv=5466
+[Rank 3] round 7 owned_claims=2714 upd_recv=3751
+[Rank 0] round 7 owned_claims=2705 upd_recv=8597
+[Rank 2] round 7 next_frontier_total=1540
+[Rank 1] round 7 next_frontier_total=2724
+[Rank 3] round 7 next_frontier_total=1011
+[Rank 3] ===== Round 8 =====
+[Rank 3] round 8 frontier_total=1011
+[Rank 0] round 7 next_frontier_total=384431
+[Rank 3] round 8 expand_selected_total=1011 (theta_per_part=50000)
+[Rank 2] ===== Round 8 =====
+[Rank 2] round 8 frontier_total=1540
+[Rank 2] round 8 expand_selected_total=1540 (theta_per_part=50000)
+[Rank 1] ===== Round 8 =====
+[Rank 1] round 8 frontier_total=2724
+[Rank 3] round 8 to_request_ghosts=63
+[Rank 2] round 8 to_request_ghosts=128
+[Rank 1] round 8 expand_selected_total=2724 (theta_per_part=50000)
+[Rank 1] round 8 to_request_ghosts=342
+[Rank 0] ===== Round 8 =====
+[Rank 0] round 8 frontier_total=384431
+[Rank 0] round 8 expand_selected_total=50284 (theta_per_part=50000)
+[Rank 0] round 8 to_request_ghosts=37912
+[Rank 3] round 8 recv_counts(req)_sum=4560
+[Rank 1] round 8 recv_counts(req)_sum=4548
+[Rank 2] round 8 recv_counts(req)_sum=4455
+[Rank 0] round 8 recv_counts(req)_sum=4515
+[Rank 2] round 8 owned_claims=1475 upd_recv=1613
+[Rank 3] round 8 owned_claims=1506 upd_recv=1572
+[Rank 1] round 8 owned_claims=1502 upd_recv=1914
+[Rank 0] round 8 owned_claims=1492 upd_recv=6902
+[Rank 2] round 8 next_frontier_total=138
+[Rank 2] ===== Round 9 =====
+[Rank 2] round 9 frontier_total=138
+[Rank 3] round 8 next_frontier_total=66
+[Rank 3] ===== Round 9 =====
+[Rank 3] round 9 frontier_total=66
+[Rank 3] round 9 expand_selected_total=66 (theta_per_part=50000)
+[Rank 1] round 8 next_frontier_total=412
+[Rank 1] ===== Round 9 =====
+[Rank 1] round 9 frontier_total=412
+[Rank 3] round 9 to_request_ghosts=6
+[Rank 2] round 9 expand_selected_total=138 (theta_per_part=50000)
+[Rank 2] round 9 to_request_ghosts=19
+[Rank 1] round 9 expand_selected_total=412 (theta_per_part=50000)
+[Rank 0] round 8 next_frontier_total=339506
+[Rank 1] round 9 to_request_ghosts=42
+[Rank 0] ===== Round 9 =====
+[Rank 0] round 9 frontier_total=339506
+[Rank 0] round 9 expand_selected_total=50087 (theta_per_part=50000)
+[Rank 0] round 9 to_request_ghosts=43949
+[Rank 3] round 9 recv_counts(req)_sum=4224
+[Rank 0] round 9 recv_counts(req)_sum=4254
+[Rank 2] round 9 recv_counts(req)_sum=4062
+[Rank 1] round 9 recv_counts(req)_sum=4227
+[Rank 1] round 9 owned_claims=1409 upd_recv=1464
+[Rank 2] round 9 owned_claims=1354 upd_recv=1379
+[Rank 3] round 9 owned_claims=1407 upd_recv=1416
+[Rank 0] round 9 owned_claims=1417 upd_recv=6917
+[Rank 3] round 9 next_frontier_total=9
+[Rank 3] ===== Round 10 =====
+[Rank 3] round 10 frontier_total=9
+[Rank 3] round 10 expand_selected_total=9 (theta_per_part=50000)
+[Rank 3] round 10 to_request_ghosts=0
+[Rank 1] round 9 next_frontier_total=55
+[Rank 1] ===== Round 10 =====
+[Rank 1] round 10 frontier_total=55
+[Rank 2] round 9 next_frontier_total=25
+[Rank 2] ===== Round 10 =====
+[Rank 2] round 10 frontier_total=25
+[Rank 2] round 10 expand_selected_total=25 (theta_per_part=50000)
+[Rank 2] round 10 to_request_ghosts=2
+[Rank 1] round 10 expand_selected_total=55 (theta_per_part=50000)
+[Rank 1] round 10 to_request_ghosts=8
+[Rank 0] round 9 next_frontier_total=294917
+[Rank 0] ===== Round 10 =====
+[Rank 0] round 10 frontier_total=294917
+[Rank 0] round 10 expand_selected_total=50003 (theta_per_part=50000)
+[Rank 0] round 10 to_request_ghosts=44617
+[Rank 1] round 10 recv_counts(req)_sum=3831
+[Rank 3] round 10 recv_counts(req)_sum=3846
+[Rank 2] round 10 recv_counts(req)_sum=3807
+[Rank 0] round 10 recv_counts(req)_sum=3795
+[Rank 2] round 10 owned_claims=1269 upd_recv=1272
+[Rank 1] round 10 owned_claims=1277 upd_recv=1287
+[Rank 3] round 10 owned_claims=1282 upd_recv=1282
+[Rank 0] round 10 owned_claims=1265 upd_recv=6345
+[Rank 2] round 10 next_frontier_total=3
+[Rank 2] ===== Round 11 =====
+[Rank 2] round 11 frontier_total=3
+[Rank 2] round 11 expand_selected_total=3 (theta_per_part=50000)
+[Rank 2] round 11 to_request_ghosts=0
+[Rank 1] round 10 next_frontier_total=10
+[Rank 1] ===== Round 11 =====
+[Rank 1] round 11 frontier_total=10
+[Rank 3] round 10 next_frontier_total=0
+[Rank 3] ===== Round 11 =====
+[Rank 1] round 11 expand_selected_total=10 (theta_per_part=50000)
+[Rank 1] round 11 to_request_ghosts=0
+[Rank 0] round 10 next_frontier_total=249994
+[Rank 0] ===== Round 11 =====
+[Rank 0] round 11 frontier_total=249994
+[Rank 3] round 11 frontier_total=73248
+[Rank 3] round 11 expand_selected_total=50000 (theta_per_part=50000)
+[Rank 3] round 11 to_request_ghosts=564
+[Rank 0] round 11 expand_selected_total=50000 (theta_per_part=50000)
+[Rank 0] round 11 to_request_ghosts=46920
+[Rank 0] round 11 recv_counts(req)_sum=5025
+[Rank 3] round 11 recv_counts(req)_sum=0
+[Rank 1] round 11 recv_counts(req)_sum=4224
+[Rank 2] round 11 recv_counts(req)_sum=5025
+[Rank 3] round 11 owned_claims=0 upd_recv=527
+[Rank 1] round 11 owned_claims=1408 upd_recv=1408
+[Rank 2] round 11 owned_claims=1671 upd_recv=1671
+[Rank 0] round 11 owned_claims=1675 upd_recv=5906
+[Rank 2] round 11 next_frontier_total=0
+[Rank 2] ===== Round 12 =====
+[Rank 1] round 11 next_frontier_total=0
+[Rank 1] ===== Round 12 =====
+[Rank 3] round 11 next_frontier_total=23775
+[Rank 0] round 11 next_frontier_total=204221
+[Rank 3] ===== Round 12 =====
+[Rank 3] round 12 frontier_total=23775
+[Rank 3] round 12 expand_selected_total=23775 (theta_per_part=50000)
+[Rank 0] ===== Round 12 =====
+[Rank 0] round 12 frontier_total=204221
+[Rank 2] round 12 frontier_total=71604
+[Rank 1] round 12 frontier_total=71852
+[Rank 2] round 12 expand_selected_total=50000 (theta_per_part=50000)
+[Rank 1] round 12 expand_selected_total=50000 (theta_per_part=50000)
+[Rank 2] round 12 to_request_ghosts=615
+[Rank 1] round 12 to_request_ghosts=507
+[Rank 3] round 12 to_request_ghosts=57808
+[Rank 0] round 12 expand_selected_total=50000 (theta_per_part=50000)
+[Rank 0] round 12 to_request_ghosts=40762
+[Rank 3] round 12 recv_counts(req)_sum=0
+[Rank 2] round 12 recv_counts(req)_sum=0
+[Rank 0] round 12 recv_counts(req)_sum=60669
+[Rank 1] round 12 recv_counts(req)_sum=0
+[Rank 1] round 12 owned_claims=0 upd_recv=249
+[Rank 2] round 12 owned_claims=0 upd_recv=21
+[Rank 0] round 12 owned_claims=19171 upd_recv=20555
+[Rank 3] round 12 owned_claims=0 upd_recv=18569
+[Rank 3] round 12 next_frontier_total=18542
+[Rank 2] round 12 next_frontier_total=21622
+[Rank 1] round 12 next_frontier_total=22101
+[Rank 0] round 12 next_frontier_total=154583
+[Rank 2] ===== Round 13 =====
+[Rank 2] round 13 frontier_total=21622
+[Rank 1] ===== Round 13 =====
+[Rank 1] round 13 frontier_total=22101
+[Rank 2] round 13 expand_selected_total=21622 (theta_per_part=50000)
+[Rank 1] round 13 expand_selected_total=22101 (theta_per_part=50000)
+[Rank 3] ===== Round 13 =====
+[Rank 3] round 13 frontier_total=18542
+[Rank 0] ===== Round 13 =====
+[Rank 0] round 13 frontier_total=154583
+[Rank 3] round 13 expand_selected_total=18542 (theta_per_part=50000)
+[Rank 3] round 13 to_request_ghosts=206
+[Rank 2] round 13 to_request_ghosts=53775
+[Rank 1] round 13 to_request_ghosts=53693
+[Rank 0] round 13 expand_selected_total=50000 (theta_per_part=50000)
+[Rank 0] round 13 to_request_ghosts=38093
+[Rank 2] round 13 recv_counts(req)_sum=0
+[Rank 1] round 13 recv_counts(req)_sum=0
+[Rank 3] round 13 recv_counts(req)_sum=0
+[Rank 0] round 13 recv_counts(req)_sum=12909
+[Rank 3] round 13 owned_claims=0 upd_recv=25
+[Rank 2] round 13 owned_claims=0 upd_recv=1116
+[Rank 1] round 13 owned_claims=0 upd_recv=2749
+[Rank 0] round 13 owned_claims=3031 upd_recv=3444
+[Rank 1] round 13 next_frontier_total=2749
+[Rank 3] round 13 next_frontier_total=7
+[Rank 2] round 13 next_frontier_total=28
+[Rank 0] round 13 next_frontier_total=104830
+[Rank 3] ===== Round 14 =====
+[Rank 3] round 14 frontier_total=7
+[Rank 3] round 14 expand_selected_total=7 (theta_per_part=50000)
+[Rank 3] round 14 to_request_ghosts=0
+[Rank 2] ===== Round 14 =====
+[Rank 2] round 14 frontier_total=28
+[Rank 2] round 14 expand_selected_total=28 (theta_per_part=50000)
+[Rank 2] round 14 to_request_ghosts=0
+[Rank 1] ===== Round 14 =====
+[Rank 1] round 14 frontier_total=2749
+[Rank 0] ===== Round 14 =====
+[Rank 0] round 14 frontier_total=104830
+[Rank 1] round 14 expand_selected_total=2749 (theta_per_part=50000)
+[Rank 1] round 14 to_request_ghosts=8
+[Rank 0] round 14 expand_selected_total=50000 (theta_per_part=50000)
+[Rank 0] round 14 to_request_ghosts=34795
+[Rank 2] round 14 recv_counts(req)_sum=0
+[Rank 2] round 14 owned_claims=0 upd_recv=0
+[Rank 1] round 14 recv_counts(req)_sum=0
+[Rank 1] round 14 owned_claims=0 upd_recv=0
+[Rank 0] round 14 recv_counts(req)_sum=942
+[Rank 0] round 14 owned_claims=314 upd_recv=628
+[Rank 3] round 14 recv_counts(req)_sum=0
+[Rank 3] round 14 owned_claims=0 upd_recv=0
+[Rank 2] round 14 next_frontier_total=0
+[Rank 2] ===== Round 15 =====
+[Rank 3] round 14 next_frontier_total=0
+[Rank 3] ===== Round 15 =====
+[Rank 1] round 14 next_frontier_total=0
+[Rank 1] ===== Round 15 =====
+[Rank 0] round 14 next_frontier_total=55144
+[Rank 0] ===== Round 15 =====
+[Rank 0] round 15 frontier_total=55144
+[Rank 0] round 15 expand_selected_total=50000 (theta_per_part=50000)
+[Rank 1] round 15 frontier_total=0
+[Rank 1] round 15 expand_selected_total=0 (theta_per_part=50000)
+[Rank 1] round 15 to_request_ghosts=0
+[Rank 3] round 15 frontier_total=0
+[Rank 3] round 15 expand_selected_total=0 (theta_per_part=50000)
+[Rank 3] round 15 to_request_ghosts=0
+[Rank 2] round 15 frontier_total=0
+[Rank 2] round 15 expand_selected_total=0 (theta_per_part=50000)
+[Rank 2] round 15 to_request_ghosts=0
+[Rank 0] round 15 to_request_ghosts=25256
+[Rank 1] round 15 recv_counts(req)_sum=0
+[Rank 1] round 15 owned_claims=0 upd_recv=0
+[Rank 3] round 15 recv_counts(req)_sum=0
+[Rank 3] round 15 owned_claims=0 upd_recv=0
+[Rank 0] round 15 recv_counts(req)_sum=924
+[Rank 0] round 15 owned_claims=308 upd_recv=616
+[Rank 2] round 15 recv_counts(req)_sum=0
+[Rank 2] round 15 owned_claims=0 upd_recv=0
+[Rank 3] round 15 next_frontier_total=0
+[Rank 3] ===== Round 16 =====
+[Rank 1] round 15 next_frontier_total=0
+[Rank 1] ===== Round 16 =====
+[Rank 2] round 15 next_frontier_total=0
+[Rank 2] ===== Round 16 =====
+[Rank 0] round 15 next_frontier_total=5452
+[Rank 0] ===== Round 16 =====
+[Rank 0] round 16 frontier_total=5452
+[Rank 0] round 16 expand_selected_total=5452 (theta_per_part=50000)
+[Rank 3] round 16 frontier_total=0
+[Rank 3] round 16 expand_selected_total=0 (theta_per_part=50000)
+[Rank 3] round 16 to_request_ghosts=0
+[Rank 1] round 16 frontier_total=0
+[Rank 1] round 16 expand_selected_total=0 (theta_per_part=50000)
+[Rank 1] round 16 to_request_ghosts=0
+[Rank 2] round 16 frontier_total=0
+[Rank 2] round 16 expand_selected_total=0 (theta_per_part=50000)
+[Rank 2] round 16 to_request_ghosts=0
+[Rank 0] round 16 to_request_ghosts=1580
+[Rank 1] round 16 recv_counts(req)_sum=0
+[Rank 1] round 16 owned_claims=0 upd_recv=0
+[Rank 3] round 16 recv_counts(req)_sum=0
+[Rank 3] round 16 owned_claims=0 upd_recv=0
+[Rank 2] round 16 recv_counts(req)_sum=0
+[Rank 2] round 16 owned_claims=0 upd_recv=0
+[Rank 0] round 16 recv_counts(req)_sum=108
+[Rank 0] round 16 owned_claims=36 upd_recv=72
+[Rank 2] round 16 next_frontier_total=0
+[Rank 2] ===== Round 17 =====
+[Rank 1] round 16 next_frontier_total=0
+[Rank 1] ===== Round 17 =====
+[Rank 3] round 16 next_frontier_total=0
+[Rank 3] ===== Round 17 =====
+[Rank 0] round 16 next_frontier_total=36
+[Rank 0] ===== Round 17 =====
+[Rank 0] round 17 frontier_total=36
+[Rank 0] round 17 expand_selected_total=36 (theta_per_part=50000)
+[Rank 0] round 17 to_request_ghosts=0
+[Rank 3] round 17 frontier_total=0
+[Rank 3] round 17 expand_selected_total=0 (theta_per_part=50000)
+[Rank 3] round 17 to_request_ghosts=0
+[Rank 3] round 17 recv_counts(req)_sum=0
+[Rank 3] round 17 owned_claims=0 upd_recv=0
+[Rank 2] round 17 frontier_total=0
+[Rank 2] round 17 expand_selected_total=0 (theta_per_part=50000)
+[Rank 2] round 17 to_request_ghosts=0
+[Rank 2] round 17 recv_counts(req)_sum=0
+[Rank 2] round 17 owned_claims=0 upd_recv=0
+[Rank 1] round 17 frontier_total=0
+[Rank 1] round 17 expand_selected_total=0 (theta_per_part=50000)
+[Rank 1] round 17 to_request_ghosts=0
+[Rank 1] round 17 recv_counts(req)_sum=0
+[Rank 1] round 17 owned_claims=0 upd_recv=0
+[Rank 0] round 17 recv_counts(req)_sum=0
+[Rank 0] round 17 owned_claims=0 upd_recv=0
+[Rank 1] round 17 next_frontier_total=0
+[Rank 1] ===== Round 18 =====
+[Rank 3] round 17 next_frontier_total=0
+[Rank 3] ===== Round 18 =====
+[Rank 2] round 17 next_frontier_total=0
+[Rank 2] ===== Round 18 =====
+[Rank 0] round 17 next_frontier_total=0
+[Rank 0] ===== Round 18 =====
+[Rank 3] round 18 frontier_total=0
+[Rank 3] round 18 expand_selected_total=0 (theta_per_part=50000)
+[Rank 3] round 18 to_request_ghosts=0
+[Rank 0] round 18 frontier_total=48810
+[Rank 1] round 18 frontier_total=0
+[Rank 1] round 18 expand_selected_total=0 (theta_per_part=50000)
+[Rank 1] round 18 to_request_ghosts=0
+[Rank 2] round 18 frontier_total=0
+[Rank 2] round 18 expand_selected_total=0 (theta_per_part=50000)
+[Rank 2] round 18 to_request_ghosts=0
+[Rank 0] round 18 expand_selected_total=48810 (theta_per_part=50000)
+[Rank 3] round 18 recv_counts(req)_sum=0
+[Rank 3] round 18 owned_claims=0 upd_recv=0
+[Rank 0] round 18 to_request_ghosts=0
+[Rank 0] round 18 recv_counts(req)_sum=0
+[Rank 0] round 18 owned_claims=0 upd_recv=0
+[Rank 1] round 18 recv_counts(req)_sum=0
+[Rank 1] round 18 owned_claims=0 upd_recv=0
+[Rank 2] round 18 recv_counts(req)_sum=0
+[Rank 2] round 18 owned_claims=0 upd_recv=0
+[Rank 0] round 18 next_frontier_total=0
+[Rank 1] round 18 next_frontier_total=0
+[Rank 3] round 18 next_frontier_total=0
+[Rank 2] round 18 next_frontier_total=0
+=== [Rank 0] CSR Summary ===
+Vertices: 545190
+Edges:    57167523
+Ghosts:   1449570
+=== [Rank 1] CSR Summary ===
+Vertices: 545190
+Edges:    57103029
+Ghosts:   1449132
+=== [Rank 2] CSR Summary ===
+Vertices: 545190
+Edges:    57318791
+Ghosts:   1449552
+=== [Rank 3] CSR Summary ===
+Vertices: 545189
+Edges:    57396289
+Ghosts:   1449322
+Partition Time: 12379
+[Rank 0] GPU 0: NVIDIA GeForce RTX 3080 (메모리: 9886MB, 컴퓨트 능력: 8.6)
+[Rank 2] GPU 0: NVIDIA GeForce RTX 3080 (메모리: 9886MB, 컴퓨트 능력: 8.6)
+[Rank 3] GPU 1: NVIDIA GeForce RTX 3080 (메모리: 9886MB, 컴퓨트 능력: 8.6)
+
+=== GPU 배치 정보 ===
+호스트 wise-176: Rank0(GPU0) Rank1(GPU1) Rank2(GPU0) Rank3(GPU1) 
+=====================
+
+=== Phase 2: Label Propagation ===
+[Rank 0/4] Phase2 시작 (GPU 0)
+[Rank 0] Phase2 초기 edge-cut 계산 시작...
+[Rank 1] GPU 1: NVIDIA GeForce RTX 3080 (메모리: 9886MB, 컴퓨트 능력: 8.6)
+[Rank 1/4] Phase2 시작 (GPU 1)
+[Rank 1] Phase2 초기 edge-cut 계산 시작...
+[Rank 2/4] Phase2 시작 (GPU 0)
+[Rank 2] Phase2 초기 edge-cut 계산 시작...
+[Rank 3/4] Phase2 시작 (GPU 1)
+[Rank 3] Phase2 초기 edge-cut 계산 시작...
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 75319740 edges
+Expected per label: 363459.8 vertices, 12553290.0 edges
+Label 0: 718595 vertices (1.977), 46774361 edges (3.726)
+Label 1: 264636 vertices (0.728), 10796386 edges (0.860)
+Label 2: 318554 vertices (0.876), 4079774 edges (0.325)
+Label 3: 330805 vertices (0.910), 5664758 edges (0.451)
+Label 4: 241107 vertices (0.663), 3202496 edges (0.255)
+Label 5: 307062 vertices (0.845), 4801965 edges (0.383)
+========================
+
+===========>>> ratio : 0.818731 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.4GB, 사용예정 8.0GB
+===========>>> ratio : 0.818731 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.818731 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.3GB, 사용예정 7.9GB
+===========>>> ratio : 0.818731 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 1864259 nodes and 56092963 edges
+Subgraph created with 1863208 nodes and 56265380 edges
+Subgraph created with 1863199 nodes and 56110585 edges
+[Rank 0] GPU 처리 완료: 225.31ms, 177037 변경사항
+[Rank 0] GPU 라벨 변경: 177037 (로컬 delta: 177037)
+Subgraph created with 1863650 nodes and 56242663 edges
+[Rank 1] GPU 처리 완료: 264.57ms, 186821 변경사항
+[Rank 1] GPU 라벨 변경: 186821 (로컬 delta: 186821)
+[Rank 2] GPU 처리 완료: 260.42ms, 188331 변경사항
+[Rank 2] GPU 라벨 변경: 188331 (로컬 delta: 188331)
+[Rank 3] GPU 처리 완료: 276.39ms, 176950 변경사항
+[Rank 3] GPU 라벨 변경: 176950 (로컬 delta: 176950)
+[Rank 0] Iter 0: 로컬 변경 177037개, 수신 변경 729139개
+[Rank 1] Iter 0: 로컬 변경 186821개, 수신 변경 729139개
+[Rank 3] Iter 0: 로컬 변경 176950개, 수신 변경 729139개
+[Rank 2] Iter 0: 로컬 변경 188331개, 수신 변경 729139개
+[Rank 0] Iter 1: Edge-cut 계산 중...
+[Rank 2] Iter 1: Edge-cut 계산 중...
+[Rank 3] Iter 1: Edge-cut 계산 중...
+[Rank 1] Iter 1: Edge-cut 계산 중...
+Iter 1: Edge-cut 43223832 (변화율: 10.341%)
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 71268984 edges
+Expected per label: 363459.8 vertices, 11878164.0 edges
+Label 0: 131223 vertices (0.361), 261145 edges (0.022)
+Label 1: 501804 vertices (1.381), 26660424 edges (2.244)
+Label 2: 458571 vertices (1.262), 13090446 edges (1.102)
+Label 3: 416020 vertices (1.145), 11508084 edges (0.969)
+Label 4: 243927 vertices (0.671), 4388603 edges (0.369)
+Label 5: 429214 vertices (1.181), 15360282 edges (1.293)
+========================
+
+===========>>> ratio : 0.670320 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.670320 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.670320 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.670320 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 1759949 nodes and 55955959 edges
+Subgraph created with 1759971 nodes and 56178653 edges
+Subgraph created with 1779898 nodes and 56197671 edges
+Subgraph created with 1775804 nodes and 55875811 edges
+[Rank 0] GPU 처리 완료: 236.54ms, 110026 변경사항
+[Rank 0] GPU 라벨 변경: 110026 (로컬 delta: 110026)
+[Rank 2] GPU 처리 완료: 237.91ms, 116247 변경사항
+[Rank 2] GPU 라벨 변경: 116247 (로컬 delta: 116247)
+[Rank 3] GPU 처리 완료: 275.00ms, 110838 변경사항
+[Rank 3] GPU 라벨 변경: 110838 (로컬 delta: 110838)
+[Rank 1] GPU 처리 완료: 271.37ms, 114206 변경사항
+[Rank 1] GPU 라벨 변경: 114206 (로컬 delta: 114206)
+[Rank 0] Iter 1: 로컬 변경 110026개, 수신 변경 451317개
+[Rank 3] Iter 1: 로컬 변경 110838개, 수신 변경 451317개
+[Rank 2] Iter 1: 로컬 변경 116247개, 수신 변경 451317개
+[Rank 1] Iter 1: 로컬 변경 114206개, 수신 변경 451317개
+[Rank 2] Iter 2: Edge-cut 계산 중...
+[Rank 0] Iter 2: Edge-cut 계산 중...
+[Rank 3] Iter 2: Edge-cut 계산 중...
+[Rank 1] Iter 2: Edge-cut 계산 중...
+Iter 2: Edge-cut 33679228 (변화율: 22.082%)
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 80813588 edges
+Expected per label: 363459.8 vertices, 13468931.3 edges
+Label 0: 147948 vertices (0.407), 643004 edges (0.048)
+Label 1: 166272 vertices (0.457), 459261 edges (0.034)
+Label 2: 555131 vertices (1.527), 21561042 edges (1.601)
+Label 3: 528398 vertices (1.454), 24902354 edges (1.849)
+Label 4: 312141 vertices (0.859), 9809548 edges (0.728)
+Label 5: 470869 vertices (1.296), 23438379 edges (1.740)
+========================
+
+===========>>> ratio : 0.548812 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.548812 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.548812 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.548812 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 1658798 nodes and 55722330 edges
+Subgraph created with 1657164 nodes and 55557238 edges
+[Rank 2] GPU 처리 완료: 230.59ms, 184523 변경사항
+[Rank 2] GPU 라벨 변경: 184523 (로컬 delta: 184523)
+Subgraph created with 1657028 nodes and 55550034 edges
+Subgraph created with 1658891 nodes and 55832455 edges
+[Rank 0] GPU 처리 완료: 228.50ms, 182022 변경사항
+[Rank 0] GPU 라벨 변경: 182022 (로컬 delta: 182022)
+[Rank 1] GPU 처리 완료: 258.59ms, 183305 변경사항
+[Rank 1] GPU 라벨 변경: 183305 (로컬 delta: 183305)
+[Rank 3] GPU 처리 완료: 261.87ms, 182098 변경사항
+[Rank 3] GPU 라벨 변경: 182098 (로컬 delta: 182098)
+[Rank 0] Iter 2: 로컬 변경 182022개, 수신 변경 731948개
+[Rank 1] Iter 2: 로컬 변경 183305개, 수신 변경 731948개
+[Rank 3] Iter 2: 로컬 변경 182098개, 수신 변경 731948개
+[Rank 2] Iter 2: 로컬 변경 184523개, 수신 변경 731948개
+[Rank 1] Iter 3: Edge-cut 계산 중...
+[Rank 0] Iter 3: Edge-cut 계산 중...
+[Rank 2] Iter 3: Edge-cut 계산 중...
+[Rank 3] Iter 3: Edge-cut 계산 중...
+Iter 3: Edge-cut 41016607 (변화율: 21.786%)
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 73476209 edges
+Expected per label: 363459.8 vertices, 12246034.8 edges
+Label 0: 582472 vertices (1.603), 37765251 edges (3.084)
+Label 1: 207455 vertices (0.571), 3745936 edges (0.306)
+Label 2: 307255 vertices (0.845), 1008766 edges (0.082)
+Label 3: 272306 vertices (0.749), 1128158 edges (0.092)
+Label 4: 547002 vertices (1.505), 29027197 edges (2.370)
+Label 5: 264269 vertices (0.727), 800901 edges (0.065)
+========================
+
+===========>>> ratio : 0.449329 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.449329 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.449329 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.449329 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 1631064 nodes and 55936716 edges
+Subgraph created with 1632978 nodes and 55966046 edges
+Subgraph created with 1634599 nodes and 56269886 edges
+[Rank 1] GPU 처리 완료: 236.02ms, 121762 변경사항
+[Rank 1] GPU 라벨 변경: 121762 (로컬 delta: 121762)
+[Rank 0] GPU 처리 완료: 220.00ms, 120783 변경사항
+[Rank 0] GPU 라벨 변경: 120783 (로컬 delta: 120783)
+Subgraph created with 1637063 nodes and 56190288 edges
+[Rank 3] GPU 처리 완료: 243.99ms, 121449 변경사항
+[Rank 3] GPU 라벨 변경: 121449 (로컬 delta: 121449)
+[Rank 2] GPU 처리 완료: 215.09ms, 122114 변경사항
+[Rank 2] GPU 라벨 변경: 122114 (로컬 delta: 122114)
+[Rank 2] Iter 3: 로컬 변경 122114개, 수신 변경 486108개
+[Rank 1] Iter 3: 로컬 변경 121762개, 수신 변경 486108개
+[Rank 3] Iter 3: 로컬 변경 121449개, 수신 변경 486108개
+[Rank 0] Iter 3: 로컬 변경 120783개, 수신 변경 486108개
+[Rank 2] Iter 4: Edge-cut 계산 중...
+[Rank 1] Iter 4: Edge-cut 계산 중...
+[Rank 3] Iter 4: Edge-cut 계산 중...
+[Rank 0] Iter 4: Edge-cut 계산 중...
+Iter 4: Edge-cut 34750569 (변화율: 15.277%)
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 79742247 edges
+Expected per label: 363459.8 vertices, 13290374.5 edges
+Label 0: 366811 vertices (1.009), 3376090 edges (0.254)
+Label 1: 533973 vertices (1.469), 62545224 edges (4.706)
+Label 2: 347120 vertices (0.955), 3812262 edges (0.287)
+Label 3: 309230 vertices (0.851), 5007953 edges (0.377)
+Label 4: 334696 vertices (0.921), 2161575 edges (0.163)
+Label 5: 288929 vertices (0.795), 2839143 edges (0.214)
+========================
+
+===========>>> ratio : 0.367879 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.367879 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.367879 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.367879 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 1494185 nodes and 53821726 edges
+Subgraph created with 1492931 nodes and 53893147 edges
+[Rank 2] GPU 처리 완료: 205.68ms, 62126 변경사항
+[Rank 2] GPU 라벨 변경: 62126 (로컬 delta: 62126)
+Subgraph created with 1491790 nodes and 53620842 edges
+Subgraph created with 1492413 nodes and 53652904 edges
+[Rank 0] GPU 처리 완료: 203.64ms, 60512 변경사항
+[Rank 0] GPU 라벨 변경: 60512 (로컬 delta: 60512)
+[Rank 3] GPU 처리 완료: 242.31ms, 60822 변경사항
+[Rank 3] GPU 라벨 변경: 60822 (로컬 delta: 60822)
+[Rank 1] GPU 처리 완료: 241.92ms, 61667 변경사항
+[Rank 1] GPU 라벨 변경: 61667 (로컬 delta: 61667)
+[Rank 2] Iter 4: 로컬 변경 62126개, 수신 변경 245127개
+[Rank 0] Iter 4: 로컬 변경 60512개, 수신 변경 245127개
+[Rank 3] Iter 4: 로컬 변경 60822개, 수신 변경 245127개
+[Rank 1] Iter 4: 로컬 변경 61667개, 수신 변경 245127개
+[Rank 2] Iter 5: Edge-cut 계산 중...
+[Rank 0] Iter 5: Edge-cut 계산 중...
+[Rank 1] Iter 5: Edge-cut 계산 중...
+[Rank 3] Iter 5: Edge-cut 계산 중...
+Iter 5: Edge-cut 58192779 (변화율: 67.458%)
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 56300037 edges
+Expected per label: 363459.8 vertices, 9383339.5 edges
+Label 0: 413035 vertices (1.136), 15063459 edges (1.605)
+Label 1: 352964 vertices (0.971), 3556470 edges (0.379)
+Label 2: 412674 vertices (1.135), 15441420 edges (1.646)
+Label 3: 338170 vertices (0.930), 9647450 edges (1.028)
+Label 4: 337972 vertices (0.930), 5549854 edges (0.591)
+Label 5: 325944 vertices (0.897), 7041384 edges (0.750)
+========================
+
+===========>>> ratio : 0.301194 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.301194 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.301194 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.301194 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 1491038 nodes and 54763972 edges
+Subgraph created with 1484836 nodes and 54422391 edges
+Subgraph created with 1489917 nodes and 54657138 edges
+Subgraph created with 1488398 nodes and 54475953 edges
+[Rank 2] GPU 처리 완료: 202.31ms, 59215 변경사항
+[Rank 2] GPU 라벨 변경: 59215 (로컬 delta: 59215)
+[Rank 0] GPU 처리 완료: 204.02ms, 59101 변경사항
+[Rank 0] GPU 라벨 변경: 59101 (로컬 delta: 59101)
+[Rank 3] GPU 처리 완료: 258.70ms, 59543 변경사항
+[Rank 3] GPU 라벨 변경: 59543 (로컬 delta: 59543)
+[Rank 1] GPU 처리 완료: 262.41ms, 59258 변경사항
+[Rank 1] GPU 라벨 변경: 59258 (로컬 delta: 59258)
+[Rank 3] Iter 5: 로컬 변경 59543개, 수신 변경 237117개
+[Rank 0] Iter 5: 로컬 변경 59101개, 수신 변경 237117개
+[Rank 1] Iter 5: 로컬 변경 59258개, 수신 변경 237117개
+[Rank 2] Iter 5: 로컬 변경 59215개, 수신 변경 237117개
+[Rank 1] Iter 6: Edge-cut 계산 중...
+[Rank 0] Iter 6: Edge-cut 계산 중...
+[Rank 3] Iter 6: Edge-cut 계산 중...
+[Rank 2] Iter 6: Edge-cut 계산 중...
+Iter 6: Edge-cut 45976160 (변화율: 20.993%)
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 68516656 edges
+Expected per label: 363459.8 vertices, 11419442.7 edges
+Label 0: 311911 vertices (0.858), 2165687 edges (0.190)
+Label 1: 412134 vertices (1.134), 15050905 edges (1.318)
+Label 2: 331958 vertices (0.913), 1477280 edges (0.129)
+Label 3: 337598 vertices (0.929), 11654366 edges (1.021)
+Label 4: 400714 vertices (1.102), 14642116 edges (1.282)
+Label 5: 386444 vertices (1.063), 23526302 edges (2.060)
+========================
+
+===========>>> ratio : 0.246597 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.246597 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.246597 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.246597 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 1506963 nodes and 55080496 edges
+Subgraph created with 1513283 nodes and 55321892 edges
+Subgraph created with 1510241 nodes and 55147691 edges
+[Rank 2] GPU 처리 완료: 223.35ms, 46016 변경사항
+[Rank 2] GPU 라벨 변경: 46016 (로컬 delta: 46016)
+[Rank 0] GPU 처리 완료: 228.21ms, 46031 변경사항
+[Rank 0] GPU 라벨 변경: 46031 (로컬 delta: 46031)
+[Rank 1] GPU 처리 완료: 234.52ms, 45760 변경사항
+[Rank 1] GPU 라벨 변경: 45760 (로컬 delta: 45760)
+Subgraph created with 1512134 nodes and 55413001 edges
+[Rank 3] GPU 처리 완료: 224.56ms, 46056 변경사항
+[Rank 3] GPU 라벨 변경: 46056 (로컬 delta: 46056)
+[Rank 0] Iter 6: 로컬 변경 46031개, 수신 변경 183863개
+[Rank 1] Iter 6: 로컬 변경 45760개, 수신 변경 183863개
+[Rank 2] Iter 6: 로컬 변경 46016개, 수신 변경 183863개
+[Rank 3] Iter 6: 로컬 변경 46056개, 수신 변경 183863개
+[Rank 2] Iter 7: Edge-cut 계산 중...
+[Rank 0] Iter 7: Edge-cut 계산 중...
+[Rank 1] Iter 7: Edge-cut 계산 중...
+[Rank 3] Iter 7: Edge-cut 계산 중...
+Iter 7: Edge-cut 51529466 (변화율: 12.079%)
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 62963350 edges
+Expected per label: 363459.8 vertices, 10493891.7 edges
+Label 0: 390595 vertices (1.075), 20822925 edges (1.984)
+Label 1: 337634 vertices (0.929), 3847320 edges (0.367)
+Label 2: 380747 vertices (1.048), 7250945 edges (0.691)
+Label 3: 363703 vertices (1.001), 18336878 edges (1.747)
+Label 4: 381911 vertices (1.051), 10504076 edges (1.001)
+Label 5: 326169 vertices (0.897), 2201206 edges (0.210)
+========================
+
+===========>>> ratio : 0.201897 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.201897 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.201897 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.201897 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 1360097 nodes and 53357648 edges
+Subgraph created with 1357500 nodes and 53188015 edges
+Subgraph created with 1358006 nodes and 53439181 edges
+Subgraph created with 1355808 nodes and 53207164 edges
+[Rank 2] GPU 처리 완료: 198.47ms, 33397 변경사항
+[Rank 2] GPU 라벨 변경: 33397 (로컬 delta: 33397)
+[Rank 0] GPU 처리 완료: 197.22ms, 33160 변경사항
+[Rank 0] GPU 라벨 변경: 33160 (로컬 delta: 33160)
+[Rank 1] GPU 처리 완료: 237.27ms, 33178 변경사항
+[Rank 1] GPU 라벨 변경: 33178 (로컬 delta: 33178)
+[Rank 3] GPU 처리 완료: 247.74ms, 33297 변경사항
+[Rank 3] GPU 라벨 변경: 33297 (로컬 delta: 33297)
+[Rank 0] Iter 7: 로컬 변경 33160개, 수신 변경 133032개
+[Rank 2] Iter 7: 로컬 변경 33397개, 수신 변경 133032개
+[Rank 3] Iter 7: 로컬 변경 33297개, 수신 변경 133032개
+[Rank 1] Iter 7: 로컬 변경 33178개, 수신 변경 133032개
+[Rank 0] Iter 8: Edge-cut 계산 중...
+[Rank 1] Iter 8: Edge-cut 계산 중...
+[Rank 3] Iter 8: Edge-cut 계산 중...
+[Rank 2] Iter 8: Edge-cut 계산 중...
+Iter 8: Edge-cut 52184707 (변화율: 1.272%) [수렴 진행: 1/10]
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 62308109 edges
+Expected per label: 363459.8 vertices, 10384684.8 edges
+Label 0: 328385 vertices (0.903), 2758846 edges (0.266)
+Label 1: 374385 vertices (1.030), 16442363 edges (1.583)
+Label 2: 424994 vertices (1.169), 20212209 edges (1.946)
+Label 3: 319814 vertices (0.880), 2295820 edges (0.221)
+Label 4: 388195 vertices (1.068), 13496238 edges (1.300)
+Label 5: 344986 vertices (0.949), 7102633 edges (0.684)
+========================
+
+===========>>> ratio : 0.165299 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.165299 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.165299 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.165299 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 1321242 nodes and 52846279 edges
+Subgraph created with 1326654 nodes and 53108329 edges
+Subgraph created with 1323337 nodes and 52960177 edges
+[Rank 1] GPU 처리 완료: 214.51ms, 32781 변경사항
+[Rank 2] GPU 처리 완료: 202.44ms, 32740 변경사항
+[Rank 1] GPU 라벨 변경: 32781 (로컬 delta: 32781)
+[Rank 2] GPU 라벨 변경: 32740 (로컬 delta: 32740)
+[Rank 0] GPU 처리 완료: 201.06ms, 32742 변경사항
+[Rank 0] GPU 라벨 변경: 32742 (로컬 delta: 32742)
+Subgraph created with 1329188 nodes and 53249792 edges
+[Rank 3] GPU 처리 완료: 217.44ms, 32717 변경사항
+[Rank 3] GPU 라벨 변경: 32717 (로컬 delta: 32717)
+[Rank 2] Iter 8: 로컬 변경 32740개, 수신 변경 130980개
+[Rank 1] Iter 8: 로컬 변경 32781개, 수신 변경 130980개
+[Rank 0] Iter 8: 로컬 변경 32742개, 수신 변경 130980개
+[Rank 3] Iter 8: 로컬 변경 32717개, 수신 변경 130980개
+[Rank 3] Iter 9: Edge-cut 계산 중...
+[Rank 0] Iter 9: Edge-cut 계산 중...
+[Rank 2] Iter 9: Edge-cut 계산 중...
+[Rank 1] Iter 9: Edge-cut 계산 중...
+Iter 9: Edge-cut 53754777 (변화율: 3.009%)
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 60738039 edges
+Expected per label: 363459.8 vertices, 10123006.5 edges
+Label 0: 374346 vertices (1.030), 11668535 edges (1.153)
+Label 1: 324651 vertices (0.893), 3536737 edges (0.349)
+Label 2: 385707 vertices (1.061), 3609530 edges (0.357)
+Label 3: 348475 vertices (0.959), 10734158 edges (1.060)
+Label 4: 355517 vertices (0.978), 4178730 edges (0.413)
+Label 5: 392063 vertices (1.079), 27010349 edges (2.668)
+========================
+
+===========>>> ratio : 0.135335 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.135335 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.135335 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.135335 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 1287462 nodes and 52896934 edges
+Subgraph created with 1277765 nodes and 52518369 edges
+[Rank 3] GPU 처리 완료: 201.01ms, 21237 변경사항
+[Rank 3] GPU 라벨 변경: 21237 (로컬 delta: 21237)
+Subgraph created with 1277267 nodes and 52502096 edges
+Subgraph created with 1284518 nodes and 52766165 edges
+[Rank 0] GPU 처리 완료: 190.23ms, 21018 변경사항
+[Rank 0] GPU 라벨 변경: 21018 (로컬 delta: 21018)
+[Rank 2] GPU 처리 완료: 201.46ms, 21172 변경사항
+[Rank 2] GPU 라벨 변경: 21172 (로컬 delta: 21172)
+[Rank 1] GPU 처리 완료: 236.11ms, 20977 변경사항
+[Rank 1] GPU 라벨 변경: 20977 (로컬 delta: 20977)
+[Rank 0] Iter 9: 로컬 변경 21018개, 수신 변경 84404개
+[Rank 1] Iter 9: 로컬 변경 20977개, 수신 변경 84404개
+[Rank 3] Iter 9: 로컬 변경 21237개, 수신 변경 84404개
+[Rank 2] Iter 9: 로컬 변경 21172개, 수신 변경 84404개
+[Rank 1] Iter 10: Edge-cut 계산 중...
+[Rank 3] Iter 10: Edge-cut 계산 중...
+[Rank 0] Iter 10: Edge-cut 계산 중...
+[Rank 2] Iter 10: Edge-cut 계산 중...
+Iter 10: Edge-cut 56700408 (변화율: 5.480%)
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 57792408 edges
+Expected per label: 363459.8 vertices, 9632068.0 edges
+Label 0: 349561 vertices (0.962), 4277768 edges (0.444)
+Label 1: 352871 vertices (0.971), 12934677 edges (1.343)
+Label 2: 414218 vertices (1.140), 16430979 edges (1.706)
+Label 3: 346847 vertices (0.954), 10860998 edges (1.128)
+Label 4: 354234 vertices (0.975), 7939137 edges (0.824)
+Label 5: 363028 vertices (0.999), 5348849 edges (0.555)
+========================
+
+===========>>> ratio : 0.110803 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.110803 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.110803 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.110803 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 1164221 nodes and 50159830 edges
+[Rank 0] GPU 처리 완료: 177.81ms, 16524 변경사항
+[Rank 0] GPU 라벨 변경: 16524 (로컬 delta: 16524)
+Subgraph created with 1174450 nodes and 50230116 edges
+Subgraph created with 1171329 nodes and 50374087 edges
+Subgraph created with 1160974 nodes and 49914845 edges
+[Rank 2] GPU 처리 완료: 180.70ms, 16426 변경사항
+[Rank 2] GPU 라벨 변경: 16426 (로컬 delta: 16426)
+[Rank 3] GPU 처리 완료: 232.69ms, 16578 변경사항
+[Rank 3] GPU 라벨 변경: 16578 (로컬 delta: 16578)
+[Rank 1] GPU 처리 완료: 258.50ms, 16540 변경사항
+[Rank 1] GPU 라벨 변경: 16540 (로컬 delta: 16540)
+[Rank 2] Iter 10: 로컬 변경 16426개, 수신 변경 66068개
+[Rank 3] Iter 10: 로컬 변경 16578개, 수신 변경 66068개
+[Rank 1] Iter 10: 로컬 변경 16540개, 수신 변경 66068개
+[Rank 0] Iter 10: 로컬 변경 16524개, 수신 변경 66068개
+[Rank 1] Iter 11: Edge-cut 계산 중...
+[Rank 3] Iter 11: Edge-cut 계산 중...
+[Rank 0] Iter 11: Edge-cut 계산 중...
+[Rank 2] Iter 11: Edge-cut 계산 중...
+Iter 11: Edge-cut 51617151 (변화율: 8.965%)
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 62875665 edges
+Expected per label: 363459.8 vertices, 10479277.5 edges
+Label 0: 372841 vertices (1.026), 11100375 edges (1.059)
+Label 1: 323203 vertices (0.889), 3353944 edges (0.320)
+Label 2: 389079 vertices (1.070), 4042434 edges (0.386)
+Label 3: 345951 vertices (0.952), 10386223 edges (0.991)
+Label 4: 354960 vertices (0.977), 8655123 edges (0.826)
+Label 5: 394725 vertices (1.086), 25337566 edges (2.418)
+========================
+
+===========>>> ratio : 0.090718 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.090718 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.090718 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.090718 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 966671 nodes and 45418477 edges
+[Rank 2] GPU 처리 완료: 173.22ms, 9521 변경사항
+[Rank 2] GPU 라벨 변경: 9521 (로컬 delta: 9521)
+Subgraph created with 953072 nodes and 44901535 edges
+Subgraph created with 952764 nodes and 44916358 edges
+Subgraph created with 977643 nodes and 45564216 edges
+[Rank 0] GPU 처리 완료: 176.69ms, 9437 변경사항
+[Rank 0] GPU 라벨 변경: 9437 (로컬 delta: 9437)
+[Rank 1] GPU 처리 완료: 216.13ms, 9300 변경사항
+[Rank 1] GPU 라벨 변경: 9300 (로컬 delta: 9300)
+[Rank 3] GPU 처리 완료: 224.75ms, 9410 변경사항
+[Rank 3] GPU 라벨 변경: 9410 (로컬 delta: 9410)
+[Rank 3] Iter 11: 로컬 변경 9410개, 수신 변경 37668개
+[Rank 1] Iter 11: 로컬 변경 9300개, 수신 변경 37668개
+[Rank 2] Iter 11: 로컬 변경 9521개, 수신 변경 37668개
+[Rank 0] Iter 11: 로컬 변경 9437개, 수신 변경 37668개
+[Rank 2] Iter 12: Edge-cut 계산 중...
+[Rank 0] Iter 12: Edge-cut 계산 중...
+[Rank 3] Iter 12: Edge-cut 계산 중...
+[Rank 1] Iter 12: Edge-cut 계산 중...
+Iter 12: Edge-cut 58109527 (변화율: 12.578%)
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 56383289 edges
+Expected per label: 363459.8 vertices, 9397214.8 edges
+Label 0: 363481 vertices (1.000), 7746935 edges (0.824)
+Label 1: 334612 vertices (0.921), 8517560 edges (0.906)
+Label 2: 407386 vertices (1.121), 13099156 edges (1.394)
+Label 3: 343329 vertices (0.945), 10872632 edges (1.157)
+Label 4: 356027 vertices (0.980), 8856689 edges (0.942)
+Label 5: 375924 vertices (1.034), 7290317 edges (0.776)
+========================
+
+===========>>> ratio : 0.074274 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.074274 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.074274 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.074274 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 801931 nodes and 41123143 edges
+[Rank 0] GPU 처리 완료: 164.34ms, 6085 변경사항
+[Rank 0] GPU 라벨 변경: 6085 (로컬 delta: 6085)
+Subgraph created with 800130 nodes and 40831726 edges
+Subgraph created with 809631 nodes and 41057263 edges
+Subgraph created with 824369 nodes and 41685499 edges
+[Rank 2] GPU 처리 완료: 165.60ms, 6081 변경사항
+[Rank 2] GPU 라벨 변경: 6081 (로컬 delta: 6081)
+[Rank 1] GPU 처리 완료: 216.42ms, 5995 변경사항
+[Rank 1] GPU 라벨 변경: 5995 (로컬 delta: 5995)
+[Rank 3] GPU 처리 완료: 202.73ms, 6195 변경사항
+[Rank 3] GPU 라벨 변경: 6195 (로컬 delta: 6195)
+[Rank 0] Iter 12: 로컬 변경 6085개, 수신 변경 24356개
+[Rank 3] Iter 12: 로컬 변경 6195개, 수신 변경 24356개
+[Rank 1] Iter 12: 로컬 변경 5995개, 수신 변경 24356개
+[Rank 2] Iter 12: 로컬 변경 6081개, 수신 변경 24356개
+[Rank 2] Iter 13: Edge-cut 계산 중...
+[Rank 3] Iter 13: Edge-cut 계산 중...
+[Rank 1] Iter 13: Edge-cut 계산 중...
+[Rank 0] Iter 13: Edge-cut 계산 중...
+Iter 13: Edge-cut 57970063 (변화율: 0.240%) [수렴 진행: 1/10]
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 56522753 edges
+Expected per label: 363459.8 vertices, 9420458.8 edges
+Label 0: 366205 vertices (1.008), 9360855 edges (0.994)
+Label 1: 336151 vertices (0.925), 8995521 edges (0.955)
+Label 2: 393310 vertices (1.082), 4648467 edges (0.493)
+Label 3: 342757 vertices (0.943), 10220972 edges (1.085)
+Label 4: 356570 vertices (0.981), 8926352 edges (0.948)
+Label 5: 385766 vertices (1.061), 14370586 edges (1.525)
+========================
+
+===========>>> ratio : 0.060810 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.060810 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.060810 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.060810 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 645644 nodes and 35246428 edges
+Subgraph created with 661949 nodes and 35540748 edges
+Subgraph created with 647087 nodes and 35294426 edges
+[Rank 2] GPU 처리 완료: 165.61ms, 3461 변경사항
+[Rank 2] GPU 라벨 변경: 3461 (로컬 delta: 3461)
+[Rank 0] GPU 처리 완료: 166.51ms, 3393 변경사항
+[Rank 0] GPU 라벨 변경: 3393 (로컬 delta: 3393)
+[Rank 1] GPU 처리 완료: 173.80ms, 3437 변경사항
+[Rank 1] GPU 라벨 변경: 3437 (로컬 delta: 3437)
+Subgraph created with 664564 nodes and 35777790 edges
+[Rank 3] GPU 처리 완료: 175.40ms, 3458 변경사항
+[Rank 3] GPU 라벨 변경: 3458 (로컬 delta: 3458)
+[Rank 0] Iter 13: 로컬 변경 3393개, 수신 변경 13749개
+[Rank 3] Iter 13: 로컬 변경 3458개, 수신 변경 13749개
+[Rank 1] Iter 13: 로컬 변경 3437개, 수신 변경 13749개
+[Rank 2] Iter 13: 로컬 변경 3461개, 수신 변경 13749개
+[Rank 3] Iter 14: Edge-cut 계산 중...
+[Rank 1] Iter 14: Edge-cut 계산 중...
+[Rank 0] Iter 14: Edge-cut 계산 중...
+[Rank 2] Iter 14: Edge-cut 계산 중...
+Iter 14: Edge-cut 59571924 (변화율: 2.763%) [수렴 진행: 2/10]
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 54920892 edges
+Expected per label: 363459.8 vertices, 9153482.0 edges
+Label 0: 364821 vertices (1.004), 10010143 edges (1.094)
+Label 1: 336830 vertices (0.927), 9731259 edges (1.063)
+Label 2: 402756 vertices (1.108), 8832225 edges (0.965)
+Label 3: 342310 vertices (0.942), 9777011 edges (1.068)
+Label 4: 356899 vertices (0.982), 8929262 edges (0.976)
+Label 5: 377143 vertices (1.038), 7640992 edges (0.835)
+========================
+
+===========>>> ratio : 0.049787 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.049787 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.049787 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.049787 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 755209 nodes and 41705045 edges
+Subgraph created with 750574 nodes and 41187053 edges
+[Rank 0] GPU 처리 완료: 159.55ms, 1838 변경사항
+[Rank 0] GPU 라벨 변경: 1838 (로컬 delta: 1838)
+Subgraph created with 778572 nodes and 42151553 edges
+Subgraph created with 768778 nodes and 42013287 edges
+[Rank 2] GPU 처리 완료: 181.24ms, 1907 변경사항
+[Rank 2] GPU 라벨 변경: 1907 (로컬 delta: 1907)
+[Rank 1] GPU 처리 완료: 185.42ms, 1895 변경사항
+[Rank 1] GPU 라벨 변경: 1895 (로컬 delta: 1895)
+[Rank 0] Iter 14: 로컬 변경 1838개, 수신 변경 7592개
+[Rank 2] Iter 14: 로컬 변경 1907개, 수신 변경 7592개
+[Rank 3] GPU 처리 완료: 190.67ms, 1952 변경사항
+[Rank 3] GPU 라벨 변경: 1952 (로컬 delta: 1952)
+[Rank 3] Iter 14: 로컬 변경 1952개, 수신 변경 7592개
+[Rank 1] Iter 14: 로컬 변경 1895개, 수신 변경 7592개
+[Rank 3] Iter 15: Edge-cut 계산 중...
+[Rank 0] Iter 15: Edge-cut 계산 중...
+[Rank 2] Iter 15: Edge-cut 계산 중...
+[Rank 1] Iter 15: Edge-cut 계산 중...
+Iter 15: Edge-cut 58452793 (변화율: 1.879%) [수렴 진행: 3/10]
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 56040023 edges
+Expected per label: 363459.8 vertices, 9340003.8 edges
+Label 0: 363891 vertices (1.001), 9142953 edges (0.979)
+Label 1: 335000 vertices (0.922), 8134999 edges (0.871)
+Label 2: 403022 vertices (1.109), 9972105 edges (1.068)
+Label 3: 342845 vertices (0.943), 9922137 edges (1.062)
+Label 4: 357128 vertices (0.983), 8978691 edges (0.961)
+Label 5: 378873 vertices (1.042), 9889138 edges (1.059)
+========================
+
+===========>>> ratio : 0.040762 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.040762 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.040762 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.040762 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 715831 nodes and 40053800 edges
+Subgraph created with 742168 nodes and 40999869 edges
+Subgraph created with 745996 nodes and 40820500 edges
+Subgraph created with 720929 nodes and 40565420 edges
+[Rank 2] GPU 처리 완료: 160.97ms, 1701 변경사항
+[Rank 2] GPU 라벨 변경: 1701 (로컬 delta: 1701)
+[Rank 1] GPU 처리 완료: 177.50ms, 1679 변경사항
+[Rank 1] GPU 라벨 변경: 1679 (로컬 delta: 1679)
+[Rank 0] GPU 처리 완료: 161.80ms, 1667 변경사항
+[Rank 0] GPU 라벨 변경: 1667 (로컬 delta: 1667)
+[Rank 3] GPU 처리 완료: 181.29ms, 1713 변경사항
+[Rank 3] GPU 라벨 변경: 1713 (로컬 delta: 1713)
+[Rank 3] Iter 15: 로컬 변경 1713개, 수신 변경 6760개
+[Rank 2] Iter 15: 로컬 변경 1701개, 수신 변경 6760개
+[Rank 1] Iter 15: 로컬 변경 1679개, 수신 변경 6760개
+[Rank 0] Iter 15: 로컬 변경 1667개, 수신 변경 6760개
+[Rank 0] Iter 16: Edge-cut 계산 중...
+[Rank 2] Iter 16: Edge-cut 계산 중...
+[Rank 3] Iter 16: Edge-cut 계산 중...
+[Rank 1] Iter 16: Edge-cut 계산 중...
+Iter 16: Edge-cut 57849098 (변화율: 1.033%) [수렴 진행: 4/10]
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 56643718 edges
+Expected per label: 363459.8 vertices, 9440619.7 edges
+Label 0: 364567 vertices (1.003), 10275355 edges (1.088)
+Label 1: 336074 vertices (0.925), 9196333 edges (0.974)
+Label 2: 402121 vertices (1.106), 8550911 edges (0.906)
+Label 3: 343225 vertices (0.944), 10122538 edges (1.072)
+Label 4: 357026 vertices (0.982), 8988017 edges (0.952)
+Label 5: 377746 vertices (1.039), 9510564 edges (1.007)
+========================
+
+===========>>> ratio : 0.033373 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.033373 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.033373 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.033373 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 661305 nodes and 38264561 edges
+Subgraph created with 672803 nodes and 39282267 edges
+Subgraph created with 691515 nodes and 39465919 edges
+Subgraph created with 689708 nodes and 39384338 edges
+[Rank 0] GPU 처리 완료: 160.62ms, 595 변경사항
+[Rank 0] GPU 라벨 변경: 595 (로컬 delta: 595)
+[Rank 2] GPU 처리 완료: 164.37ms, 678 변경사항
+[Rank 2] GPU 라벨 변경: 678 (로컬 delta: 678)
+[Rank 1] GPU 처리 완료: 185.99ms, 616 변경사항
+[Rank 1] GPU 라벨 변경: 616 (로컬 delta: 616)
+[Rank 3] GPU 처리 완료: 191.02ms, 609 변경사항
+[Rank 3] GPU 라벨 변경: 609 (로컬 delta: 609)
+[Rank 1] Iter 16: 로컬 변경 616개, 수신 변경 2498개
+[Rank 2] Iter 16: 로컬 변경 678개, 수신 변경 2498개
+[Rank 0] Iter 16: 로컬 변경 595개, 수신 변경 2498개
+[Rank 3] Iter 16: 로컬 변경 609개, 수신 변경 2498개
+[Rank 3] Iter 17: Edge-cut 계산 중...
+[Rank 0] Iter 17: Edge-cut 계산 중...
+[Rank 1] Iter 17: Edge-cut 계산 중...
+[Rank 2] Iter 17: Edge-cut 계산 중...
+Iter 17: Edge-cut 57757242 (변화율: 0.159%) [수렴 진행: 5/10]
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 56735574 edges
+Expected per label: 363459.8 vertices, 9455929.0 edges
+Label 0: 364308 vertices (1.002), 9841913 edges (1.041)
+Label 1: 336354 vertices (0.925), 9381863 edges (0.992)
+Label 2: 402157 vertices (1.106), 9188674 edges (0.972)
+Label 3: 343429 vertices (0.945), 10129549 edges (1.071)
+Label 4: 357051 vertices (0.982), 8994078 edges (0.951)
+Label 5: 377460 vertices (1.039), 9199497 edges (0.973)
+========================
+
+===========>>> ratio : 0.027324 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.027324 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.027324 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.027324 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 494878 nodes and 32175187 edges
+Subgraph created with 471401 nodes and 31104608 edges
+[Rank 2] GPU 처리 완료: 145.11ms, 364 변경사항
+[Rank 2] GPU 라벨 변경: 364 (로컬 delta: 364)
+Subgraph created with 472256 nodes and 31509704 edges
+[Rank 1] GPU 처리 완료: 168.31ms, 306 변경사항
+[Rank 1] GPU 라벨 변경: 306 (로컬 delta: 306)
+[Rank 0] GPU 처리 완료: 160.53ms, 347 변경사항
+[Rank 0] GPU 라벨 변경: 347 (로컬 delta: 347)
+Subgraph created with 492583 nodes and 31985962 edges
+[Rank 2] Iter 17: 로컬 변경 364개, 수신 변경 1351개
+[Rank 1] Iter 17: 로컬 변경 306개, 수신 변경 1351개
+[Rank 0] Iter 17: 로컬 변경 347개, 수신 변경 1351개
+[Rank 3] GPU 처리 완료: 171.74ms, 334 변경사항
+[Rank 3] GPU 라벨 변경: 334 (로컬 delta: 334)
+[Rank 3] Iter 17: 로컬 변경 334개, 수신 변경 1351개
+[Rank 3] Iter 18: Edge-cut 계산 중...
+[Rank 0] Iter 18: Edge-cut 계산 중...
+[Rank 1] Iter 18: Edge-cut 계산 중...
+[Rank 2] Iter 18: Edge-cut 계산 중...
+Iter 18: Edge-cut 57755995 (변화율: 0.002%) [수렴 진행: 6/10]
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 56736821 edges
+Expected per label: 363459.8 vertices, 9456136.8 edges
+Label 0: 364759 vertices (1.004), 9840497 edges (1.041)
+Label 1: 336714 vertices (0.926), 9383783 edges (0.992)
+Label 2: 401711 vertices (1.105), 9187705 edges (0.972)
+Label 3: 343632 vertices (0.945), 10128981 edges (1.071)
+Label 4: 357085 vertices (0.982), 8994183 edges (0.951)
+Label 5: 376858 vertices (1.037), 9201672 edges (0.973)
+========================
+
+===========>>> ratio : 0.022371 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.022371 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.022371 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.022371 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 410318 nodes and 28755894 edges
+Subgraph created with 432448 nodes and 30000828 edges
+[Rank 1] GPU 처리 완료: 144.22ms, 1 변경사항
+[Rank 1] GPU 라벨 변경: 1 (로컬 delta: 1)
+Subgraph created with 411581 nodes and 29191831 edges
+[Rank 2] GPU 처리 완료: 144.40ms, 0 변경사항
+[Rank 2] GPU 라벨 변경: 0 (로컬 delta: 0)
+[Rank 0] GPU 처리 완료: 154.63ms, 1 변경사항
+[Rank 0] GPU 라벨 변경: 1 (로컬 delta: 1)
+Subgraph created with 434672 nodes and 29866341 edges
+[Rank 0] Iter 18: 로컬 변경 1개, 수신 변경 4개
+[Rank 1] Iter 18: 로컬 변경 1개, 수신 변경 4개
+[Rank 3] GPU 처리 완료: 167.05ms, 2 변경사항
+[Rank 3] GPU 라벨 변경: 2 (로컬 delta: 2)
+[Rank 3] Iter 18: 로컬 변경 2개, 수신 변경 4개
+[Rank 2] Iter 18: 로컬 변경 0개, 수신 변경 4개
+[Rank 1] Iter 19: Edge-cut 계산 중...
+[Rank 0] Iter 19: Edge-cut 계산 중...
+[Rank 2] Iter 19: Edge-cut 계산 중...
+[Rank 3] Iter 19: Edge-cut 계산 중...
+Iter 19: Edge-cut 57755986 (변화율: 0.000%) [수렴 진행: 7/10]
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 56736830 edges
+Expected per label: 363459.8 vertices, 9456138.3 edges
+Label 0: 364758 vertices (1.004), 9839641 edges (1.041)
+Label 1: 336716 vertices (0.926), 9383789 edges (0.992)
+Label 2: 401710 vertices (1.105), 9187703 edges (0.972)
+Label 3: 343633 vertices (0.945), 10128983 edges (1.071)
+Label 4: 357085 vertices (0.982), 8994183 edges (0.951)
+Label 5: 376857 vertices (1.037), 9202531 edges (0.973)
+========================
+
+===========>>> ratio : 0.018316 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.018316 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.018316 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.018316 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 368922 nodes and 27001132 edges
+Subgraph created with 367548 nodes and 27383189 edges
+Subgraph created with 389454 nodes and 28430997 edges
+[Rank 0] GPU 처리 완료: 136.31ms, 0 변경사항
+[Rank 0] GPU 라벨 변경: 0 (로컬 delta: 0)
+[Rank 1] GPU 처리 완료: 142.78ms, 0 변경사항
+[Rank 1] GPU 라벨 변경: 0 (로컬 delta: 0)
+Subgraph created with 390749 nodes and 28113751 edges
+[Rank 2] GPU 처리 완료: 140.32ms, 1 변경사항
+[Rank 2] GPU 라벨 변경: 1 (로컬 delta: 1)
+[Rank 1] Iter 19: 로컬 변경 0개, 수신 변경 1개
+[Rank 2] Iter 19: 로컬 변경 1개, 수신 변경 1개
+[Rank 0] Iter 19: 로컬 변경 0개, 수신 변경 1개
+[Rank 3] GPU 처리 완료: 159.86ms, 0 변경사항
+[Rank 3] GPU 라벨 변경: 0 (로컬 delta: 0)
+[Rank 3] Iter 19: 로컬 변경 0개, 수신 변경 1개
+[Rank 1] Iter 20: Edge-cut 계산 중...
+[Rank 3] Iter 20: Edge-cut 계산 중...
+[Rank 2] Iter 20: Edge-cut 계산 중...
+[Rank 0] Iter 20: Edge-cut 계산 중...
+Iter 20: Edge-cut 57756352 (변화율: 0.001%) [수렴 진행: 8/10]
+
+=== Label Statistics (Master-Worker 방식) ===
+Total: 2180759 vertices, 56736464 edges
+Expected per label: 363459.8 vertices, 9456077.3 edges
+Label 0: 364757 vertices (1.004), 9837990 edges (1.040)
+Label 1: 336717 vertices (0.926), 9385074 edges (0.992)
+Label 2: 401710 vertices (1.105), 9187703 edges (0.972)
+Label 3: 343633 vertices (0.945), 10128983 edges (1.071)
+Label 4: 357085 vertices (0.982), 8994183 edges (0.951)
+Label 5: 376857 vertices (1.037), 9202531 edges (0.973)
+========================
+
+===========>>> ratio : 0.014996 <<<============[Rank 2] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.014996 <<<============[Rank 1] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.014996 <<<============[Rank 0] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+===========>>> ratio : 0.014996 <<<============[Rank 3] GPU 메모리: 전체 9.7GB, 사용가능 9.2GB, 사용예정 7.8GB
+Subgraph created with 347571 nodes and 26675158 edges
+Subgraph created with 330771 nodes and 25440891 edges
+Subgraph created with 332203 nodes and 25945381 edges
+[Rank 2] GPU 처리 완료: 133.87ms, 0 변경사항
+[Rank 2] GPU 라벨 변경: 0 (로컬 delta: 0)
+[Rank 0] GPU 처리 완료: 137.24ms, 0 변경사항
+[Rank 0] GPU 라벨 변경: 0 (로컬 delta: 0)
+[Rank 1] GPU 처리 완료: 138.92ms, 0 변경사항
+[Rank 1] GPU 라벨 변경: 0 (로컬 delta: 0)
+Subgraph created with 350327 nodes and 26474144 edges
+[Rank 0] Iter 20: 로컬 변경 0개, 수신 변경 0개
+Iter 21: 전체 시스템 수렴 완료 (변경사항 없음)
+[Rank 0] Phase2 완료 - GPU 0 총 실행시간: 30896ms
+[Rank 2] Iter 20: 로컬 변경 0개, 수신 변경 0개
+[Rank 2] Phase2 완료 - GPU 0 총 실행시간: 30896ms
+[Rank 1] Iter 20: 로컬 변경 0개, 수신 변경 0개
+[Rank 1] Phase2 완료 - GPU 1 총 실행시간: 30896ms
+[Rank 3] GPU 처리 완료: 153.27ms, 0 변경사항
+[Rank 3] GPU 라벨 변경: 0 (로컬 delta: 0)
+[Rank 3] Iter 20: 로컬 변경 0개, 수신 변경 0개
+[Rank 3] Phase2 완료 - GPU 1 총 실행시간: 30896ms
+[Rank 1] GPU 1 작업 완료
+[Rank 0] GPU 0 작업 완료
+=== Phase 1 Metrics ===
+Initial edge cut: 39173076
+Initial vertex balance: 1.9771
+Initial edge balance: 3.7261
+Loading time: 1118 ms
+Distribution time: 13482 ms
+Total vertices: 2180759
+Total edges: 114492816
+Partition vertex counts: 718595 264636 318554 330805 241107 307062 
+Partition edge counts: 46774361 10796386 4079774 5664758 3202496 4801965 
+
+
+┌─────────────────────────────────────────────────────────────┐
+│                    메트릭 비교 결과                         │
+├─────────────────────────────────────────────────────────────┤
+│ 그래프 정보:                                                │
+│   총 노드 수:        2180759                              │
+│   총 간선 수:      114492816                              │
+│   파티션 수:               6                              │
+│                                                             │
+│ Edge-cut:                                                   │
+│   Phase 1 (초기):   39173076                              │
+│   Phase 2 (최종):   57756352                              │
+│   개선율:           -47.44%                             │
+│                                                             │
+│ Vertex Balance:                                             │
+│   Phase 1 (초기):   1.9771                             │
+│   Phase 2 (최종):   1.1052                             │
+│   개선율:            44.10%                             │
+│                                                             │
+│ Edge Balance:                                               │
+│   Phase 1 (초기):   3.7261                             │
+│   Phase 2 (최종):   1.0712                             │
+│   개선율:            71.25%                             │
+│                                                             │
+│ 실행 시간:                                                  │
+│   Phase 1 (로딩):   1118 ms                          │
+│   Phase 1 (분산):  13482 ms                          │
+│   Phase 2 (7단계): 30896 ms                          │
+│   총 소요시간:     45496 ms                          │
+└─────────────────────────────────────────────────────────────┘
+
+=== 알고리즘 성능 요약 ===
+⚠ Edge-cut 47.4% 악화 (39173076 → 57756352)
+✓ Vertex Balance 44.1% 개선 (2.0 → 1.1)
+✓ Edge Balance 71.3% 개선 (3.7 → 1.1)
+총 소요시간: 45496 ms
+
+=== 7단계 알고리즘 완료 ===
+[Rank 2] GPU 0 작업 완료
+[Rank 3] GPU 1 작업 완료
