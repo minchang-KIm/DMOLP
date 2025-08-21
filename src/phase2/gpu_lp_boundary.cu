@@ -383,29 +383,45 @@ __global__ void boundaryLPKernel_unified(
         }
     }
     __syncwarp(); // 모든 이웃 처리 완료까지 대기
-    
-    // 워프 대표 스레드(lane 0)가 최종 라벨 결정
+
+    // 최종 후보 (라벨, 점수)
+    int best_label = my_label;
+    double best_score = (my_label >= 0 && my_label < effective_partitions) ?
+                        warp_scores[warp_in_block][my_label] : -1e300;
+
+    // penalty 적용 & chunking 기반 warp reduction
+    for (int base = 0; base < effective_partitions; base += WARP_SIZE) {
+        int candidate_label = base + lane_id;
+        double candidate_score = -1e300;
+
+        if (candidate_label < effective_partitions) {
+            double score = warp_scores[warp_in_block][candidate_label];
+            if (score > 0.0) {
+                score *= (1.0 + penalty[candidate_label]);
+            }
+            candidate_score = score;
+        }
+
+        // warp reduction: 현재 chunk 내 최대값 찾기
+        const unsigned FULL_MASK = 0xffffffff;
+        for (int offset = WARP_SIZE / 2; offset > 0; offset >>= 1) {
+            double other_score = __shfl_down_sync(FULL_MASK, candidate_score, offset);
+            int other_label = __shfl_down_sync(FULL_MASK, candidate_label, offset);
+            if (other_score > candidate_score) {
+                candidate_score = other_score;
+                candidate_label = other_label;
+            }
+        }
+
+        // lane 0이 chunk별 최댓값을 global best와 비교
+        if (lane_id == 0 && candidate_score > best_score) {
+            best_score = candidate_score;
+            best_label = candidate_label;
+        }
+    }
+
+    // 최종 라벨 기록
     if (lane_id == 0) {
-        // 1단계: 패널티 적용하여 최종 스코어 계산
-        for (int l = 0; l < effective_partitions; l++) {
-            if (warp_scores[warp_in_block][l] > 0.0) {
-                warp_scores[warp_in_block][l] = warp_scores[warp_in_block][l] * (1.0 + penalty[l]);
-            }
-        }
-        
-        // 2단계: 최고 스코어를 가진 라벨 찾기
-        int best_label = my_label;
-        double best_score = (my_label >= 0 && my_label < effective_partitions) ? 
-                           warp_scores[warp_in_block][my_label] : 0.0;
-        
-        for (int l = 0; l < effective_partitions; l++) {
-            if (warp_scores[warp_in_block][l] > best_score) {
-                best_score = warp_scores[warp_in_block][l];
-                best_label = l;
-            }
-        }
-        
-        // 3단계: 새 라벨 저장
         labels_new[subgraph_node_idx] = best_label;
     }
 }
